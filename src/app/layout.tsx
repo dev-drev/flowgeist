@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -28,11 +29,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <nav className="flex gap-6 p-4 border-b mb-8">
-          <a href="/" className="font-bold">
+          <Link href="/" className="font-bold">
             Home
-          </a>
-          <a href="/about">About</a>
-          <a href="/music">Music</a>
+          </Link>
+          <Link href="/about">About</Link>
+          <Link href="/music">Music</Link>
         </nav>
         {children}
       </body>
