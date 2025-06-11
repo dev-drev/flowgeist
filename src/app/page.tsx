@@ -25,8 +25,8 @@ export default function Home() {
     <main className="flex min-h-[80vh] w-full">
       <div className="w-1/2 flex items-center justify-center">
         <div className="text-[200px] font-extrabold tracking-tight uppercase leading-[0.8] text-left">
-          <div>FLOW</div>
-          <div className="-mt-2">GEIST.</div>
+          <div>.FLOW</div>
+          <div className="-mt-2 text-[215px]">GEIST.</div>
         </div>
       </div>
       <div className="w-1/2 flex items-center justify-center">
