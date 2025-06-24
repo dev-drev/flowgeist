@@ -45,7 +45,7 @@ export default function Home() {
           <div className="text-[150px] font-extrabold tracking-tight text-left text-black font-grotesque">
             _flowgeist
           </div>
-          <div className="mt-8 max-w-2xl pl-28 pt-10">
+          <div className="mt-8 text-justify  ml-28 pt-10 w-full">
             <p className="text-lg leading-relaxed text-gray-800 font-grotesque">
               Artists, producers, free spirits, and sonic explorers. Welcome to
               our musical universe — a space where every beat speaks, every
@@ -68,32 +68,17 @@ export default function Home() {
         <div className="w-1/2 flex items-start justify-center p-16">
           <div className="w-full max-w-md">
             <h2 className="text-2xl font-bold text-black uppercase font-grotesque mb-8 border-b-2 border-black pb-2">
-              AD 93 | project proposal
+              AD 93 | DEMOS
             </h2>
             <div className="space-y-4">
               {tracks.map((track, index) => (
                 <div
                   key={track.id}
-                  className="flex items-center space-x-4 group hover:bg-gray-100 p-2 rounded transition-colors"
+                  className="flex items-center space-x-4 group hover:bg-gray-100 p-2 pl-0 rounded transition-colors"
                 >
-                  {/* Track number */}
-                  <div className="text-sm font-mono text-gray-500 w-8 text-right">
-                    {String(track.id).padStart(2, "0")}
-                  </div>
-
                   {/* Play button */}
-                  <button className="cursor-pointer w-8 h-8 bg-white text-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
-                    <svg
-                      className="w-4 h-4 ml-0.5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                  <button className="cursor-pointer w-8 h-8 text-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
+                    <img src="/play.png" alt="play" className="w-4 h-4" />
                   </button>
 
                   {/* Track title */}
