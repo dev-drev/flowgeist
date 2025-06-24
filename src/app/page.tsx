@@ -39,13 +39,13 @@ export default function Home() {
       {/* Background Image */}
 
       {/* Content overlay */}
-      <div className="relative z-10 flex w-full">
+      <div className="relative z-10 flex w-full flex-col lg:flex-row">
         {/* Left side - Title and About */}
-        <div className="w-1/2 flex items-start justify-left p-16 flex-col">
-          <div className="text-[150px] font-extrabold tracking-tight text-left text-black font-grotesque">
+        <div className="lg:w-1/2 flex items-start justify-left lg:p-16 flex-col">
+          <div className="lg:text-[150px] text-[50px] font-extrabold tracking-tight text-left text-black font-grotesque">
             _flowgeist
           </div>
-          <div className="mt-8 text-justify  ml-28 pt-10 w-full">
+          <div className="mt-8 text-justify  lg:ml-28 pt-10 w-full">
             <p className="text-lg leading-relaxed text-gray-800 font-grotesque">
               Artists, producers, free spirits, and sonic explorers. Welcome to
               our musical universe — a space where every beat speaks, every
