@@ -272,11 +272,11 @@ export default function Home() {
       <div className="relative z-10 flex w-full flex-col lg:flex-row">
         {/* Left side - Title and About */}
         <div className="lg:w-1/2 flex items-start justify-left lg:p-8 p-4 flex-col">
-          <div className="lg:text-[150px] text-[50px] font-extrabold tracking-tight text-left text-black font-grotesque">
+          <div className="lg:text-[8vw] xl:text-[10vw] text-[60px] font-extrabold tracking-tight text-left text-black font-grotesque">
             _flowgeist
           </div>
-          <div className="mt-8 text-justify lg:ml-28 pt-10 w-full lg:max-w-[600px] px-4 lg:px-0">
-            <p className="text-lg leading-relaxed text-gray-800 font-grotesque">
+          <div className="mt-4 lg:mt-8 text-justify lg:ml-[2vw] xl:ml-[3vw] pt-2 lg:pt-10 w-full lg:max-w-[40vw] xl:max-w-[45vw] px-4 lg:pl-16">
+            <p className="text-lg lg:text-[1.2vw] xl:text-[1.3vw] leading-relaxed text-gray-800 font-grotesque">
               Flowgeist is a project guided by instinct and emotion, unfolding
               in that hazy space where structure softens into abstraction. With
               genre deliberately left aside, it merges polyhedral sonic ranges
@@ -287,44 +287,12 @@ export default function Home() {
 
         {/* Right side - Track List */}
         <div className="w-full lg:w-1/2 flex items-start justify-center lg:p-16 p-4">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md px-4 lg:px-0">
             <h2 className="text-2xl font-bold text-black uppercase font-grotesque mb-8 border-b-2 border-black pb-2">
               {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
             </h2>
 
             {/* File Upload Controls */}
-            <div className="mb-6 flex gap-2">
-              {!useLocalFiles && (
-                <button
-                  onClick={() => {
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.multiple = true;
-                    input.accept = "audio/*";
-                    input.onchange = (e) => {
-                      const files = Array.from(
-                        (e.target as HTMLInputElement).files || []
-                      );
-                      if (files.length > 0) {
-                        handleFilesSelected(files);
-                      }
-                    };
-                    input.click();
-                  }}
-                  className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors font-grotesque text-sm"
-                >
-                  Carica file audio
-                </button>
-              )}
-              {useLocalFiles && (
-                <button
-                  onClick={handleResetToDefault}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors font-grotesque text-sm"
-                >
-                  Torna ai demo
-                </button>
-              )}
-            </div>
 
             <div className="space-y-4">
               {tracks.map((track) => (
