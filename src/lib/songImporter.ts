@@ -15,7 +15,7 @@ export const AVAILABLE_SONGS: SongFile[] = [
     id: 1,
     title: "Void You Hide",
     duration: "4:32",
-    audioFile: "/songs/01 Flowgeist - Void You Hide (SSL Fusion Mix V1).wav",
+    audioFile: "/songs/Void You Hide.wav",
     originalName: "01 Flowgeist - Void You Hide (SSL Fusion Mix V1).wav",
     size: 69,
   },
