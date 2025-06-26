@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { supabase } from "@/lib/supabase";
 import { Track } from "@/app/admin/page";
 
 interface FileUploadProps {
@@ -76,39 +75,9 @@ Suggerimenti:
       const filePath = `audio/${fileName}`;
 
       // Upload diretto a Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from("audio-files")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw new Error(uploadError.message);
-      }
-
-      // Ottieni URL pubblico
-      const { data: urlData } = supabase.storage
-        .from("audio-files")
-        .getPublicUrl(filePath);
-
-      // Salva metadati nel database
-      const { data: trackData, error: dbError } = await supabase
-        .from("tracks")
-        .insert([
-          {
-            title: title || file.name.replace(/\.[^/.]+$/, ""),
-            duration: duration || "0:00",
-            audio_file: urlData.publicUrl,
-            waveform: null,
-          },
-        ])
-        .select()
-        .single();
-
-      if (dbError) {
-        throw new Error(dbError.message);
-      }
+      // const { error: uploadError } = await supabase.storage
+      // const { data: urlData } = supabase.storage
+      // const { data: trackData, error: dbError } = await supabase
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -119,8 +88,6 @@ Suggerimenti:
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-
-      onUploadSuccess(trackData);
 
       // Reset progress dopo 3 secondi
       setTimeout(() => {
