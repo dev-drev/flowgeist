@@ -6,9 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "upload-audio": "node scripts/upload-audio.js"
   },
   "dependencies": {
+    "cloudinary": "^2.7.0",
+    "firebase": "^11.9.1",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
