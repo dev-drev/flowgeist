@@ -1,17 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Track } from "@/app/admin/page";
 
 interface FileUploadProps {
-  onUploadSuccess: (track: Track) => void;
   onUploadError: (error: string) => void;
 }
 
-export default function FileUpload({
-  onUploadSuccess,
-  onUploadError,
-}: FileUploadProps) {
+export default function FileUpload({ onUploadError }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadSpeed, setUploadSpeed] = useState("");
@@ -69,15 +64,6 @@ Suggerimenti:
     try {
       // Genera nome file unico
       const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2)}.${fileExt}`;
-      const filePath = `audio/${fileName}`;
-
-      // Upload diretto a Supabase Storage
-      // const { error: uploadError } = await supabase.storage
-      // const { data: urlData } = supabase.storage
-      // const { data: trackData, error: dbError } = await supabase
 
       clearInterval(progressInterval);
       setUploadProgress(100);
