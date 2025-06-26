@@ -152,6 +152,16 @@ const AudioPlayer = ({
         src={track.file ? URL.createObjectURL(track.file) : track.audioFile}
         preload="metadata"
         onEnded={() => onTogglePlay(null)}
+        onError={(e) => {
+          console.error("Audio error for:", track.title, e);
+          console.error("Audio src:", track.audioFile);
+        }}
+        onLoadStart={() => {
+          console.log("Loading audio:", track.title, track.audioFile);
+        }}
+        onCanPlay={() => {
+          console.log("Audio can play:", track.title);
+        }}
       />
     </div>
   );
