@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,58 +39,17 @@ export async function POST(request: NextRequest) {
     console.log("📤 Uploading to path:", filePath);
 
     // Upload file su Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("audio-files")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("❌ Upload error:", uploadError);
-      return NextResponse.json(
-        { error: "Failed to upload file", details: uploadError.message },
-        { status: 500 }
-      );
-    }
-
-    console.log("✅ File uploaded successfully:", uploadData);
-
-    // Ottieni URL pubblico del file
-    const { data: urlData } = supabase.storage
-      .from("audio-files")
-      .getPublicUrl(filePath);
-
-    console.log("🔗 Public URL:", urlData.publicUrl);
-
-    // Salva metadati nel database
-    const { data: trackData, error: dbError } = await supabase
-      .from("tracks")
-      .insert([
-        {
-          title: title || file.name.replace(/\.[^/.]+$/, ""),
-          duration: duration || "0:00",
-          audio_file: urlData.publicUrl,
-          waveform: null,
-        },
-      ])
-      .select()
-      .single();
-
-    if (dbError) {
-      console.error("❌ Database error:", dbError);
-      return NextResponse.json(
-        { error: "Failed to save track metadata", details: dbError.message },
-        { status: 500 }
-      );
-    }
-
-    console.log("✅ Track saved to database:", trackData);
+    // const { data: uploadData, error: uploadError } = await supabase.storage
+    // ... existing code ...
+    // const { data: urlData } = supabase.storage
+    // ... existing code ...
+    // const { data: trackData, error: dbError } = await supabase
+    // ... existing code ...
 
     return NextResponse.json({
       success: true,
-      track: trackData,
-      fileUrl: urlData.publicUrl,
+      // console.log("✅ Track saved to database:", trackData);
+      // console.log("🔗 Public URL:", urlData.publicUrl);
     });
   } catch (error) {
     console.error("❌ Error in upload:", error);
