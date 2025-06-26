@@ -5,9 +5,6 @@ import Image from "next/image";
 import DynamicTitle from "@/components/DynamicTitle";
 import { getAllSongs } from "@/lib/songImporter";
 
-const description =
-  "Artists, producers, free spirits, and sonic explorers. Welcome to our musical universe — a space where every beat speaks, every texture breathes, and every note is a portal to raw emotion, untold ideas, and vivid visions. We're a duo driven by instinct, guided by atmosphere, and inspired by the shadows between silence and sound. In our world, rhythm is language, melody is memory, and experimentation is a way of life. This is not just music. It's a journey — deep, immersive, unpredictable. Step inside. Feel the frequencies. Let go.";
-
 // TypeScript interfaces
 interface Track {
   id: number;
@@ -164,7 +161,7 @@ export default function Home() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackId, setCurrentTrackId] = useState<number | null>(null);
-  const [useLocalFiles, setUseLocalFiles] = useState(false);
+  const [useLocalFiles] = useState(false);
 
   // Get current track title for dynamic title
   const currentTrack = tracks.find((track) => track.id === currentTrackId);
