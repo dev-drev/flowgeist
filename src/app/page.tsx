@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { PT_Mono } from "next/font/google";
+import Image from "next/image";
 import DynamicTitle from "@/components/DynamicTitle";
 import { getAllSongs } from "@/lib/songImporter";
-
-const ptMono = PT_Mono({ weight: "400", subsets: ["latin"] });
 
 const description =
   "Artists, producers, free spirits, and sonic explorers. Welcome to our musical universe — a space where every beat speaks, every texture breathes, and every note is a portal to raw emotion, untold ideas, and vivid visions. We're a duo driven by instinct, guided by atmosphere, and inspired by the shadows between silence and sound. In our world, rhythm is language, melody is memory, and experimentation is a way of life. This is not just music. It's a journey — deep, immersive, unpredictable. Step inside. Feel the frequencies. Let go.";
@@ -106,7 +104,7 @@ const AudioPlayer = ({
               />
             </svg>
           ) : (
-            <img src="/play.png" alt="play" className="w-4 h-4" />
+            <Image src="/play.png" alt="play" width={16} height={16} />
           )}
         </button>
 
@@ -160,29 +158,6 @@ const AudioPlayer = ({
       />
     </div>
   );
-};
-
-// File Upload Component
-const FileUpload = ({
-  onFilesSelected,
-}: {
-  onFilesSelected: (files: File[]) => void;
-}) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    const audioFiles = files.filter((file) => file.type.startsWith("audio/"));
-    if (audioFiles.length > 0) {
-      onFilesSelected(audioFiles);
-    }
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  return <div></div>;
 };
 
 export default function Home() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import FileUpload from "@/components/FileUpload";
 
 interface Track {
@@ -28,13 +28,6 @@ export default function AdminPage() {
     text: string;
   } | null>(null);
 
-  // Load tracks on component mount
-  useEffect(() => {
-    if (!useLocalFiles) {
-      loadTracks();
-    }
-  }, [useLocalFiles]);
-
   const loadTracks = async () => {
     try {
       const response = await fetch("/api/tracks");
@@ -45,6 +38,13 @@ export default function AdminPage() {
       showMessage("error", "Errore nel caricamento delle tracce");
     }
   };
+
+  // Load tracks on component mount
+  useEffect(() => {
+    if (!useLocalFiles) {
+      loadTracks();
+    }
+  }, [useLocalFiles, loadTracks]);
 
   const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
@@ -178,28 +178,6 @@ export default function AdminPage() {
   const handleAdd = () => {
     setIsAdding(true);
     setEditingTrack(null);
-  };
-
-  const handleFilesSelected = (files: File[]) => {
-    const newTracks: Track[] = files.map((file, index) => ({
-      id: index + 1,
-      title: file.name.replace(/\.[^/.]+$/, ""), // Rimuove l'estensione
-      duration: "0:00", // Sarà calcolata quando il file viene caricato
-      audioFile: "",
-      file: file,
-    }));
-
-    setTracks(newTracks);
-    setUseLocalFiles(true);
-    setEditingTrack(null);
-    setIsAdding(false);
-  };
-
-  const handleResetToDefault = () => {
-    setUseLocalFiles(false);
-    setTracks([]);
-    setEditingTrack(null);
-    setIsAdding(false);
   };
 
   return (
