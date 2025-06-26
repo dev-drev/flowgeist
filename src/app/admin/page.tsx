@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import FileUpload from "@/components/FileUpload";
 
-interface Track {
+export interface Track {
   id: number;
   title: string;
   duration: string;
@@ -16,7 +16,7 @@ export default function AdminPage() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [useLocalFiles, setUseLocalFiles] = useState(false);
+  const [useLocalFiles] = useState(false);
   const [newTrack, setNewTrack] = useState({
     title: "",
     duration: "",

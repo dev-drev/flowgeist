@@ -2,9 +2,10 @@
 
 import { useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
+import { Track } from "@/app/admin/page";
 
 interface FileUploadProps {
-  onUploadSuccess: (track: any) => void;
+  onUploadSuccess: (track: Track) => void;
   onUploadError: (error: string) => void;
 }
 
@@ -19,7 +20,6 @@ export default function FileUpload({
   const [title, setTitle] = useState("");
   const [duration, setDuration] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -56,8 +56,6 @@ Suggerimenti:
     setUploadSpeed("");
     setTimeRemaining("");
 
-    const startTime = Date.now();
-
     // Simula progress bar per upload diretto
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
@@ -78,7 +76,7 @@ Suggerimenti:
       const filePath = `audio/${fileName}`;
 
       // Upload diretto a Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("audio-files")
         .upload(filePath, file, {
           cacheControl: "3600",
