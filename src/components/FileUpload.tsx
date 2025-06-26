@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 
 interface FileUploadProps {
+  onUploadSuccess: (track: Track) => void;
   onUploadError: (error: string) => void;
 }
 
