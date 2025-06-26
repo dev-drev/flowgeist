@@ -28,30 +28,29 @@ export default function AdminPage() {
     text: string;
   } | null>(null);
 
-  const loadTracks = async () => {
-    try {
-      const response = await fetch("/api/tracks");
-      const data = await response.json();
-      setTracks(data.tracks || []);
-    } catch (error) {
-      console.error("Error loading tracks:", error);
-      showMessage("error", "Errore nel caricamento delle tracce");
-    }
-  };
-
-  // Load tracks on component mount
   useEffect(() => {
+    const loadTracks = async () => {
+      try {
+        const response = await fetch("/api/tracks");
+        const data = await response.json();
+        setTracks(data.tracks || []);
+      } catch (error) {
+        console.error("Error loading tracks:", error);
+        showMessage("error", "Errore nel caricamento delle tracce");
+      }
+    };
+
     if (!useLocalFiles) {
       loadTracks();
     }
-  }, [useLocalFiles, loadTracks]);
+  }, [useLocalFiles]);
 
   const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
   };
 
-  const handleUploadSuccess = (track: any) => {
+  const handleUploadSuccess = (track: Track) => {
     setTracks([track, ...tracks]);
     showMessage("success", "File caricato con successo!");
 
@@ -68,21 +67,7 @@ export default function AdminPage() {
     showMessage("error", `Errore upload: ${error}`);
   };
 
-  const saveTracks = async (updatedTracks: Track[]) => {
-    try {
-      // Per ora manteniamo la compatibilità con il vecchio sistema
-      // In futuro possiamo implementare operazioni batch
-      console.log("Saving tracks:", updatedTracks);
-      setTracks(updatedTracks);
-      setEditingTrack(null);
-      setIsAdding(false);
-      setNewTrack({ title: "", duration: "", audioFile: "", waveform: "" });
-    } catch (error) {
-      console.error("Error saving tracks:", error);
-    }
-  };
-
-  const createTrack = async (trackData: any) => {
+  const createTrack = async (trackData: Track) => {
     try {
       const response = await fetch("/api/tracks", {
         method: "POST",

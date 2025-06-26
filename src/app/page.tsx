@@ -161,7 +161,6 @@ const AudioPlayer = ({
 };
 
 export default function Home() {
-  const [typed, setTyped] = useState("");
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackId, setCurrentTrackId] = useState<number | null>(null);
@@ -187,17 +186,6 @@ export default function Home() {
     }
   };
 
-  // Typewriter effect for description
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setTyped(description.slice(0, i + 1));
-      i++;
-      if (i === description.length) clearInterval(interval);
-    }, 30);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleTogglePlay = (trackId: number | null) => {
     if (currentTrackId === trackId) {
       // Stop current track
@@ -208,28 +196,6 @@ export default function Home() {
       setIsPlaying(true);
       setCurrentTrackId(trackId);
     }
-  };
-
-  const handleFilesSelected = (files: File[]) => {
-    const newTracks: Track[] = files.map((file, index) => ({
-      id: index + 1,
-      title: file.name.replace(/\.[^/.]+$/, ""), // Rimuove l'estensione
-      duration: "0:00", // Sarà calcolata quando il file viene caricato
-      audioFile: "",
-      file: file,
-    }));
-
-    setTracks(newTracks);
-    setUseLocalFiles(true);
-    setIsPlaying(false);
-    setCurrentTrackId(null);
-  };
-
-  const handleResetToDefault = () => {
-    setUseLocalFiles(false);
-    setTracks([]);
-    setIsPlaying(false);
-    setCurrentTrackId(null);
   };
 
   return (
