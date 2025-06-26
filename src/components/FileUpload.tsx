@@ -62,9 +62,6 @@ Suggerimenti:
     }, 500);
 
     try {
-      // Genera nome file unico
-      const fileExt = file.name.split(".").pop();
-
       clearInterval(progressInterval);
       setUploadProgress(100);
 
