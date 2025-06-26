@@ -50,19 +50,6 @@ export default function AdminPage() {
     setTimeout(() => setMessage(null), 5000);
   };
 
-  const handleUploadSuccess = (track: Track) => {
-    setTracks([track, ...tracks]);
-    showMessage("success", "File caricato con successo!");
-
-    // Change page title to show the new track
-    document.title = `🎵 ${track.title} caricato - Flowgeist Admin`;
-
-    // Reset title after 3 seconds
-    setTimeout(() => {
-      document.title = "Flowgeist Admin";
-    }, 3000);
-  };
-
   const handleUploadError = (error: string) => {
     showMessage("error", `Errore upload: ${error}`);
   };
@@ -195,10 +182,7 @@ export default function AdminPage() {
           )}
 
           {/* File Upload Component */}
-          <FileUpload
-            onUploadSuccess={handleUploadSuccess}
-            onUploadError={handleUploadError}
-          />
+          <FileUpload onUploadError={handleUploadError} />
 
           {/* Status indicator */}
           {useLocalFiles && (
