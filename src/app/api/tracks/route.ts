@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // GET - Recupera tutte le tracce
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     return NextResponse.json({ success: true, tracks: [] });
   } catch (error) {

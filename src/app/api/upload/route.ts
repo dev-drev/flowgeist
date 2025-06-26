@@ -6,8 +6,6 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const title = formData.get("title") as string;
-    const duration = formData.get("duration") as string;
 
     console.log("📁 File info:", {
       name: file?.name,
