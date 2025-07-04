@@ -110,7 +110,7 @@ const AudioPlayer = ({
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-center space-x-4 group hover:bg-gray-100 p-3 lg:p-2 pl-0 rounded transition-colors w-full">
+      <div className="flex items-center space-x-4 group p-3 lg:p-2 pl-0 rounded transition-colors w-full">
         <button
           onClick={handleTogglePlay}
           disabled={!isPreloaded}
