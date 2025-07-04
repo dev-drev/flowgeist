@@ -367,7 +367,7 @@ export default function Home() {
       <div className="fixed inset-0 w-full h-full overflow-hidden z-0">
         {videoURL && (
           <video
-            key={videoSource}
+            key={`${videoSource}-${Date.now()}`}
             autoPlay
             loop
             muted
@@ -383,7 +383,11 @@ export default function Home() {
             ref={(el) => {
               if (el) {
                 try {
-                  el.playbackRate = 0.1; // Rallenta il video al 10% della velocità normale
+                  el.load(); // Forza il ricaricamento del video
+                  // Imposta la velocità dopo che il video è caricato
+                  el.addEventListener("loadedmetadata", () => {
+                    el.playbackRate = 0.1; // Rallenta il video al 10% della velocità normale
+                  });
                 } catch (error) {
                   console.log("Playback rate adjustment failed:", error);
                 }
@@ -409,7 +413,7 @@ export default function Home() {
       <div className="relative z-10 flex w-full flex-col lg:flex-row">
         {/* Left side - Title and About */}
         <div className="lg:w-1/2 flex items-start justify-left lg:p-16 p-4 flex-col">
-          <div className="lg:text-[8vw] xl:text-[3vw] text-[60px] font-extrabold tracking-tight text-left text-white font-grotesque lg:pl-8">
+          <div className="lg:text-[8vw] xl:text-[3vw] text-[40px] font-extrabold tracking-tight text-left text-white font-grotesque lg:pl-8">
             _flowgeist
           </div>
           <div className="mt-4 lg:mt-8 text-justify pt-2 lg:pt-10 w-full lg:max-w-[40vw] xl:max-w-[45vw] px-4 lg:pl-8">
