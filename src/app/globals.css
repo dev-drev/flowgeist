@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --background: #D9D8D5;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-grotesque: var(--font-grotesque);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+  --background: #D9D8D5;
+  --foreground: #171717;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom slider styles */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #000;
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #000;
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-webkit-slider-track {
+  background: transparent;
+}
+
+.slider::-moz-range-track {
+  background: transparent;
+}

@@ -1,0 +1,67 @@
+{
+  "tracks": [
+    {
+      "id": 1,
+      "title": "Void You Hide",
+      "duration": "4:32",
+      "audioFile": "/audio/track1.wav",
+      "waveform": "/waveforms/track1.png"
+    },
+    {
+      "id": 2,
+      "title": "The Scarecrow",
+      "duration": "3:45",
+      "audioFile": "/audio/track2.wav",
+      "waveform": "/waveforms/track2.png"
+    },
+    {
+      "id": 3,
+      "title": "Fatal Faith",
+      "duration": "5:18",
+      "audioFile": "/audio/track3.wav",
+      "waveform": "/waveforms/track3.png"
+    },
+    {
+      "id": 4,
+      "title": "Like a Bug",
+      "duration": "4:07",
+      "audioFile": "/audio/track4.wav",
+      "waveform": "/waveforms/track4.png"
+    },
+    {
+      "id": 5,
+      "title": "Veiled Strophes",
+      "duration": "6:23",
+      "audioFile": "/audio/track5.wav",
+      "waveform": "/waveforms/track5.png"
+    },
+    {
+      "id": 6,
+      "title": "Amarcord",
+      "duration": "3:58",
+      "audioFile": "/audio/track6.wav",
+      "waveform": "/waveforms/track6.png"
+    },
+    {
+      "id": 7,
+      "title": "Prophets of Lies",
+      "duration": "4:51",
+      "audioFile": "/audio/track7.wav",
+      "waveform": "/waveforms/track7.png"
+    },
+    {
+      "id": 8,
+      "title": "Vanished Swan",
+      "duration": "5:34",
+      "audioFile": "/audio/track8.wav",
+      "waveform": "/waveforms/track8.png"
+    },
+    {
+      "id": 9,
+      "title": "Meaningful Quest",
+      "duration": "7:12",
+      "audioFile": "/audio/track9.wav",
+      "waveform": "/waveforms/track9.png"
+    }
+  ]
+}
