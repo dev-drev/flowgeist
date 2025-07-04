@@ -49,7 +49,7 @@ export const AVAILABLE_SONGS: SongFile[] = [
   {
     id: 5,
     title: "Veiled Strophes",
-    duration: "7:12",
+    duration: "6:23",
     audioFile: "",
     originalName: "Veiled Strophes.wav",
     size: 76,
@@ -72,6 +72,14 @@ export const AVAILABLE_SONGS: SongFile[] = [
   },
   {
     id: 8,
+    title: "Vanished Swan",
+    duration: "5:34",
+    audioFile: "",
+    originalName: "Vanished Swan.wav",
+    size: 71,
+  },
+  {
+    id: 9,
     title: "Meaningful Quest",
     duration: "7:12",
     audioFile: "",
