@@ -223,7 +223,7 @@ export default function Home() {
   );
   const [videoSource, setVideoSource] = useState("");
   const [videoURL, setVideoURL] = useState<string | null>(null);
-  const [colorScheme, setColorScheme] = useState("normal");
+  const [colorScheme, setColorScheme] = useState("red");
   const [isLoading, setIsLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [artists] = useState(getFeaturedArtists());
@@ -430,7 +430,7 @@ export default function Home() {
             style={{
               filter:
                 colorScheme === "red"
-                  ? "hue-rotate(0deg) saturate(1.8) brightness(0.9) contrast(1.2) sepia(0.1)"
+                  ? "hue-rotate(0deg) saturate(2.2) brightness(0.7) contrast(1.4) sepia(0.2)"
                   : "none",
               transform: "scaleY(-1)",
             }}
@@ -466,9 +466,9 @@ export default function Home() {
         {/* Overlay condizionale per colorare il video e migliorare la leggibilità del testo */}
         {colorScheme === "red" ? (
           <>
-            <div className="absolute inset-0 bg-red-900/60 mix-blend-multiply"></div>
-            <div className="absolute inset-0 bg-red-950/40 mix-blend-overlay"></div>
-            <div className="absolute inset-0 bg-black/30"></div>
+            <div className="absolute inset-0 bg-red-900/70 mix-blend-multiply"></div>
+            <div className="absolute inset-0 bg-red-950/50 mix-blend-overlay"></div>
+            <div className="absolute inset-0 bg-black/50"></div>
           </>
         ) : (
           <div className="absolute inset-0 bg-black/10"></div>
@@ -502,12 +502,10 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.8 + index * 0.2 }}
-                    className="flex flex-col items-center group"
+                    className="flex flex-col items-center group cursor-pointer"
+                    onClick={() => handleArtistClick(artist)}
                   >
-                    <button
-                      onClick={() => handleArtistClick(artist)}
-                      className="w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden mb-3 border-2 border-white/20 group-hover:border-white/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50"
-                    >
+                    <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden mb-3 border-2 border-white/20 group-hover:border-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
                       <img
                         src={artist.image}
                         alt={artist.name}
@@ -520,8 +518,8 @@ export default function Home() {
                           )}%3C/text%3E%3C/svg%3E`;
                         }}
                       />
-                    </button>
-                    <span className="text-xs lg:text-sm text-white/70 font-grotesque text-center">
+                    </div>
+                    <span className="text-xs lg:text-sm text-white/70 font-grotesque text-center group-hover:text-white/90 transition-colors">
                       {artist.name}
                     </span>
                   </motion.div>
@@ -700,6 +698,16 @@ export default function Home() {
                         >
                           <span>Visit Profile</span>
                         </a>
+                        {selectedArtist.link2 && (
+                          <a
+                            href={selectedArtist.link2}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
+                          >
+                            <span>{selectedArtist.link2Label || "Link 2"}</span>
+                          </a>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -801,6 +809,25 @@ export default function Home() {
                       <span>View Profile</span>
                     </div>
                   </a>
+                  {selectedArtist.link2 && (
+                    <a
+                      href={selectedArtist.link2}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition-colors font-medium font-grotesque"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
+                        </svg>
+                        <span>{selectedArtist.link2Label || "Link 2"}</span>
+                      </div>
+                    </a>
+                  )}
                 </div>
               </div>
             </motion.div>
