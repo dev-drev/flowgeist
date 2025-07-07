@@ -442,7 +442,7 @@ export default function Home() {
       <div className="relative z-10 flex w-full flex-col lg:flex-row">
         {/* Left side - Title and About */}
         <div className="lg:w-1/2 flex items-start justify-left lg:p-16 p-4 flex-col">
-          <div className="lg:text-[8vw] xl:text-[3vw] text-[40px] font-extrabold tracking-tight text-left text-white font-grotesque lg:pl-8">
+          <div className="lg:text-[8vw] xl:text-[3vw] text-[30px] font-extrabold tracking-tight text-left text-white font-grotesque pl-4 lg:pl-8">
             _flowgeist
           </div>
           <div className="mt-4 lg:mt-8 text-justify pt-2 lg:pt-10 w-full lg:max-w-[40vw] xl:max-w-[45vw] px-4 lg:pl-8">
