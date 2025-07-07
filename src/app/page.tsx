@@ -318,7 +318,7 @@ export default function Home() {
     if (tracks.length > 0) {
       preloadAudioFiles();
     }
-  }, [preloadAudioFiles]);
+  }, [preloadAudioFiles, tracks.length]);
 
   const loadSongsFromFirebase = async () => {
     try {
