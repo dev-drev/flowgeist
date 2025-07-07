@@ -537,7 +537,7 @@ export default function Home() {
             {/* Blurry background behind tracks */}
             <div className="absolute inset-0 bg-black/10 backdrop-blur-md rounded-lg -z-10"></div>
 
-            <div className="flex items-center justify-between mb-8 border-b-2 border-white pb-2">
+            <div className="flex items-center justify-between mb-8 border-b-1 pb-4">
               <h2 className="text-2xl font-bold text-white uppercase font-grotesque">
                 {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
               </h2>
@@ -545,7 +545,7 @@ export default function Home() {
                 href="https://soundcloud.com/flowgeist"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-4 flex items-center gap-2 bg-white/10 hover:bg-orange-500/90 text-white font-semibold px-4 py-2 rounded-full transition-colors border border-white/20 shadow-sm"
+                className="ml-4 flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-full transition-colors border border-white/20 shadow-sm"
               >
                 <svg
                   viewBox="0 0 32 32"
@@ -556,7 +556,7 @@ export default function Home() {
                 >
                   <path d="M25.6 18.667c-0.267 0-0.533 0.027-0.8 0.08-0.267-2.987-2.773-5.28-5.867-5.28-0.64 0-1.28 0.107-1.92 0.32-0.267 0.093-0.427 0.373-0.373 0.64v8.213c0 0.267 0.213 0.48 0.48 0.48h8.48c2.027 0 3.68-1.653 3.68-3.68s-1.653-3.68-3.68-3.68zM7.573 22.507c0.267 0 0.48-0.213 0.48-0.48v-6.507c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v6.507c0 0.267 0.213 0.48 0.48 0.48zM10.293 22.507c0.267 0 0.48-0.213 0.48-0.48v-7.36c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v7.36c0 0.267 0.213 0.48 0.48 0.48zM13.013 22.507c0.267 0 0.48-0.213 0.48-0.48v-8.213c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v8.213c0 0.267 0.213 0.48 0.48 0.48z"></path>
                 </svg>
-                <span className="hidden sm:inline">Soundcloud</span>
+                <span className="hidden sm:inline text-[10px]">SOUNDCLOUD</span>
               </a>
             </div>
 
@@ -698,13 +698,6 @@ export default function Home() {
                           rel="noopener noreferrer"
                           className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
                         >
-                          <svg
-                            className="w-5 h-5"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
-                          </svg>
                           <span>Visit Profile</span>
                         </a>
                       </div>
