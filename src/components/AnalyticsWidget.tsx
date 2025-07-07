@@ -47,14 +47,31 @@ export default function AnalyticsWidget({
           totalClicks: data.summary.totalClicks,
           totalDownloads: data.summary.totalDownloads,
           totalViews: data.summary.totalViews,
-          recentActivity: data.trackingData.slice(0, 5).map((item: any) => ({
-            trackTitle: item.trackTitle,
-            action: item.action,
-            timestamp: new Date(
-              item.timestamp?.toDate?.() || item.timestamp
-            ).toLocaleString("it-IT"),
-            country: item.geoInfo?.country,
-          })),
+          recentActivity: data.trackingData
+            .slice(0, 5)
+            .map((item: Record<string, unknown>) => ({
+              trackTitle: item.trackTitle as string,
+              action: item.action as string,
+              timestamp: (() => {
+                const timestamp = item.timestamp as
+                  | { toDate?: () => Date }
+                  | Date
+                  | null;
+                if (
+                  timestamp &&
+                  typeof timestamp === "object" &&
+                  "toDate" in timestamp &&
+                  timestamp.toDate
+                ) {
+                  return new Date(timestamp.toDate()).toLocaleString("it-IT");
+                } else if (timestamp instanceof Date) {
+                  return timestamp.toLocaleString("it-IT");
+                } else {
+                  return new Date().toLocaleString("it-IT");
+                }
+              })(),
+              country: (item.geoInfo as { country?: string })?.country,
+            })),
         });
       }
     } catch (error) {

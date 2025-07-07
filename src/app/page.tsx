@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ScaleLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -297,14 +297,7 @@ export default function Home() {
     }
   }, [useLocalFiles]);
 
-  // Preload audio files for better performance
-  useEffect(() => {
-    if (tracks.length > 0) {
-      preloadAudioFiles();
-    }
-  }, [tracks]);
-
-  const preloadAudioFiles = async () => {
+  const preloadAudioFiles = useCallback(async () => {
     const audioElements: HTMLAudioElement[] = [];
 
     tracks.forEach((track) => {
@@ -318,7 +311,14 @@ export default function Home() {
 
       audioElements.push(audio);
     });
-  };
+  }, [tracks]);
+
+  // Preload audio files for better performance
+  useEffect(() => {
+    if (tracks.length > 0) {
+      preloadAudioFiles();
+    }
+  }, [preloadAudioFiles]);
 
   const loadSongsFromFirebase = async () => {
     try {

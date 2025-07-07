@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     );
 
     const querySnapshot = await getDocs(q);
-    const trackingData: any[] = [];
+    const trackingData: Record<string, unknown>[] = [];
 
     querySnapshot.forEach((doc) => {
       const data = doc.data() as Record<string, unknown>;
