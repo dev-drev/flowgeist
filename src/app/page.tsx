@@ -515,16 +515,16 @@ export default function Home() {
                     onClick={() => handleArtistClick(artist)}
                   >
                     <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden mb-3 border-2 border-white/20 group-hover:border-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
-                      <img
+                      <Image
                         src={artist.image}
                         alt={artist.name}
+                        width={80}
+                        height={80}
                         className={`w-full h-full object-cover ${
                           artist.id === "artist1" ? "grayscale" : ""
                         }`}
-                        onError={(e) => {
-                          e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dy='.3em'%3E${artist.name.charAt(
-                            0
-                          )}%3C/text%3E%3C/svg%3E`;
+                        onError={() => {
+                          // Fallback handled by Next.js Image component
                         }}
                       />
                     </div>
@@ -674,16 +674,16 @@ export default function Home() {
                   >
                     {/* Artist Image */}
                     <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0">
-                      <img
+                      <Image
                         src={selectedArtist.image}
                         alt={selectedArtist.name}
+                        width={128}
+                        height={128}
                         className={`w-full h-full object-cover ${
                           selectedArtist.id === "artist1" ? "grayscale" : ""
                         }`}
-                        onError={(e) => {
-                          e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dy='.3em'%3E${selectedArtist.name.charAt(
-                            0
-                          )}%3C/text%3E%3C/svg%3E`;
+                        onError={() => {
+                          // Fallback handled by Next.js Image component
                         }}
                       />
                     </div>
@@ -775,16 +775,16 @@ export default function Home() {
               <div className="text-center">
                 {/* Artist Image */}
                 <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden mx-auto mb-6 border-2 border-white/30">
-                  <img
+                  <Image
                     src={selectedArtist.image}
                     alt={selectedArtist.name}
+                    width={128}
+                    height={128}
                     className={`w-full h-full object-cover ${
                       selectedArtist.id === "artist1" ? "grayscale" : ""
                     }`}
-                    onError={(e) => {
-                      e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dy='.3em'%3E${selectedArtist.name.charAt(
-                        0
-                      )}%3C/text%3E%3C/svg%3E`;
+                    onError={() => {
+                      // Fallback handled by Next.js Image component
                     }}
                   />
                 </div>

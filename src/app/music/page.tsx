@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import { motion } from "framer-motion";
 import { useTracking } from "@/lib/useTracking";
+import Image from "next/image";
 
 interface Track {
   id: number;
@@ -166,12 +167,14 @@ export default function Music() {
                 transition={{ delay: 0.6 + index * 0.1 }}
                 className="mb-4"
               >
-                <img
+                <Image
                   src={track.waveform}
                   alt={`Waveform for ${track.title}`}
+                  width={400}
+                  height={80}
                   className="w-full h-20 object-cover rounded-lg"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
+                  onError={() => {
+                    // Fallback handled by Next.js Image component
                   }}
                 />
               </motion.div>
