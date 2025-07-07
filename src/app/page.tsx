@@ -8,6 +8,7 @@ import CircularProgress from "@/components/CircularProgress";
 import DynamicTitle from "@/components/DynamicTitle";
 import { getAllSongs } from "@/lib/songImporter";
 import { getVideoURL } from "@/lib/firebase";
+import { getVideoPath, checkLocalVideoExists } from "@/lib/videoConfig";
 
 // TypeScript interfaces
 interface Track {
@@ -237,13 +238,28 @@ export default function Home() {
   useEffect(() => {
     const loadInitialVideo = async () => {
       try {
-        const url = await getVideoURL("output5.mp4");
-        setVideoURL(url);
-        setVideoSource("output5.mp4");
+        console.log("🎬 Loading video with smart fallback...");
+
+        // Prima prova il video locale
+        const localVideoPath = await getVideoPath("output5", true);
+        const localVideoExists = await checkLocalVideoExists(localVideoPath);
+
+        if (localVideoExists) {
+          setVideoURL(localVideoPath);
+          setVideoSource("output5.mp4");
+          console.log("✅ Video loaded from local storage (fast)");
+        } else {
+          console.log("⚠️ Local video not found, trying Firebase...");
+          // Fallback a Firebase
+          const url = await getVideoURL("output5.mp4");
+          setVideoURL(url);
+          setVideoSource("output5.mp4");
+          console.log("🔄 Video loaded from Firebase Storage");
+        }
       } catch (error) {
-        console.error("Error loading initial video:", error);
-        // Fallback to local file if Firebase fails
-        setVideoURL("/output5.mp4");
+        console.error("❌ Error loading video:", error);
+        // Ultimo fallback
+        setVideoURL("/videos/output5.mp4");
         setVideoSource("output5.mp4");
       }
     };
@@ -372,7 +388,7 @@ export default function Home() {
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               filter:
