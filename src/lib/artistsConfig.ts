@@ -24,10 +24,10 @@ export const FEATURED_ARTISTS: Artist[] = [
     name: "Velvet May",
     image: "/artists/artist2.png",
     link: "https://instagram.com/velvetxmay",
-    link2: "https://velvetmay.bandcamp.com/track/broken-ballad",
-    link2Label: "Latest",
+    link2: "https://linktr.ee/velvetmay",
+    link2Label: "Linktree",
     description:
-      "As a versatile live performer, singer and DJ, he ventures beyond the ordinary, blending experimentation, meticulous sound design, and rhythmic beats that echo the cutting-edge landscapes of electronic music. His musical expression is a vibrant fusion, marrying Industrial grit and evocative Body Music and Rock elements and unfolds as an independent variant, weaving influences of psychedelic and breakbeat into his sonic repertoire.",
+      "As a versatile live performer, singer and DJ, he ventures beyond the ordinary, blending experimentation, meticulous sound design, and rhythmic beats that echo the cutting-edge landscapes of electronic music. His musical expression is a vibrant fusion, marrying Industrial grit, evocative Body Music and Rock elements and unfolds as an independent variant, weaving influences of psychedelic and breakbeat into his sonic repertoire.",
   },
 ];
 
