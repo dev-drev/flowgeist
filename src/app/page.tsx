@@ -441,7 +441,7 @@ export default function Home() {
 
         {/* Right side - Track List */}
         <div className="w-full lg:w-1/2 flex items-start justify-center lg:p-16 p-4">
-          <div className="w-full max-w-md px-4 lg:px-0 relative">
+          <div className="w-full max-w-md p-6 relative">
             {/* Blurry background behind tracks */}
             <div className="absolute inset-0 bg-black/20 backdrop-blur-md rounded-lg -z-10"></div>
 
