@@ -443,7 +443,7 @@ export default function Home() {
         <div className="w-full lg:w-1/2 flex items-start justify-center lg:p-16 p-4">
           <div className="w-full max-w-md p-6 relative">
             {/* Blurry background behind tracks */}
-            <div className="absolute inset-0 bg-black/20 backdrop-blur-md rounded-lg -z-10"></div>
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-md rounded-lg -z-10"></div>
 
             <h2 className="text-2xl font-bold text-white uppercase font-grotesque mb-8 border-b-2 border-white pb-2">
               {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
