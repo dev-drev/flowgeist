@@ -222,6 +222,8 @@ export default function Home() {
   const [videoSource, setVideoSource] = useState("");
   const [videoURL, setVideoURL] = useState<string | null>(null);
   const [colorScheme, setColorScheme] = useState("normal");
+  const [isLoading, setIsLoading] = useState(true);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   // Get current track title for dynamic title
   const currentTrack = tracks.find((track) => track.id === currentTrackId);
@@ -235,45 +237,25 @@ export default function Home() {
   useEffect(() => {
     const loadInitialVideo = async () => {
       try {
-        const url = await getVideoURL("output4.mp4");
+        const url = await getVideoURL("output5.mp4");
         setVideoURL(url);
-        setVideoSource("output4.mp4");
+        setVideoSource("output5.mp4");
       } catch (error) {
         console.error("Error loading initial video:", error);
         // Fallback to local file if Firebase fails
-        setVideoURL("/output4.mp4");
-        setVideoSource("output4.mp4");
+        setVideoURL("/output5.mp4");
+        setVideoSource("output5.mp4");
       }
     };
 
     loadInitialVideo();
   }, []);
 
-  // Change video source to output.mp4 and activate red color after 15 seconds
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      try {
-        const url = await getVideoURL("output.mp4");
-        setVideoURL(url);
-        setVideoSource("output.mp4");
-        setColorScheme("red");
-      } catch (error) {
-        console.error("Error loading second video:", error);
-        // Fallback to local file if Firebase fails
-        setVideoURL("/output.mp4");
-        setVideoSource("output.mp4");
-        setColorScheme("red");
-      }
-    }, 15000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Disable color filters after 5 seconds
+  // Hide loader after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
-      setColorScheme("normal");
-    }, 5000);
+      setIsLoading(false);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -356,6 +338,24 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen w-full relative">
+      {/* Loading Screen */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4">
+              <ScaleLoader
+                color="#ffffff"
+                height={40}
+                width={4}
+                radius={2}
+                margin={2}
+              />
+            </div>
+            <p className="text-white text-lg font-grotesque">_flowgeist</p>
+          </div>
+        </div>
+      )}
+
       {/* Dynamic Title Component */}
       <DynamicTitle
         isPlaying={isPlaying}
@@ -372,6 +372,7 @@ export default function Home() {
             loop
             muted
             playsInline
+            preload="metadata"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               filter:
@@ -380,10 +381,22 @@ export default function Home() {
                   : "none",
               transform: "scaleY(-1)",
             }}
+            onLoadStart={() => {
+              console.log("Video loading started");
+            }}
+            onLoadedMetadata={() => {
+              console.log("Video metadata loaded");
+              setVideoLoaded(true);
+            }}
+            onCanPlay={() => {
+              console.log("Video can play");
+            }}
+            onError={(e) => {
+              console.error("Video error:", e);
+            }}
             ref={(el) => {
               if (el) {
                 try {
-                  el.load(); // Forza il ricaricamento del video
                   // Imposta la velocità dopo che il video è caricato
                   el.addEventListener("loadedmetadata", () => {
                     el.playbackRate = 0.1; // Rallenta il video al 10% della velocità normale
@@ -428,7 +441,10 @@ export default function Home() {
 
         {/* Right side - Track List */}
         <div className="w-full lg:w-1/2 flex items-start justify-center lg:p-16 p-4">
-          <div className="w-full max-w-md px-4 lg:px-0">
+          <div className="w-full max-w-md px-4 lg:px-0 relative">
+            {/* Blurry background behind tracks */}
+            <div className="absolute inset-0 bg-black/20 backdrop-blur-md rounded-lg -z-10"></div>
+
             <h2 className="text-2xl font-bold text-white uppercase font-grotesque mb-8 border-b-2 border-white pb-2">
               {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
             </h2>
