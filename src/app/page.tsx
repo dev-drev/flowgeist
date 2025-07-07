@@ -10,6 +10,7 @@ import { getAllSongs } from "@/lib/songImporter";
 import { getVideoURL } from "@/lib/firebase";
 import { getVideoPath, checkLocalVideoExists } from "@/lib/videoConfig";
 import { getFeaturedArtists, Artist } from "@/lib/artistsConfig";
+import { useTracking } from "@/lib/useTracking";
 
 // TypeScript interfaces
 interface Track {
@@ -27,6 +28,7 @@ interface AudioPlayerProps {
   isPlaying: boolean;
   onTogglePlay: (trackId: number | null) => void;
   currentTrackId: number | null;
+  onTrackClick?: (trackId: number, trackTitle: string) => void;
 }
 
 // Audio Player Component
@@ -36,6 +38,7 @@ const AudioPlayer = ({
   onTogglePlay,
   currentTrackId,
   isPreloaded,
+  onTrackClick,
 }: AudioPlayerProps & { isPreloaded: boolean }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const isCurrentTrack = currentTrackId === track.id;
@@ -84,6 +87,11 @@ const AudioPlayer = ({
   }, []);
 
   const handleTogglePlay = () => {
+    // Track the click event
+    if (onTrackClick) {
+      onTrackClick(track.id, track.title);
+    }
+
     if (isCurrentTrack && isPlaying) {
       onTogglePlay(null);
     } else {
@@ -230,6 +238,7 @@ export default function Home() {
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [isArtistModalOpen, setIsArtistModalOpen] = useState(false);
   const [isArtistPanelOpen, setIsArtistPanelOpen] = useState(false);
+  const { trackClick, trackPlay, trackView } = useTracking();
 
   // Get current track title for dynamic title
   const currentTrack = tracks.find((track) => track.id === currentTrackId);
@@ -344,13 +353,13 @@ export default function Home() {
     if (currentTrackId === trackId) {
       // Stop current track
       setIsPlaying(false);
-      // Removed useAnalytics hook, so no tracking here
       setCurrentTrackId(null);
     } else {
       // Play new track - always reset position
       const newTrack = tracks.find((track) => track.id === trackId);
       if (newTrack) {
-        // Removed useAnalytics hook, so no tracking here
+        // Track the play event
+        trackPlay(newTrack.id, newTrack.title);
       }
       setIsPlaying(true);
       setCurrentTrackId(trackId);
@@ -580,6 +589,7 @@ export default function Home() {
                       delay: index * 0.1, // Delay progressivo per effetto cascade
                       ease: "easeOut",
                     }}
+                    onViewportEnter={() => trackView(track.id, track.title)}
                   >
                     <AudioPlayer
                       track={track}
@@ -587,6 +597,7 @@ export default function Home() {
                       onTogglePlay={handleTogglePlay}
                       currentTrackId={currentTrackId}
                       isPreloaded={preloadedTracks.has(track.id)}
+                      onTrackClick={trackClick}
                     />
                   </motion.div>
                 ))}

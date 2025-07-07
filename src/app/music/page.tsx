@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import { motion } from "framer-motion";
+import { useTracking } from "@/lib/useTracking";
 
 interface Track {
   id: number;
@@ -19,6 +20,7 @@ export default function Music() {
     new Set()
   );
   const [filter, setFilter] = useState("all");
+  const { trackClick, trackDownload, trackView } = useTracking();
 
   useEffect(() => {
     const fetchTracks = async () => {
@@ -44,6 +46,9 @@ export default function Music() {
     setDownloadingTracks((prev) => new Set(prev).add(track.id));
 
     try {
+      // Track the download event
+      await trackDownload(track.id, track.title);
+
       // Simulate download process
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -142,6 +147,7 @@ export default function Music() {
               scale: 1.05,
               transition: { duration: 0.2 },
             }}
+            onViewportEnter={() => trackView(track.id, track.title)}
             className="border border-gray-200 p-6 rounded-xl shadow-lg bg-white hover:shadow-2xl transition-all duration-300"
           >
             <div className="flex items-center justify-between mb-4">
@@ -172,7 +178,10 @@ export default function Music() {
             )}
 
             <motion.button
-              onClick={() => handleDownload(track)}
+              onClick={() => {
+                trackClick(track.id, track.title);
+                handleDownload(track);
+              }}
               disabled={downloadingTracks.has(track.id)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

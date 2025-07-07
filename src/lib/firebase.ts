@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFirestore } from "firebase/firestore";
 import { getAnalytics, Analytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
@@ -33,6 +34,7 @@ if (typeof window !== "undefined") {
 }
 
 const storage = getStorage(app);
+const db = getFirestore(app);
 
 // Function to upload audio file to Firebase Storage
 export const uploadAudioToFirebase = async (
@@ -189,6 +191,9 @@ export const listAudioFiles = async (): Promise<string[]> => {
     return [];
   }
 };
+
+// Export Firestore instance
+export { db };
 
 // Function to test Firebase Storage access
 export const testFirebaseAccess = async (): Promise<{

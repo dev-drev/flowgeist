@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import FileUpload from "@/components/FileUpload";
+import AnalyticsWidget from "@/components/AnalyticsWidget";
 import {
   listAudioFiles,
   checkFileExists,
@@ -17,7 +18,7 @@ export interface Track {
   file?: File; // Per i file caricati localmente
 }
 
-export default function AdminPage() {
+export default function FlowgeistPanel() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -198,13 +199,103 @@ export default function AdminPage() {
     }
   };
 
+  const testFirestore = async () => {
+    try {
+      const response = await fetch("/api/test-firestore");
+      const data = await response.json();
+
+      if (data.success) {
+        showMessage("success", `Firestore test successful! ${data.message}`);
+      } else {
+        showMessage("error", `Firestore test failed: ${data.error}`);
+      }
+    } catch (error) {
+      showMessage(
+        "error",
+        `Firestore test error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
+  const createTestTracking = async () => {
+    try {
+      const response = await fetch("/api/test-firestore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          trackId: 999,
+          trackTitle: "Test Track from Admin",
+          action: "click",
+        }),
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        showMessage(
+          "success",
+          `Test tracking event created! ID: ${data.trackingId}`
+        );
+      } else {
+        showMessage("error", `Test tracking failed: ${data.error}`);
+      }
+    } catch (error) {
+      showMessage(
+        "error",
+        `Test tracking error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
+  const testLocalTracking = async () => {
+    try {
+      // Test del tracking locale
+      const response = await fetch("/api/tracking-local", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          trackId: 999,
+          trackTitle: "Test Track",
+          action: "click",
+          userAgent: "Test Browser",
+          referrer: "test",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showMessage(
+          "success",
+          `Local tracking test successful! Method: ${data.method}`
+        );
+      } else {
+        showMessage("error", `Local tracking test failed: ${data.error}`);
+      }
+    } catch (error) {
+      showMessage(
+        "error",
+        `Local tracking test error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 font-grotesque">
-              FLOWGEIST ADMIN
+              FLOWGEIST PANEL
             </h1>
             <div className="flex gap-4">
               <button
@@ -213,6 +304,12 @@ export default function AdminPage() {
               >
                 Add New Track
               </button>
+              <a
+                href="/flowgeist-panel/analytics"
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-grotesque"
+              >
+                Analytics Dashboard
+              </a>
               <button
                 onClick={checkFirebaseFiles}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-grotesque"
@@ -224,6 +321,24 @@ export default function AdminPage() {
                 className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-grotesque"
               >
                 Test Firebase
+              </button>
+              <button
+                onClick={testFirestore}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-grotesque"
+              >
+                Test Firestore
+              </button>
+              <button
+                onClick={createTestTracking}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-grotesque"
+              >
+                Create Test Tracking
+              </button>
+              <button
+                onClick={testLocalTracking}
+                className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-grotesque"
+              >
+                Test Local Tracking
               </button>
             </div>
           </div>
@@ -240,6 +355,11 @@ export default function AdminPage() {
               {message.text}
             </div>
           )}
+
+          {/* Analytics Widget */}
+          <div className="mb-8">
+            <AnalyticsWidget />
+          </div>
 
           {/* File Upload Component */}
           <FileUpload onUploadError={handleUploadError} />
@@ -325,84 +445,66 @@ export default function AdminPage() {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   />
                 </div>
-                {!useLocalFiles && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Audio File Path
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="/audio/track1.wav"
-                        value={
-                          isAdding
-                            ? newTrack.audioFile
-                            : editingTrack?.audioFile || ""
-                        }
-                        onChange={(e) => {
-                          if (isAdding) {
-                            setNewTrack({
-                              ...newTrack,
-                              audioFile: e.target.value,
-                            });
-                          } else if (editingTrack) {
-                            setEditingTrack({
-                              ...editingTrack,
-                              audioFile: e.target.value,
-                            });
-                          }
-                        }}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Waveform Path
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="/waveforms/track1.png"
-                        value={
-                          isAdding
-                            ? newTrack.waveform
-                            : editingTrack?.waveform || ""
-                        }
-                        onChange={(e) => {
-                          if (isAdding) {
-                            setNewTrack({
-                              ...newTrack,
-                              waveform: e.target.value,
-                            });
-                          } else if (editingTrack) {
-                            setEditingTrack({
-                              ...editingTrack,
-                              waveform: e.target.value,
-                            });
-                          }
-                        }}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                      />
-                    </div>
-                  </>
-                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Audio File
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      isAdding
+                        ? newTrack.audioFile
+                        : editingTrack?.audioFile || ""
+                    }
+                    onChange={(e) => {
+                      if (isAdding) {
+                        setNewTrack({ ...newTrack, audioFile: e.target.value });
+                      } else if (editingTrack) {
+                        setEditingTrack({
+                          ...editingTrack,
+                          audioFile: e.target.value,
+                        });
+                      }
+                    }}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Waveform
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      isAdding
+                        ? newTrack.waveform
+                        : editingTrack?.waveform || ""
+                    }
+                    onChange={(e) => {
+                      if (isAdding) {
+                        setNewTrack({ ...newTrack, waveform: e.target.value });
+                      } else if (editingTrack) {
+                        setEditingTrack({
+                          ...editingTrack,
+                          waveform: e.target.value,
+                        });
+                      }
+                    }}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  />
+                </div>
               </div>
               <div className="flex gap-4 mt-6">
                 <button
                   onClick={handleSave}
                   className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-grotesque"
                 >
-                  Save
+                  {isAdding ? "Add Track" : "Update Track"}
                 </button>
                 <button
                   onClick={() => {
                     setIsAdding(false);
                     setEditingTrack(null);
-                    setNewTrack({
-                      title: "",
-                      duration: "",
-                      audioFile: "",
-                      waveform: "",
-                    });
                   }}
                   className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-grotesque"
                 >
@@ -413,52 +515,43 @@ export default function AdminPage() {
           )}
 
           {/* Tracks List */}
-          <div className="space-y-4">
-            {tracks.map((track) => (
-              <div
-                key={track.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-sm text-gray-500 font-mono w-8">
-                      {String(track.id).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <h3 className="font-medium text-gray-900 font-grotesque">
-                        {track.title}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        {track.duration} •{" "}
-                        {track.file
-                          ? `File: ${track.file.name}`
-                          : track.audioFile}
-                      </p>
-                    </div>
+          <div className="bg-white rounded-lg shadow">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 font-grotesque">
+                Tracks ({tracks.length})
+              </h3>
+            </div>
+            <div className="divide-y divide-gray-200">
+              {tracks.map((track) => (
+                <div
+                  key={track.id}
+                  className="px-6 py-4 flex items-center justify-between"
+                >
+                  <div className="flex-1">
+                    <h4 className="text-lg font-medium text-gray-900 font-grotesque">
+                      {track.title}
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      Duration: {track.duration} | File: {track.audioFile}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(track)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-grotesque"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(track.id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-grotesque"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(track)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors text-sm font-grotesque"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(track.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors text-sm font-grotesque"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {tracks.length === 0 && (
-              <div className="text-center text-gray-500 py-8">
-                {useLocalFiles ? "Loading..." : "Loading..."}
-              </div>
-            )}
+              ))}
+            </div>
           </div>
         </div>
       </div>
