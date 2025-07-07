@@ -659,7 +659,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.3 }}
-                    className="flex items-start space-x-6 p-6 bg-white/5 rounded-lg border border-white/10"
+                    className="flex flex-col lg:flex-row items-start space-x-6 p-6 bg-white/5 rounded-lg border border-white/10"
                   >
                     {/* Artist Image */}
                     <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0">
@@ -679,7 +679,7 @@ export default function Home() {
 
                     {/* Artist Info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-2xl lg:text-3xl font-bold text-white font-grotesque mb-3">
+                      <h4 className="text-2xl lg:text-3xl font-bold text-white font-grotesque my-3 lg:my-0">
                         {selectedArtist.name}
                       </h4>
                       {selectedArtist.description && (
