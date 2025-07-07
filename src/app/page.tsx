@@ -9,6 +9,7 @@ import DynamicTitle from "@/components/DynamicTitle";
 import { getAllSongs } from "@/lib/songImporter";
 import { getVideoURL } from "@/lib/firebase";
 import { getVideoPath, checkLocalVideoExists } from "@/lib/videoConfig";
+import { getFeaturedArtists, Artist } from "@/lib/artistsConfig";
 
 // TypeScript interfaces
 interface Track {
@@ -225,6 +226,10 @@ export default function Home() {
   const [colorScheme, setColorScheme] = useState("normal");
   const [isLoading, setIsLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [artists] = useState(getFeaturedArtists());
+  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [isArtistModalOpen, setIsArtistModalOpen] = useState(false);
+  const [isArtistPanelOpen, setIsArtistPanelOpen] = useState(false);
 
   // Get current track title for dynamic title
   const currentTrack = tracks.find((track) => track.id === currentTrackId);
@@ -352,6 +357,38 @@ export default function Home() {
     }
   };
 
+  const handleArtistClick = (artist: Artist) => {
+    setSelectedArtist(artist);
+    setIsArtistPanelOpen(true);
+  };
+
+  const closeArtistModal = () => {
+    setIsArtistModalOpen(false);
+    setSelectedArtist(null);
+  };
+
+  const closeArtistPanel = () => {
+    setIsArtistPanelOpen(false);
+    setSelectedArtist(null);
+  };
+
+  // Close modal and panel with ESC key
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (isArtistModalOpen) {
+          closeArtistModal();
+        }
+        if (isArtistPanelOpen) {
+          closeArtistPanel();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [isArtistModalOpen, isArtistPanelOpen]);
+
   return (
     <main className="flex min-h-screen w-full relative">
       {/* Loading Screen */}
@@ -452,6 +489,45 @@ export default function Home() {
               sonic textures to merge and momentum to lead. Nothing is overly
               defined.
             </p>
+
+            {/* Artists Section */}
+            <div className="mt-8 lg:mt-12 pt-6 border-t border-white/20">
+              <h3 className="text-sm lg:text-base font-medium text-white/80 uppercase tracking-wider mb-4 font-grotesque">
+                Featured Artists
+              </h3>
+              <div className="flex space-x-6">
+                {artists.map((artist, index) => (
+                  <motion.div
+                    key={artist.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.8 + index * 0.2 }}
+                    className="flex flex-col items-center group"
+                  >
+                    <button
+                      onClick={() => handleArtistClick(artist)}
+                      className="w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden mb-3 border-2 border-white/20 group-hover:border-white/40 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50"
+                    >
+                      <img
+                        src={artist.image}
+                        alt={artist.name}
+                        className={`w-full h-full object-cover ${
+                          artist.id === "artist1" ? "grayscale" : ""
+                        }`}
+                        onError={(e) => {
+                          e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dy='.3em'%3E${artist.name.charAt(
+                            0
+                          )}%3C/text%3E%3C/svg%3E`;
+                        }}
+                      />
+                    </button>
+                    <span className="text-xs lg:text-sm text-white/70 font-grotesque text-center">
+                      {artist.name}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -461,9 +537,28 @@ export default function Home() {
             {/* Blurry background behind tracks */}
             <div className="absolute inset-0 bg-black/10 backdrop-blur-md rounded-lg -z-10"></div>
 
-            <h2 className="text-2xl font-bold text-white uppercase font-grotesque mb-8 border-b-2 border-white pb-2">
-              {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
-            </h2>
+            <div className="flex items-center justify-between mb-8 border-b-2 border-white pb-2">
+              <h2 className="text-2xl font-bold text-white uppercase font-grotesque">
+                {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
+              </h2>
+              <a
+                href="https://soundcloud.com/flowgeist"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-4 flex items-center gap-2 bg-white/10 hover:bg-orange-500/90 text-white font-semibold px-4 py-2 rounded-full transition-colors border border-white/20 shadow-sm"
+              >
+                <svg
+                  viewBox="0 0 32 32"
+                  width="22"
+                  height="22"
+                  fill="currentColor"
+                  className="text-orange-400"
+                >
+                  <path d="M25.6 18.667c-0.267 0-0.533 0.027-0.8 0.08-0.267-2.987-2.773-5.28-5.867-5.28-0.64 0-1.28 0.107-1.92 0.32-0.267 0.093-0.427 0.373-0.373 0.64v8.213c0 0.267 0.213 0.48 0.48 0.48h8.48c2.027 0 3.68-1.653 3.68-3.68s-1.653-3.68-3.68-3.68zM7.573 22.507c0.267 0 0.48-0.213 0.48-0.48v-6.507c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v6.507c0 0.267 0.213 0.48 0.48 0.48zM10.293 22.507c0.267 0 0.48-0.213 0.48-0.48v-7.36c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v7.36c0 0.267 0.213 0.48 0.48 0.48zM13.013 22.507c0.267 0 0.48-0.213 0.48-0.48v-8.213c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v8.213c0 0.267 0.213 0.48 0.48 0.48z"></path>
+                </svg>
+                <span className="hidden sm:inline">Soundcloud</span>
+              </a>
+            </div>
 
             {/* Loading indicator for individual tracks */}
             {!useLocalFiles && isLoadingFromFirebase && tracks.length === 0 && (
@@ -502,6 +597,223 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Expandable Artist Panel */}
+      <AnimatePresence>
+        {isArtistPanelOpen && (
+          <>
+            {/* Backdrop for clicking outside */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-transparent z-30"
+              onClick={closeArtistPanel}
+            />
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="fixed bottom-0 left-0 right-0 bg-black/90 border-t border-white/20 backdrop-blur-md z-40 overflow-hidden"
+            >
+              {/* Panel Header */}
+              <div
+                className="flex items-center justify-between p-4"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="text-lg font-bold text-white font-grotesque">
+                  Featured Artists
+                </h3>
+                <button
+                  onClick={closeArtistPanel}
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Panel Content */}
+              <motion.div
+                initial={false}
+                animate={{ opacity: isArtistPanelOpen ? 1 : 0 }}
+                transition={{
+                  duration: 0.3,
+                  delay: isArtistPanelOpen ? 0.2 : 0,
+                }}
+                className="px-4 pb-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {selectedArtist && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 }}
+                    className="flex items-start space-x-6 p-6 bg-white/5 rounded-lg border border-white/10"
+                  >
+                    {/* Artist Image */}
+                    <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0">
+                      <img
+                        src={selectedArtist.image}
+                        alt={selectedArtist.name}
+                        className={`w-full h-full object-cover ${
+                          selectedArtist.id === "artist1" ? "grayscale" : ""
+                        }`}
+                        onError={(e) => {
+                          e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dy='.3em'%3E${selectedArtist.name.charAt(
+                            0
+                          )}%3C/text%3E%3C/svg%3E`;
+                        }}
+                      />
+                    </div>
+
+                    {/* Artist Info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-2xl lg:text-3xl font-bold text-white font-grotesque mb-3">
+                        {selectedArtist.name}
+                      </h4>
+                      {selectedArtist.description && (
+                        <p className="text-white/80 text-base lg:text-lg leading-relaxed font-grotesque mb-4">
+                          {selectedArtist.description}
+                        </p>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex space-x-3">
+                        <a
+                          href={selectedArtist.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
+                          </svg>
+                          <span>Visit Profile</span>
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Artist Modal */}
+      <AnimatePresence>
+        {isArtistModalOpen && selectedArtist && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={closeArtistModal}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative bg-black/90 border border-white/20 rounded-2xl p-8 max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={closeArtistModal}
+                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+
+              {/* Artist Info */}
+              <div className="text-center">
+                {/* Artist Image */}
+                <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden mx-auto mb-6 border-2 border-white/30">
+                  <img
+                    src={selectedArtist.image}
+                    alt={selectedArtist.name}
+                    className={`w-full h-full object-cover ${
+                      selectedArtist.id === "artist1" ? "grayscale" : ""
+                    }`}
+                    onError={(e) => {
+                      e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23333'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dy='.3em'%3E${selectedArtist.name.charAt(
+                        0
+                      )}%3C/text%3E%3C/svg%3E`;
+                    }}
+                  />
+                </div>
+
+                {/* Artist Name */}
+                <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 font-grotesque">
+                  {selectedArtist.name}
+                </h2>
+
+                {/* Artist Description */}
+                {selectedArtist.description && (
+                  <p className="text-white/80 text-sm lg:text-base mb-6 leading-relaxed font-grotesque">
+                    {selectedArtist.description}
+                  </p>
+                )}
+
+                {/* Social Links */}
+                <div className="space-y-3">
+                  <a
+                    href={selectedArtist.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition-colors font-medium font-grotesque"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
+                      </svg>
+                      <span>View Profile</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
