@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners";
 
@@ -33,7 +33,7 @@ interface TrackingData {
     hosting?: boolean;
     source?: string;
   };
-  timestamp: any;
+  timestamp: Date | null;
   formattedTimestamp?: string;
   utmSource?: string;
   utmMedium?: string;
@@ -58,11 +58,7 @@ export default function FlowgeistAnalytics() {
   const [dateRange, setDateRange] = useState("7d");
   const [resetting, setResetting] = useState(false);
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [dateRange]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/analytics?range=${dateRange}`);
@@ -85,7 +81,11 @@ export default function FlowgeistAnalytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   const filteredData = (trackingData || []).filter((item) => {
     if (filter === "all") return true;

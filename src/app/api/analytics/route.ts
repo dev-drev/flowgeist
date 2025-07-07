@@ -52,20 +52,29 @@ export async function GET(request: NextRequest) {
     const trackingData: any[] = [];
 
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
+      const data = doc.data() as Record<string, unknown>;
 
       // Converti il timestamp di Firestore in una data JavaScript
-      let timestamp = null;
+      let timestamp: Date | null = null;
       if (data.timestamp) {
-        if (data.timestamp.toDate) {
+        const timestampData = data.timestamp as
+          | { toDate?: () => Date }
+          | Date
+          | number;
+        if (
+          timestampData &&
+          typeof timestampData === "object" &&
+          "toDate" in timestampData &&
+          timestampData.toDate
+        ) {
           // È un Timestamp di Firestore
-          timestamp = data.timestamp.toDate();
-        } else if (data.timestamp instanceof Date) {
+          timestamp = timestampData.toDate();
+        } else if (timestampData instanceof Date) {
           // È già una Date
-          timestamp = data.timestamp;
-        } else if (typeof data.timestamp === "number") {
+          timestamp = timestampData;
+        } else if (typeof timestampData === "number") {
           // È un timestamp numerico
-          timestamp = new Date(data.timestamp);
+          timestamp = new Date(timestampData);
         }
       }
 
@@ -106,7 +115,19 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function calculateSummary(data: any[]) {
+interface TrackingDataItem {
+  action?: string;
+  trackTitle?: string;
+  geoInfo?: {
+    country?: string;
+  };
+  userAgent?: {
+    browser?: string;
+  };
+  referrer?: string;
+}
+
+function calculateSummary(data: TrackingDataItem[]) {
   const summary = {
     totalClicks: 0,
     totalDownloads: 0,
