@@ -430,7 +430,7 @@ export default function Home() {
             style={{
               filter:
                 colorScheme === "red"
-                  ? "hue-rotate(0deg) saturate(2.2) brightness(0.7) contrast(1.4) sepia(0.2)"
+                  ? "hue-rotate(0deg) saturate(2.2) brightness(0.8) contrast(1.4) sepia(0.2)"
                   : "none",
               transform: "scaleY(-1)",
             }}
