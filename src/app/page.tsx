@@ -238,15 +238,16 @@ export default function Home() {
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [isArtistModalOpen, setIsArtistModalOpen] = useState(false);
   const [isArtistPanelOpen, setIsArtistPanelOpen] = useState(false);
-  const { trackClick, trackPlay, trackView } = useTracking();
+  const { trackClick, trackPlay, trackView, trackExternalLink, trackPageView } =
+    useTracking();
 
   // Get current track title for dynamic title
   const currentTrack = tracks.find((track) => track.id === currentTrackId);
 
   // Track page view on component mount
   useEffect(() => {
-    // Removed useAnalytics hook, so no tracking here
-  }, []);
+    trackPageView("Website opened");
+  }, [trackPageView]);
 
   // Load initial video from Firebase Storage
   useEffect(() => {
@@ -379,6 +380,21 @@ export default function Home() {
   const closeArtistPanel = () => {
     setIsArtistPanelOpen(false);
     setSelectedArtist(null);
+  };
+
+  const handleSoundcloudClick = () => {
+    trackExternalLink(
+      "SoundCloud",
+      "https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+    );
+  };
+
+  const handleArtistLinkClick = (
+    artistName: string,
+    linkType: string,
+    linkUrl: string
+  ) => {
+    trackExternalLink(`${artistName} ${linkType}`, linkUrl);
   };
 
   // Close modal and panel with ESC key
@@ -552,6 +568,7 @@ export default function Home() {
                 href="https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleSoundcloudClick}
                 className="ml-4 flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-full transition-colors border border-white/20 shadow-sm"
               >
                 <svg
@@ -589,7 +606,6 @@ export default function Home() {
                       delay: index * 0.1, // Delay progressivo per effetto cascade
                       ease: "easeOut",
                     }}
-                    onViewportEnter={() => trackView(track.id, track.title)}
                   >
                     <AudioPlayer
                       track={track}
@@ -705,6 +721,13 @@ export default function Home() {
                           href={selectedArtist.link}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() =>
+                            handleArtistLinkClick(
+                              selectedArtist.name,
+                              "Profile",
+                              selectedArtist.link
+                            )
+                          }
                           className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
                         >
                           <span>Visit Profile</span>
@@ -714,6 +737,13 @@ export default function Home() {
                             href={selectedArtist.link2}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={() =>
+                              handleArtistLinkClick(
+                                selectedArtist.name,
+                                selectedArtist.link2Label || "Link2",
+                                selectedArtist.link2!
+                              )
+                            }
                             className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
                           >
                             <span>{selectedArtist.link2Label || "Link 2"}</span>
@@ -807,6 +837,13 @@ export default function Home() {
                     href={selectedArtist.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() =>
+                      handleArtistLinkClick(
+                        selectedArtist.name,
+                        "Profile",
+                        selectedArtist.link
+                      )
+                    }
                     className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition-colors font-medium font-grotesque"
                   >
                     <div className="flex items-center justify-center space-x-2">
@@ -825,6 +862,13 @@ export default function Home() {
                       href={selectedArtist.link2}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() =>
+                        handleArtistLinkClick(
+                          selectedArtist.name,
+                          selectedArtist.link2Label || "Link2",
+                          selectedArtist.link2!
+                        )
+                      }
                       className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition-colors font-medium font-grotesque"
                     >
                       <div className="flex items-center justify-center space-x-2">

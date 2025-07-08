@@ -114,11 +114,37 @@ export const useTracking = () => {
     [trackEvent]
   );
 
+  const trackExternalLink = useCallback(
+    (linkType: string, linkUrl: string) => {
+      console.log("🔗 External link clicked:", { linkType, linkUrl });
+      return trackEvent({
+        trackId: 0, // Special ID for external links
+        trackTitle: `${linkType} Link`,
+        action: "click",
+      });
+    },
+    [trackEvent]
+  );
+
+  const trackPageView = useCallback(
+    (pageTitle: string) => {
+      console.log("📄 Page view:", { pageTitle });
+      return trackEvent({
+        trackId: 0, // Using 0 as it's not a real track
+        trackTitle: pageTitle,
+        action: "view",
+      });
+    },
+    [trackEvent]
+  );
+
   return {
     trackEvent,
     trackClick,
     trackDownload,
     trackPlay,
     trackView,
+    trackExternalLink,
+    trackPageView,
   };
 };
