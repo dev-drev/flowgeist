@@ -224,13 +224,7 @@ export default function FlowgeistAnalytics() {
                   Browser
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  IP
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Paese
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Referrer
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Data
@@ -261,37 +255,17 @@ export default function FlowgeistAnalytics() {
                       {item.userAgent.browser}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.ip || "Unknown"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.geoInfo?.country || "Unknown"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.referrer === "direct"
-                        ? "Direct"
-                        : item.referrer.includes("google")
-                        ? "Google"
-                        : item.referrer.includes("facebook")
-                        ? "Facebook"
-                        : item.referrer.includes("twitter")
-                        ? "Twitter"
-                        : item.referrer}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.timestamp
-                        ? new Date(item.timestamp).toLocaleString("it-IT")
-                        : item.formattedTimestamp
-                        ? new Date(item.formattedTimestamp).toLocaleString(
-                            "it-IT"
-                          )
-                        : "Data non disponibile"}
+                      {item.formattedTimestamp}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={5}
                     className="px-6 py-4 text-center text-gray-500"
                   >
                     Nessun dato disponibile
@@ -350,50 +324,59 @@ export default function FlowgeistAnalytics() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Top Tracks */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white p-6 rounded-xl shadow-lg border border-gray-200"
-        >
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Top Tracce</h3>
-          {summary?.topTracks?.map((track, index) => (
-            <div
-              key={track.title}
-              className="flex justify-between items-center py-2 border-b border-gray-100"
-            >
-              <span className="font-medium text-gray-700">{track.title}</span>
-              <span className="text-blue-600 font-bold">{track.count}</span>
-            </div>
-          )) || (
-            <div className="text-gray-500 text-center py-4">
-              Nessun dato disponibile
-            </div>
-          )}
-        </motion.div>
+        {summary && summary.topTracks.length > 0 && (
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Top Tracks
+            </h3>
+            <ul className="space-y-3">
+              {summary.topTracks.map((track, index) => (
+                <li key={index} className="flex justify-between items-center">
+                  <span className="text-gray-600 truncate">{track.title}</span>
+                  <span className="font-bold text-gray-800">{track.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Top Countries */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white p-6 rounded-xl shadow-lg border border-gray-200"
-        >
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Top Paesi</h3>
-          {summary?.topCountries?.map((country, index) => (
-            <div
-              key={country.country}
-              className="flex justify-between items-center py-2 border-b border-gray-100"
-            >
-              <span className="font-medium text-gray-700">
-                {country.country}
-              </span>
-              <span className="text-green-600 font-bold">{country.count}</span>
-            </div>
-          )) || (
-            <div className="text-gray-500 text-center py-4">
-              Nessun dato disponibile
-            </div>
-          )}
-        </motion.div>
+        {summary && summary.topCountries.length > 0 && (
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Top Paesi
+            </h3>
+            <ul className="space-y-3">
+              {summary.topCountries.map((country, index) => (
+                <li key={index} className="flex justify-between items-center">
+                  <span className="text-gray-600">{country.country}</span>
+                  <span className="font-bold text-gray-800">
+                    {country.count}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Top Browser */}
+        {summary && summary.topBrowsers.length > 0 && (
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Top Browser
+            </h3>
+            <ul className="space-y-3">
+              {summary.topBrowsers.map((browser, index) => (
+                <li key={index} className="flex justify-between items-center">
+                  <span className="text-gray-600">{browser.browser}</span>
+                  <span className="font-bold text-gray-800">
+                    {browser.count}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Geolocation Details */}

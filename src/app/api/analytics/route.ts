@@ -78,9 +78,11 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      const { ip, referrer, ...restOfData } = data;
+
       trackingData.push({
         id: doc.id,
-        ...data,
+        ...restOfData,
         timestamp: timestamp,
         // Aggiungi anche una versione formattata per facilità di visualizzazione
         formattedTimestamp: timestamp ? timestamp.toISOString() : null,
@@ -135,13 +137,11 @@ function calculateSummary(data: TrackingDataItem[]) {
     topTracks: [] as Array<{ title: string; count: number }>,
     topCountries: [] as Array<{ country: string; count: number }>,
     topBrowsers: [] as Array<{ browser: string; count: number }>,
-    topReferrers: [] as Array<{ referrer: string; count: number }>,
   };
 
   const trackCounts: { [key: string]: number } = {};
   const countryCounts: { [key: string]: number } = {};
   const browserCounts: { [key: string]: number } = {};
-  const referrerCounts: { [key: string]: number } = {};
 
   data.forEach((item) => {
     // Conta le azioni
@@ -168,10 +168,6 @@ function calculateSummary(data: TrackingDataItem[]) {
     // Conta i browser
     const browser = item.userAgent?.browser || "Unknown";
     browserCounts[browser] = (browserCounts[browser] || 0) + 1;
-
-    // Conta i referrer
-    const referrer = item.referrer || "direct";
-    referrerCounts[referrer] = (referrerCounts[referrer] || 0) + 1;
   });
 
   // Converti in array e ordina
@@ -189,11 +185,6 @@ function calculateSummary(data: TrackingDataItem[]) {
     .map(([browser, count]) => ({ browser, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
-
-  summary.topReferrers = Object.entries(referrerCounts)
-    .map(([referrer, count]) => ({ referrer, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
 
   return summary;
 }
