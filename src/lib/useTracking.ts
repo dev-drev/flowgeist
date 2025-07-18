@@ -32,6 +32,10 @@ export const useTracking = () => {
         referrer: document.referrer,
         timestamp: Date.now(),
         ip: userIP,
+        // Dati aggiuntivi per identificazione più precisa
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
       };
 
       console.log("📊 Tracking data prepared:", trackingData);

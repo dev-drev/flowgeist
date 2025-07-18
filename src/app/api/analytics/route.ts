@@ -137,11 +137,13 @@ function calculateSummary(data: TrackingDataItem[]) {
     topTracks: [] as Array<{ title: string; count: number }>,
     topCountries: [] as Array<{ country: string; count: number }>,
     topBrowsers: [] as Array<{ browser: string; count: number }>,
+    topDevices: [] as Array<{ device: string; count: number }>,
   };
 
   const trackCounts: { [key: string]: number } = {};
   const countryCounts: { [key: string]: number } = {};
   const browserCounts: { [key: string]: number } = {};
+  const deviceCounts: { [key: string]: number } = {};
 
   data.forEach((item) => {
     // Conta le azioni
@@ -168,6 +170,10 @@ function calculateSummary(data: TrackingDataItem[]) {
     // Conta i browser
     const browser = item.userAgent?.browser || "Unknown";
     browserCounts[browser] = (browserCounts[browser] || 0) + 1;
+
+    // Conta i dispositivi
+    const device = item.userAgent?.device || "Unknown";
+    deviceCounts[device] = (deviceCounts[device] || 0) + 1;
   });
 
   // Converti in array e ordina

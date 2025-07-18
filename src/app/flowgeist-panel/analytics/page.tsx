@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ClipLoader } from "react-spinners";
 
@@ -13,9 +13,8 @@ interface TrackingData {
     browser: string;
     os: string;
     device: string;
+    deviceModel: string;
   };
-  referrer: string;
-  ip?: string;
   geoInfo?: {
     country: string;
     countryCode: string;
@@ -38,6 +37,11 @@ interface TrackingData {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+  screenResolution?: string;
+  timezone?: string;
+  language?: string;
+  userFingerprint?: string;
+  sessionId?: string;
 }
 
 interface AnalyticsSummary {
@@ -57,6 +61,7 @@ export default function FlowgeistAnalytics() {
   const [filter, setFilter] = useState("all");
   const [dateRange, setDateRange] = useState("7d");
   const [resetting, setResetting] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -122,6 +127,61 @@ export default function FlowgeistAnalytics() {
     } finally {
       setResetting(false);
     }
+  };
+
+  const toggleRowExpansion = (rowId: string) => {
+    const newExpandedRows = new Set(expandedRows);
+    if (newExpandedRows.has(rowId)) {
+      newExpandedRows.delete(rowId);
+    } else {
+      newExpandedRows.add(rowId);
+    }
+    setExpandedRows(newExpandedRows);
+  };
+
+  const getAuthenticityScore = (item: TrackingData) => {
+    let score = 0;
+    let reasons: string[] = [];
+
+    // Punti positivi per indicatori di persona reale
+    if (item.userAgent?.deviceModel && item.userAgent.deviceModel !== "Unknown")
+      score += 2;
+    if (
+      item.userAgent?.deviceModel &&
+      (item.userAgent.deviceModel.includes("iPhone") ||
+        item.userAgent.deviceModel.includes("Samsung"))
+    )
+      score += 1;
+    if (item.geoInfo?.city && item.geoInfo.city !== "Unknown") score += 1;
+    if (item.geoInfo?.isp && !item.geoInfo.isp.includes("hosting")) score += 1;
+    if (!item.geoInfo?.proxy && !item.geoInfo?.hosting) score += 2;
+    if (item.screenResolution && item.screenResolution !== "Unknown")
+      score += 1;
+    if (item.timezone && item.timezone !== "Unknown") score += 1;
+
+    // Punti negativi per indicatori di bot/proxy
+    if (item.geoInfo?.proxy) {
+      score -= 3;
+      reasons.push("Usa proxy");
+    }
+    if (item.geoInfo?.hosting) {
+      score -= 2;
+      reasons.push("IP hosting");
+    }
+    if (
+      !item.userAgent?.deviceModel ||
+      item.userAgent.deviceModel === "Unknown"
+    ) {
+      score -= 1;
+      reasons.push("Modello sconosciuto");
+    }
+
+    // Determina il livello di autenticità
+    if (score >= 5)
+      return { level: "Alta", color: "text-green-600", score, reasons };
+    if (score >= 2)
+      return { level: "Media", color: "text-yellow-600", score, reasons };
+    return { level: "Bassa", color: "text-red-600", score, reasons };
   };
 
   if (loading) {
@@ -214,6 +274,7 @@ export default function FlowgeistAnalytics() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8"></th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tracce
                 </th>
@@ -221,10 +282,10 @@ export default function FlowgeistAnalytics() {
                   Azione
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Browser
+                  Paese
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Paese
+                  Città
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Data
@@ -234,38 +295,191 @@ export default function FlowgeistAnalytics() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredData.length > 0 ? (
                 filteredData.slice(0, 50).map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {item.trackTitle}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          item.action === "download"
-                            ? "bg-green-100 text-green-800"
-                            : item.action === "click"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-purple-100 text-purple-800"
-                        }`}
-                      >
-                        {item.action}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.userAgent.browser}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.geoInfo?.country || "Unknown"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.formattedTimestamp}
-                    </td>
-                  </tr>
+                  <React.Fragment key={item.id}>
+                    <tr className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => toggleRowExpansion(item.id)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <svg
+                            className={`w-4 h-4 transform transition-transform ${
+                              expandedRows.has(item.id) ? "rotate-90" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {item.trackTitle}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            item.action === "download"
+                              ? "bg-green-100 text-green-800"
+                              : item.action === "click"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-purple-100 text-purple-800"
+                          }`}
+                        >
+                          {item.action}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.geoInfo?.country || "Unknown"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.geoInfo?.city || "Unknown"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {item.formattedTimestamp}
+                      </td>
+                    </tr>
+                    {expandedRows.has(item.id) && (
+                      <tr key={`${item.id}-details`} className="bg-gray-50">
+                        <td colSpan={6} className="px-6 py-4">
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Browser:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.userAgent?.browser || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Sistema Operativo:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.userAgent?.os || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Dispositivo:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.userAgent?.device || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Modello:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.userAgent?.deviceModel || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Risoluzione:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.screenResolution || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Timezone:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.timezone || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Lingua:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.language || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Session ID:
+                              </span>
+                              <p className="text-gray-600 font-mono text-xs">
+                                {item.sessionId || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                User Fingerprint:
+                              </span>
+                              <p className="text-gray-600 font-mono text-xs">
+                                {item.userFingerprint || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                ISP:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.geoInfo?.isp || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Organizzazione:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.geoInfo?.org || "Unknown"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Proxy/Hosting:
+                              </span>
+                              <p className="text-gray-600">
+                                {item.geoInfo?.proxy
+                                  ? "Proxy"
+                                  : item.geoInfo?.hosting
+                                  ? "Hosting"
+                                  : "No"}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">
+                                Autenticità:
+                              </span>
+                              <p
+                                className={`font-semibold ${
+                                  getAuthenticityScore(item).color
+                                }`}
+                              >
+                                {getAuthenticityScore(item).level} (
+                                {getAuthenticityScore(item).score}/8)
+                              </p>
+                              {getAuthenticityScore(item).reasons.length >
+                                0 && (
+                                <p className="text-xs text-gray-500">
+                                  {getAuthenticityScore(item).reasons.join(
+                                    ", "
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-4 text-center text-gray-500"
                   >
                     Nessun dato disponibile

@@ -8,8 +8,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log("📦 Request body:", body);
 
-    const { trackId, trackTitle, action, userAgent, referrer, ip, timestamp } =
-      body;
+    const {
+      trackId,
+      trackTitle,
+      action,
+      userAgent,
+      referrer,
+      ip,
+      timestamp,
+      screenResolution,
+      timezone,
+      language,
+    } = body;
 
     // Estrai informazioni dal User-Agent
     const userAgentInfo = parseUserAgent(userAgent);
@@ -37,6 +47,16 @@ export async function POST(request: NextRequest) {
         request.headers.get("referer") || "",
         "utm_campaign"
       ),
+      // Dati aggiuntivi per identificazione più precisa
+      screenResolution,
+      timezone,
+      language,
+      userFingerprint: generateUserFingerprint(
+        userAgentInfo,
+        screenResolution,
+        timezone,
+        language
+      ),
     };
 
     // Salva nel database
@@ -59,13 +79,19 @@ export async function POST(request: NextRequest) {
 
 function parseUserAgent(userAgent: string) {
   if (!userAgent)
-    return { browser: "unknown", os: "unknown", device: "unknown" };
+    return {
+      browser: "unknown",
+      os: "unknown",
+      device: "unknown",
+      deviceModel: "unknown",
+    };
 
   const browser = getBrowser(userAgent);
   const os = getOS(userAgent);
   const device = getDevice(userAgent);
+  const deviceModel = getDeviceModel(userAgent);
 
-  return { browser, os, device };
+  return { browser, os, device, deviceModel };
 }
 
 function getBrowser(userAgent: string) {
@@ -90,6 +116,66 @@ function getDevice(userAgent: string) {
   if (userAgent.includes("Mobile")) return "Mobile";
   if (userAgent.includes("Tablet")) return "Tablet";
   return "Desktop";
+}
+
+function getDeviceModel(userAgent: string) {
+  // iPhone detection
+  if (userAgent.includes("iPhone")) {
+    if (userAgent.includes("iPhone OS 17")) return "iPhone 15/15 Pro";
+    if (userAgent.includes("iPhone OS 16")) return "iPhone 14/14 Pro";
+    if (userAgent.includes("iPhone OS 15")) return "iPhone 13/13 Pro";
+    if (userAgent.includes("iPhone OS 14")) return "iPhone 12/12 Pro";
+    if (userAgent.includes("iPhone OS 13")) return "iPhone 11/11 Pro";
+    return "iPhone (Altro)";
+  }
+
+  // iPad detection
+  if (userAgent.includes("iPad")) {
+    if (userAgent.includes("iPad OS 17")) return "iPad Pro/Air (2023)";
+    if (userAgent.includes("iPad OS 16")) return "iPad Pro/Air (2022)";
+    if (userAgent.includes("iPad OS 15")) return "iPad Pro/Air (2021)";
+    return "iPad (Altro)";
+  }
+
+  // Android detection
+  if (userAgent.includes("Android")) {
+    // Samsung
+    if (userAgent.includes("SM-G")) return "Samsung Galaxy S";
+    if (userAgent.includes("SM-A")) return "Samsung Galaxy A";
+    if (userAgent.includes("SM-N")) return "Samsung Galaxy Note";
+    if (userAgent.includes("SM-T")) return "Samsung Galaxy Tab";
+
+    // Google Pixel
+    if (userAgent.includes("Pixel")) return "Google Pixel";
+
+    // OnePlus
+    if (userAgent.includes("OnePlus")) return "OnePlus";
+
+    // Xiaomi
+    if (userAgent.includes("Mi ")) return "Xiaomi";
+    if (userAgent.includes("Redmi")) return "Xiaomi Redmi";
+
+    // Huawei
+    if (userAgent.includes("HUAWEI")) return "Huawei";
+
+    // Generic Android
+    return "Android (Altro)";
+  }
+
+  // Desktop detection
+  if (userAgent.includes("Macintosh")) {
+    if (userAgent.includes("Mac OS X 10_15")) return "Mac (Catalina+)";
+    if (userAgent.includes("Mac OS X 10_14")) return "Mac (Mojave)";
+    return "Mac";
+  }
+
+  if (userAgent.includes("Windows NT 10")) return "Windows 10/11";
+  if (userAgent.includes("Windows NT 6.3")) return "Windows 8.1";
+  if (userAgent.includes("Windows NT 6.1")) return "Windows 7";
+
+  if (userAgent.includes("Linux")) return "Linux";
+
+  return "Unknown";
 }
 
 async function getGeoInfo(ip: string) {
@@ -164,6 +250,33 @@ function generateSessionId() {
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
   );
+}
+
+function generateUserFingerprint(
+  userAgent: any,
+  screenResolution?: string,
+  timezone?: string,
+  language?: string
+) {
+  const fingerprint = [
+    userAgent.browser,
+    userAgent.os,
+    userAgent.device,
+    screenResolution,
+    timezone,
+    language,
+  ]
+    .filter(Boolean)
+    .join("|");
+
+  // Crea un hash semplice del fingerprint
+  let hash = 0;
+  for (let i = 0; i < fingerprint.length; i++) {
+    const char = fingerprint.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
 }
 
 function extractUTMParams(url: string, param?: string) {
