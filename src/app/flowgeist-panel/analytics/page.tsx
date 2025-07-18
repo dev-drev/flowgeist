@@ -141,7 +141,7 @@ export default function FlowgeistAnalytics() {
 
   const getAuthenticityScore = (item: TrackingData) => {
     let score = 0;
-    let reasons: string[] = [];
+    const reasons: string[] = [];
 
     // Punti positivi per indicatori di persona reale
     if (item.userAgent?.deviceModel && item.userAgent.deviceModel !== "Unknown")

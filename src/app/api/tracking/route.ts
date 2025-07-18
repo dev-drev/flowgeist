@@ -253,7 +253,12 @@ function generateSessionId() {
 }
 
 function generateUserFingerprint(
-  userAgent: any,
+  userAgent: {
+    browser: string;
+    os: string;
+    device: string;
+    deviceModel: string;
+  },
   screenResolution?: string,
   timezone?: string,
   language?: string
