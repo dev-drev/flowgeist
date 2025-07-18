@@ -13,7 +13,6 @@ interface TrackingData {
     browser: string;
     os: string;
     device: string;
-    deviceModel: string;
   };
   geoInfo?: {
     country: string;
@@ -144,12 +143,11 @@ export default function FlowgeistAnalytics() {
     const reasons: string[] = [];
 
     // Punti positivi per indicatori di persona reale
-    if (item.userAgent?.deviceModel && item.userAgent.deviceModel !== "Unknown")
+    if (item.userAgent?.device && item.userAgent.device !== "Unknown")
       score += 2;
     if (
-      item.userAgent?.deviceModel &&
-      (item.userAgent.deviceModel.includes("iPhone") ||
-        item.userAgent.deviceModel.includes("Samsung"))
+      item.userAgent?.device &&
+      (item.userAgent.device === "Mobile" || item.userAgent.device === "Tablet")
     )
       score += 1;
     if (item.geoInfo?.city && item.geoInfo.city !== "Unknown") score += 1;
@@ -168,12 +166,9 @@ export default function FlowgeistAnalytics() {
       score -= 2;
       reasons.push("IP hosting");
     }
-    if (
-      !item.userAgent?.deviceModel ||
-      item.userAgent.deviceModel === "Unknown"
-    ) {
+    if (!item.userAgent?.device || item.userAgent.device === "Unknown") {
       score -= 1;
-      reasons.push("Modello sconosciuto");
+      reasons.push("Dispositivo sconosciuto");
     }
 
     // Determina il livello di autenticità
@@ -373,14 +368,7 @@ export default function FlowgeistAnalytics() {
                                 {item.userAgent?.device || "Unknown"}
                               </p>
                             </div>
-                            <div>
-                              <span className="font-medium text-gray-700">
-                                Modello:
-                              </span>
-                              <p className="text-gray-600">
-                                {item.userAgent?.deviceModel || "Unknown"}
-                              </p>
-                            </div>
+
                             <div>
                               <span className="font-medium text-gray-700">
                                 Risoluzione:
