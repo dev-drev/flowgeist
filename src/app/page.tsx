@@ -221,6 +221,9 @@ const AudioPlayer = ({
 };
 
 export default function Home() {
+  // Get brand name from environment variable, default to "AD 93"
+  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "AD 93";
+
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackId, setCurrentTrackId] = useState<number | null>(null);
@@ -562,7 +565,7 @@ export default function Home() {
 
             <div className="flex items-center justify-between mb-8 border-b-1 pb-4">
               <h2 className="text-2xl font-bold text-white uppercase font-grotesque">
-                {useLocalFiles ? "I TUOI FILE" : "AD 93 | DEMOS"}
+                {useLocalFiles ? "I TUOI FILE" : `${brandName} | DEMOS`}
               </h2>
               <a
                 href="https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
