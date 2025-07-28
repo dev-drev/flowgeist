@@ -221,8 +221,7 @@ const AudioPlayer = ({
 };
 
 export default function Home() {
-  // Get brand name from environment variable, default to "AD 93"
-  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "AD 93";
+  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "";
 
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
