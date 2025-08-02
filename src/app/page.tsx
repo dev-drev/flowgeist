@@ -385,10 +385,13 @@ export default function Home() {
   };
 
   const handleSoundcloudClick = () => {
-    trackExternalLink(
-      "SoundCloud",
-      "https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
-    );
+    const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
+    const soundcloudUrl =
+      brandName === "PAN"
+        ? "https://soundcloud.com/flowgeist/sets/pan-demo/s-iBCEtIDAPSB?si=3cf8dd59cf3c40e695a7d68ffa36ce62&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" // Replace this with the actual PAN SoundCloud URL
+        : "https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing";
+
+    trackExternalLink("SoundCloud", soundcloudUrl);
   };
 
   const handleArtistLinkClick = (
