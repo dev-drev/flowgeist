@@ -2,16 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("🚀 Starting file upload...");
+  
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
 
-    console.log("📁 File info:", {
+
       name: file?.name,
       size: file?.size,
-      type: file?.type,
-    });
+
 
     if (!file) {
       console.error("❌ No file provided");
@@ -34,7 +33,7 @@ export async function POST(request: NextRequest) {
       .substring(2)}.${fileExt}`;
     const filePath = `audio/${fileName}`;
 
-    console.log("📤 Uploading to path:", filePath);
+
 
     // Upload file su Supabase Storage
     // const { data: uploadData, error: uploadError } = await supabase.storage

@@ -9,8 +9,6 @@ import { db } from "@/lib/firebase";
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("🧪 Testing Firestore connection...");
-
     // Test 1: Prova a creare un documento di test
     const testData = {
       test: true,
@@ -19,21 +17,17 @@ export async function GET(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("📝 Creating test document...");
     const docRef = await addDoc(collection(db, "test"), testData);
-    console.log("✅ Test document created with ID:", docRef.id);
 
     // Test 2: Prova a leggere i documenti dalla collezione tracking
-    console.log("📖 Reading from tracking collection...");
+
     const trackingSnapshot = await getDocs(collection(db, "tracking"));
     const trackingCount = trackingSnapshot.size;
-    console.log("📊 Found", trackingCount, "documents in tracking collection");
 
     // Test 3: Prova a leggere i documenti dalla collezione test
-    console.log("📖 Reading from test collection...");
+
     const testSnapshot = await getDocs(collection(db, "test"));
     const testCount = testSnapshot.size;
-    console.log("📊 Found", testCount, "documents in test collection");
 
     return NextResponse.json({
       success: true,
@@ -60,7 +54,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { trackId, trackTitle, action } = body;
 
-    console.log("🧪 Creating test tracking event...");
+    
 
     const testTrackingData = {
       trackId: trackId || 999,
@@ -79,7 +73,7 @@ export async function POST(request: NextRequest) {
     };
 
     const docRef = await addDoc(collection(db, "tracking"), testTrackingData);
-    console.log("✅ Test tracking event created with ID:", docRef.id);
+    
 
     return NextResponse.json({
       success: true,

@@ -91,8 +91,6 @@ export const AVAILABLE_SONGS: SongFile[] = [
 // Funzione per ottenere tutti i songs da Firebase Storage
 export const getAllSongs = async (): Promise<SongFile[]> => {
   try {
-    console.log("🚀 Starting to load songs from Firebase Storage...");
-
     // Timeout di 15 secondi per evitare caricamento infinito
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(
@@ -108,7 +106,6 @@ export const getAllSongs = async (): Promise<SongFile[]> => {
 
       for (const song of AVAILABLE_SONGS) {
         try {
-          console.log(`📡 Fetching URL for: ${song.originalName}`);
           const firebaseURL = await getAudioURL(song.originalName);
           songsWithUrls.push({
             ...song,
@@ -116,16 +113,9 @@ export const getAllSongs = async (): Promise<SongFile[]> => {
             isFirebase: true,
           });
           successCount++;
-          console.log(
-            `✅ Loaded ${song.title} from Firebase: ${firebaseURL.substring(
-              0,
-              50
-            )}...`
-          );
         } catch (error) {
           errorCount++;
-          console.error(`❌ Error loading ${song.title} from Firebase:`, error);
-          console.error(`   File name: ${song.originalName}`);
+
           // Continua con le altre tracce invece di fermarsi
           continue;
         }
@@ -134,16 +124,7 @@ export const getAllSongs = async (): Promise<SongFile[]> => {
       // Ordina le tracce per ID per mantenere l'ordine corretto
       songsWithUrls.sort((a, b) => a.id - b.id);
 
-      console.log(
-        `🎵 Loading complete: ${successCount} successful, ${errorCount} failed`
-      );
-      console.log(
-        `📋 Songs loaded in order:`,
-        songsWithUrls.map((s) => `${s.id}. ${s.title}`)
-      );
-
       if (songsWithUrls.length === 0) {
-        console.warn("⚠️ No songs could be loaded from Firebase");
       }
 
       return songsWithUrls;
@@ -151,8 +132,6 @@ export const getAllSongs = async (): Promise<SongFile[]> => {
 
     return await Promise.race([loadPromise(), timeoutPromise]);
   } catch (error) {
-    console.error("💥 Error loading songs from Firebase:", error);
-    console.error("🔄 Falling back to empty array");
     return [];
   }
 };
@@ -170,8 +149,6 @@ export const getSongsHybrid = async (): Promise<SongFile[]> => {
 // Funzione per ottenere i songs locali (fallback)
 export const getSongsLocal = (): SongFile[] => {
   // I file sono solo su Firebase Storage, non localmente
-  console.log(
-    "⚠️ No local files available - files are only on Firebase Storage"
-  );
+
   return [];
 };

@@ -87,7 +87,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
 
-    console.log("✅ Track deleted successfully:", id);
+
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -209,12 +209,8 @@ const AudioPlayer = ({
           console.error("Audio error for:", track.title, e);
           console.error("Audio src:", track.audioFile);
         }}
-        onLoadStart={() => {
-          console.log("Loading audio:", track.title, track.audioFile);
-        }}
-        onCanPlay={() => {
-          console.log("Audio can play:", track.title);
-        }}
+        onLoadStart={() => {}}
+        onCanPlay={() => {}}
       />
     </motion.div>
   );
@@ -255,8 +251,6 @@ export default function Home() {
   useEffect(() => {
     const loadInitialVideo = async () => {
       try {
-        console.log("🎬 Loading video with smart fallback...");
-
         // Prima prova il video locale
         const localVideoPath = await getVideoPath("output5", true);
         const localVideoExists = await checkLocalVideoExists(localVideoPath);
@@ -264,14 +258,11 @@ export default function Home() {
         if (localVideoExists) {
           setVideoURL(localVideoPath);
           setVideoSource("output5.mp4");
-          console.log("✅ Video loaded from local storage (fast)");
         } else {
-          console.log("⚠️ Local video not found, trying Firebase...");
           // Fallback a Firebase
           const url = await getVideoURL("output5.mp4");
           setVideoURL(url);
           setVideoSource("output5.mp4");
-          console.log("🔄 Video loaded from Firebase Storage");
         }
       } catch (error) {
         console.error("❌ Error loading video:", error);
@@ -332,10 +323,9 @@ export default function Home() {
       if (songFiles.length > 0) {
         // Mostra subito le tracce, anche se non sono ancora preloadate
         setTracks(songFiles);
-        console.log("✅ Songs loaded from Firebase Storage");
       } else {
         // Fallback ai file locali se Firebase non funziona
-        console.log("⚠️ No songs from Firebase, using local files as fallback");
+
         const { getSongsLocal } = await import("@/lib/songImporter");
         const localSongs = getSongsLocal();
         setTracks(localSongs);
@@ -343,7 +333,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error loading songs from Firebase:", error);
       // Fallback ai file locali
-      console.log("🔄 Falling back to local files");
+
       const { getSongsLocal } = await import("@/lib/songImporter");
       const localSongs = getSongsLocal();
       setTracks(localSongs);
@@ -386,6 +376,7 @@ export default function Home() {
 
   const handleSoundcloudClick = () => {
     const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
+
     const soundcloudUrl =
       brandName === "PAN"
         ? "https://soundcloud.com/flowgeist/sets/pan-demo/s-iBCEtIDAPSB?si=3cf8dd59cf3c40e695a7d68ffa36ce62&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" // Replace this with the actual PAN SoundCloud URL
@@ -464,19 +455,12 @@ export default function Home() {
                   : "none",
               transform: "scaleY(-1)",
             }}
-            onLoadStart={() => {
-              console.log("Video loading started");
-            }}
+            onLoadStart={() => {}}
             onLoadedMetadata={() => {
-              console.log("Video metadata loaded");
               setVideoLoaded(true);
             }}
-            onCanPlay={() => {
-              console.log("Video can play");
-            }}
-            onError={(e) => {
-              console.error("Video error:", e);
-            }}
+            onCanPlay={() => {}}
+            onError={(e) => {}}
             ref={(el) => {
               if (el) {
                 try {
@@ -484,9 +468,7 @@ export default function Home() {
                   el.addEventListener("loadedmetadata", () => {
                     el.playbackRate = 0.1; // Rallenta il video al 10% della velocità normale
                   });
-                } catch (error) {
-                  console.log("Playback rate adjustment failed:", error);
-                }
+                } catch (error) {}
               }
             }}
           >

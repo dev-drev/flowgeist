@@ -36,9 +36,6 @@ export async function GET(request: NextRequest) {
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     }
 
-    console.log("📊 Fetching analytics from Firestore for range:", range);
-    console.log("📅 Start date:", startDate);
-
     // Query per ottenere i dati di tracking da Firestore
     const trackingRef = collection(db, "tracking");
     const q = query(
@@ -89,16 +86,7 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    console.log("📈 Found", trackingData.length, "tracking records");
-
     // Debug: mostra il primo record per vedere la struttura del timestamp
-    if (trackingData.length > 0) {
-      console.log("🔍 First record timestamp:", trackingData[0].timestamp);
-      console.log(
-        "🔍 First record formattedTimestamp:",
-        trackingData[0].formattedTimestamp
-      );
-    }
 
     // Calcola le statistiche
     const summary = calculateSummary(trackingData);

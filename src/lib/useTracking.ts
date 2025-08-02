@@ -13,17 +13,13 @@ interface TrackingData {
 export const useTracking = () => {
   const trackEvent = useCallback(async (data: TrackingData) => {
     try {
-      console.log("🎯 Tracking event started:", data);
-
       // Ottieni l'IP dell'utente
       let userIP = "unknown";
       try {
         const ipResponse = await fetch("https://api.ipify.org?format=json");
         const ipData = await ipResponse.json();
         userIP = ipData.ip;
-      } catch (error) {
-        console.log("Could not get IP address:", error);
-      }
+      } catch (error) {}
 
       // Raccogli informazioni automatiche
       const trackingData = {
@@ -38,10 +34,8 @@ export const useTracking = () => {
         language: navigator.language,
       };
 
-      console.log("📊 Tracking data prepared:", trackingData);
-
       // Salva in Firestore
-      console.log("🔥 Sending tracking data to Firestore...");
+
       const response = await fetch("/api/tracking", {
         method: "POST",
         headers: {
@@ -50,11 +44,9 @@ export const useTracking = () => {
         body: JSON.stringify(trackingData),
       });
 
-      console.log("📡 Firestore response status:", response.status);
-
       if (response.ok) {
         const result = await response.json();
-        console.log("✅ Firestore tracking successful:", result);
+
         return result;
       } else {
         const errorText = await response.text();
@@ -72,7 +64,6 @@ export const useTracking = () => {
 
   const trackClick = useCallback(
     (trackId: number, trackTitle: string) => {
-      console.log("🖱️ Track click called:", { trackId, trackTitle });
       return trackEvent({
         trackId,
         trackTitle,
@@ -84,7 +75,6 @@ export const useTracking = () => {
 
   const trackDownload = useCallback(
     (trackId: number, trackTitle: string) => {
-      console.log("⬇️ Track download called:", { trackId, trackTitle });
       return trackEvent({
         trackId,
         trackTitle,
@@ -96,7 +86,6 @@ export const useTracking = () => {
 
   const trackPlay = useCallback(
     (trackId: number, trackTitle: string) => {
-      console.log("▶️ Track play called:", { trackId, trackTitle });
       return trackEvent({
         trackId,
         trackTitle,
@@ -108,7 +97,6 @@ export const useTracking = () => {
 
   const trackView = useCallback(
     (trackId: number, trackTitle: string) => {
-      console.log("👁️ Track view called:", { trackId, trackTitle });
       return trackEvent({
         trackId,
         trackTitle,
@@ -120,7 +108,6 @@ export const useTracking = () => {
 
   const trackExternalLink = useCallback(
     (linkType: string, linkUrl: string) => {
-      console.log("🔗 External link clicked:", { linkType, linkUrl });
       return trackEvent({
         trackId: 0, // Special ID for external links
         trackTitle: `${linkType} Link`,
@@ -132,7 +119,6 @@ export const useTracking = () => {
 
   const trackPageView = useCallback(
     (pageTitle: string) => {
-      console.log("📄 Page view:", { pageTitle });
       return trackEvent({
         trackId: 0, // Using 0 as it's not a real track
         trackTitle: pageTitle,

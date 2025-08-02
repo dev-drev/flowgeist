@@ -4,9 +4,7 @@ import { db } from "@/lib/firebase";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("🚀 Tracking API called");
     const body = await request.json();
-    console.log("📦 Request body:", body);
 
     const {
       trackId,
@@ -60,9 +58,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Salva nel database
-    console.log("💾 Saving to Firestore:", trackingData);
+
     const docRef = await addDoc(collection(db, "tracking"), trackingData);
-    console.log("✅ Saved to Firestore with ID:", docRef.id);
 
     return NextResponse.json({
       success: true,
@@ -120,8 +117,6 @@ async function getGeoInfo(ip: string) {
   if (!ip || ip === "unknown") return null;
 
   try {
-    console.log("🌍 Getting geo info for IP:", ip);
-
     // Prova prima ip-api.com (gratuito)
     try {
       const response = await fetch(
@@ -130,7 +125,6 @@ async function getGeoInfo(ip: string) {
       const data = await response.json();
 
       if (data.status === "success") {
-        console.log("✅ Geo info from ip-api.com:", data);
         return {
           country: data.country,
           countryCode: data.countryCode,
@@ -149,9 +143,7 @@ async function getGeoInfo(ip: string) {
           source: "ip-api.com",
         };
       }
-    } catch (error) {
-      console.log("❌ ip-api.com failed, trying ipapi.co...");
-    }
+    } catch (error) {}
 
     // Fallback a ipapi.co
     try {
@@ -159,7 +151,6 @@ async function getGeoInfo(ip: string) {
       const data = await response.json();
 
       if (data.country_name) {
-        console.log("✅ Geo info from ipapi.co:", data);
         return {
           country: data.country_name,
           countryCode: data.country_code,
@@ -173,9 +164,7 @@ async function getGeoInfo(ip: string) {
           source: "ipapi.co",
         };
       }
-    } catch (error) {
-      console.log("❌ ipapi.co also failed");
-    }
+    } catch (error) {}
   } catch (error) {
     console.error("❌ Geo IP error:", error);
   }
