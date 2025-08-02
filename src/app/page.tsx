@@ -114,6 +114,8 @@ const AudioPlayer = ({
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
+
   return (
     <motion.div
       className="w-full"
@@ -218,6 +220,11 @@ const AudioPlayer = ({
 
 export default function Home() {
   const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "";
+
+  const soundcloudUrl =
+    brandName === "PAN"
+      ? "https://soundcloud.com/flowgeist/sets/pan-demo/s-iBCEtIDAPSB?si=3cf8dd59cf3c40e695a7d68ffa36ce62&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+      : "https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing";
 
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -375,13 +382,6 @@ export default function Home() {
   };
 
   const handleSoundcloudClick = () => {
-    const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
-
-    const soundcloudUrl =
-      brandName === "PAN"
-        ? "https://soundcloud.com/flowgeist/sets/pan-demo/s-iBCEtIDAPSB?si=3cf8dd59cf3c40e695a7d68ffa36ce62&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" // Replace this with the actual PAN SoundCloud URL
-        : "https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing";
-
     trackExternalLink("SoundCloud", soundcloudUrl);
   };
 
@@ -552,7 +552,7 @@ export default function Home() {
                 {useLocalFiles ? "I TUOI FILE" : `${brandName} | DEMOS`}
               </h2>
               <a
-                href="https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
+                href={soundcloudUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleSoundcloudClick}
