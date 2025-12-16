@@ -53,50 +53,11 @@ export default function Home() {
       )}
       {/* Background Video */}
       <div className="fixed inset-0 w-full h-full overflow-hidden z-0">
-        {/* Background Video */}
-        {videoURL && (
-          <video
-            key={`${videoSource}-${Date.now()}`}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{
-              filter: "brightness(0.5)",
-              transform: "scaleY(-1)",
-              zIndex: 2,
-            }}
-            onLoadStart={() => {}}
-            onLoadedMetadata={() => {}}
-            onCanPlay={() => {}}
-            onError={(e) => {}}
-            ref={(el) => {
-              if (el) {
-                try {
-                  // Imposta la velocità e forza il play dopo che il video è caricato
-                  el.addEventListener("loadedmetadata", () => {
-                    el.playbackRate = 0.1; // Rallenta il video al 10% della velocità normale
-                    el.play().catch(() => {}); // Forza il play
-                  });
-                  // Forza il play anche quando può essere riprodotto
-                  el.addEventListener("canplay", () => {
-                    el.play().catch(() => {});
-                  });
-                } catch (error) {}
-              }
-            }}
-          >
-            <source src={videoURL} type="video/mp4" />
-          </video>
-        )}
-        {/* Overlay con colore #121212 */}
         <div
           className="absolute inset-0"
           style={{
             zIndex: 3,
-            backgroundColor: "#121212D7",
+            backgroundColor: "#121212e9",
             mixBlendMode: "multiply",
           }}
         ></div>
