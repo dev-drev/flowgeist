@@ -1,285 +1,26 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { ScaleLoader } from "react-spinners";
-import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import CircularProgress from "@/components/CircularProgress";
-import DynamicTitle from "@/components/DynamicTitle";
-import { getAllSongs } from "@/lib/songImporter";
-import { getVideoURL } from "@/lib/firebase";
-import { getVideoPath, checkLocalVideoExists } from "@/lib/videoConfig";
-import { getFeaturedArtists, Artist } from "@/lib/artistsConfig";
 import { useTracking } from "@/lib/useTracking";
 
-// TypeScript interfaces
-interface Track {
-  id: number;
-  title: string;
-  duration: string;
-  audioFile: string;
-  waveform?: string;
-  file?: File; // Per i file caricati localmente
-  isFirebase?: boolean; // Indica se il file viene da Firebase Storage
-}
-
-interface AudioPlayerProps {
-  track: Track;
-  isPlaying: boolean;
-  onTogglePlay: (trackId: number | null) => void;
-  currentTrackId: number | null;
-  onTrackClick?: (trackId: number, trackTitle: string) => void;
-}
-
-// Audio Player Component
-const AudioPlayer = ({
-  track,
-  isPlaying,
-  onTogglePlay,
-  currentTrackId,
-  isPreloaded,
-  onTrackClick,
-}: AudioPlayerProps & { isPreloaded: boolean }) => {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const isCurrentTrack = currentTrackId === track.id;
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying && isCurrentTrack) {
-        audioRef.current.play();
-      } else {
-        audioRef.current.pause();
-        // Reset position to 0 when switching tracks
-        if (!isCurrentTrack) {
-          audioRef.current.currentTime = 0;
-          setCurrentTime(0);
-        }
-      }
-    }
-  }, [isPlaying, isCurrentTrack]);
-
-  // Reset position when track becomes current
-  useEffect(() => {
-    if (isCurrentTrack && audioRef.current) {
-      audioRef.current.currentTime = 0;
-      setCurrentTime(0);
-    }
-  }, [isCurrentTrack]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
-
-    audio.addEventListener("timeupdate", updateTime);
-    audio.addEventListener("loadedmetadata", updateDuration);
-    audio.addEventListener("durationchange", updateDuration);
-
-    return () => {
-      audio.removeEventListener("timeupdate", updateTime);
-      audio.removeEventListener("loadedmetadata", updateDuration);
-      audio.removeEventListener("durationchange", updateDuration);
-    };
-  }, []);
-
-  const handleTogglePlay = () => {
-    // Track the click event
-    if (onTrackClick) {
-      onTrackClick(track.id, track.title);
-    }
-
-    if (isCurrentTrack && isPlaying) {
-      onTogglePlay(null);
-    } else {
-      onTogglePlay(track.id);
-    }
-  };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current;
-    if (audio) {
-      const newTime = parseFloat(e.target.value);
-      audio.currentTime = newTime;
-      setCurrentTime(newTime);
-    }
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
-
-  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
-
-  return (
-    <motion.div
-      className="w-full"
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
-      <div className="flex items-center space-x-4 group p-3 lg:p-2 pl-0 rounded transition-colors w-full">
-        <button
-          onClick={handleTogglePlay}
-          disabled={!isPreloaded}
-          className={`cursor-pointer w-8 h-8 text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0 ${
-            !isPreloaded ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {!isPreloaded ? (
-            <ScaleLoader
-              color="#ffffff"
-              height={16}
-              width={2}
-              radius={2}
-              margin={1}
-            />
-          ) : isPlaying && isCurrentTrack ? (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
-
-        {/* Track title */}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg lg:text-lg font-medium text-white font-grotesque truncate">
-            {track.title}
-          </h3>
-        </div>
-
-        {/* Duration */}
-        <div className="text-sm text-white/80 font-mono flex-shrink-0">
-          {isCurrentTrack ? formatTime(currentTime) : track.duration}
-        </div>
-      </div>
-
-      {/* Progress Bar - Only show for current track */}
-      {isCurrentTrack && (
-        <div className="px-12 pb-2">
-          <div className="flex items-center space-x-2">
-            <span className="text-xs text-white/80 font-mono w-8">
-              {formatTime(currentTime)}
-            </span>
-            <input
-              type="range"
-              min="0"
-              max={duration || 0}
-              value={currentTime}
-              onChange={handleSeek}
-              className="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              style={{
-                background: `linear-gradient(to right, #000 0%, #000 ${
-                  (currentTime / (duration || 1)) * 100
-                }%, #e5e7eb ${
-                  (currentTime / (duration || 1)) * 100
-                }%, #e5e7eb 100%)`,
-              }}
-            />
-            <span className="text-xs text-white/80 font-mono w-8">
-              {formatTime(duration)}
-            </span>
-          </div>
-        </div>
-      )}
-
-      <audio
-        ref={audioRef}
-        src={track.file ? URL.createObjectURL(track.file) : track.audioFile}
-        preload="metadata"
-        onEnded={() => {
-          // Reset position when track ends
-          if (audioRef.current) {
-            audioRef.current.currentTime = 0;
-            setCurrentTime(0);
-          }
-          onTogglePlay(null);
-        }}
-        onError={(e) => {
-          console.error("Audio error for:", track.title, e);
-          console.error("Audio src:", track.audioFile);
-        }}
-        onLoadStart={() => {}}
-        onCanPlay={() => {}}
-      />
-    </motion.div>
-  );
-};
-
 export default function Home() {
-  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "";
-
-  const soundcloudUrl =
-    brandName === "PAN"
-      ? "https://soundcloud.com/flowgeist/sets/pan-demo/s-iBCEtIDAPSB?si=3cf8dd59cf3c40e695a7d68ffa36ce62&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
-      : "https://soundcloud.com/flowgeist/sets/flowgeist/s-anlJ2UXcjOq?si=35e2e7b88c794fca890c28f7bdaf6cbc&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing";
-
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrackId, setCurrentTrackId] = useState<number | null>(null);
-  const [useLocalFiles] = useState(false);
-  const [isLoadingFromFirebase, setIsLoadingFromFirebase] = useState(false);
-  const [preloadedTracks, setPreloadedTracks] = useState<Set<number>>(
-    new Set()
-  );
   const [videoSource, setVideoSource] = useState("");
   const [videoURL, setVideoURL] = useState<string | null>(null);
-  const [colorScheme, setColorScheme] = useState("red");
   const [isLoading, setIsLoading] = useState(true);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [artists] = useState(getFeaturedArtists());
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
-  const [isArtistModalOpen, setIsArtistModalOpen] = useState(false);
-  const [isArtistPanelOpen, setIsArtistPanelOpen] = useState(false);
-  const { trackClick, trackPlay, trackView, trackExternalLink, trackPageView } =
-    useTracking();
-
-  // Get current track title for dynamic title
-  const currentTrack = tracks.find((track) => track.id === currentTrackId);
+  const { trackPageView } = useTracking();
 
   // Track page view on component mount
   useEffect(() => {
     trackPageView("Website opened");
   }, [trackPageView]);
 
-  // Load initial video from Firebase Storage
+  // Load initial video
   useEffect(() => {
-    const loadInitialVideo = async () => {
-      try {
-        // Prima prova il video locale
-        const localVideoPath = await getVideoPath("output5", true);
-        const localVideoExists = await checkLocalVideoExists(localVideoPath);
-
-        if (localVideoExists) {
-          setVideoURL(localVideoPath);
-          setVideoSource("output5.mp4");
-        } else {
-          // Fallback a Firebase
-          const url = await getVideoURL("output5.mp4");
-          setVideoURL(url);
-          setVideoSource("output5.mp4");
-        }
-      } catch (error) {
-        console.error("❌ Error loading video:", error);
-        // Ultimo fallback
-        setVideoURL("/videos/output5.mp4");
-        setVideoSource("output5.mp4");
-      }
-    };
-
-    loadInitialVideo();
+    // Use vd1.mp4 from public/artists folder
+    setVideoURL("/artists/vd1.mp4");
+    setVideoSource("vd1.mp4");
   }, []);
 
   // Hide loader after 3 seconds
@@ -290,125 +31,6 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, []);
-
-  // Load tracks from public/songs folder
-  useEffect(() => {
-    if (!useLocalFiles) {
-      loadSongsFromFirebase();
-    }
-  }, [useLocalFiles]);
-
-  const preloadAudioFiles = useCallback(async () => {
-    const audioElements: HTMLAudioElement[] = [];
-
-    tracks.forEach((track) => {
-      const audio = new Audio();
-      audio.src = track.audioFile;
-      audio.preload = "metadata";
-
-      audio.addEventListener("loadedmetadata", () => {
-        setPreloadedTracks((prev) => new Set([...prev, track.id]));
-      });
-
-      audioElements.push(audio);
-    });
-  }, [tracks]);
-
-  // Preload audio files for better performance
-  useEffect(() => {
-    if (tracks.length > 0) {
-      preloadAudioFiles();
-    }
-  }, [preloadAudioFiles, tracks.length]);
-
-  const loadSongsFromFirebase = async () => {
-    try {
-      setIsLoadingFromFirebase(true);
-      // Carica i songs da Firebase Storage
-      const songFiles = await getAllSongs();
-
-      if (songFiles.length > 0) {
-        // Mostra subito le tracce, anche se non sono ancora preloadate
-        setTracks(songFiles);
-      } else {
-        // Fallback ai file locali se Firebase non funziona
-
-        const { getSongsLocal } = await import("@/lib/songImporter");
-        const localSongs = getSongsLocal();
-        setTracks(localSongs);
-      }
-    } catch (error) {
-      console.error("Error loading songs from Firebase:", error);
-      // Fallback ai file locali
-
-      const { getSongsLocal } = await import("@/lib/songImporter");
-      const localSongs = getSongsLocal();
-      setTracks(localSongs);
-    } finally {
-      setIsLoadingFromFirebase(false);
-    }
-  };
-
-  const handleTogglePlay = (trackId: number | null) => {
-    if (currentTrackId === trackId) {
-      // Stop current track
-      setIsPlaying(false);
-      setCurrentTrackId(null);
-    } else {
-      // Play new track - always reset position
-      const newTrack = tracks.find((track) => track.id === trackId);
-      if (newTrack) {
-        // Track the play event
-        trackPlay(newTrack.id, newTrack.title);
-      }
-      setIsPlaying(true);
-      setCurrentTrackId(trackId);
-    }
-  };
-
-  const handleArtistClick = (artist: Artist) => {
-    setSelectedArtist(artist);
-    setIsArtistPanelOpen(true);
-  };
-
-  const closeArtistModal = () => {
-    setIsArtistModalOpen(false);
-    setSelectedArtist(null);
-  };
-
-  const closeArtistPanel = () => {
-    setIsArtistPanelOpen(false);
-    setSelectedArtist(null);
-  };
-
-  const handleSoundcloudClick = () => {
-    trackExternalLink("SoundCloud", soundcloudUrl);
-  };
-
-  const handleArtistLinkClick = (
-    artistName: string,
-    linkType: string,
-    linkUrl: string
-  ) => {
-    trackExternalLink(`${artistName} ${linkType}`, linkUrl);
-  };
-
-  // Close modal and panel with ESC key
-  useEffect(() => {
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        if (isArtistModalOpen) {
-          closeArtistModal();
-        }
-        if (isArtistPanelOpen) {
-          closeArtistPanel();
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleEscKey);
-    return () => document.removeEventListener("keydown", handleEscKey);
-  }, [isArtistModalOpen, isArtistPanelOpen]);
 
   return (
     <main className="flex min-h-screen w-full relative">
@@ -429,16 +51,9 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      {/* Dynamic Title Component */}
-      <DynamicTitle
-        isPlaying={isPlaying}
-        currentTrackTitle={currentTrack?.title}
-        baseTitle="_flowgeist"
-      />
-
       {/* Background Video */}
       <div className="fixed inset-0 w-full h-full overflow-hidden z-0">
+        {/* Background Video */}
         {videoURL && (
           <video
             key={`${videoSource}-${Date.now()}`}
@@ -449,16 +64,12 @@ export default function Home() {
             preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
-              filter:
-                colorScheme === "red"
-                  ? "hue-rotate(0deg) saturate(2.2) brightness(0.8) contrast(1.4) sepia(0.2)"
-                  : "none",
+              filter: "brightness(0.5)",
               transform: "scaleY(-1)",
+              zIndex: 2,
             }}
             onLoadStart={() => {}}
-            onLoadedMetadata={() => {
-              setVideoLoaded(true);
-            }}
+            onLoadedMetadata={() => {}}
             onCanPlay={() => {}}
             onError={(e) => {}}
             ref={(el) => {
@@ -475,407 +86,76 @@ export default function Home() {
             <source src={videoURL} type="video/mp4" />
           </video>
         )}
-        {/* Overlay condizionale per colorare il video e migliorare la leggibilità del testo */}
-        {colorScheme === "red" ? (
-          <>
-            <div className="absolute inset-0 bg-red-900/70 mix-blend-multiply"></div>
-            <div className="absolute inset-0 bg-red-950/50 mix-blend-overlay"></div>
-            <div className="absolute inset-0 bg-black/50"></div>
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-black/10"></div>
-        )}
+        {/* Overlay con colore #121212 */}
+        <div
+          className="absolute inset-0"
+          style={{
+            zIndex: 3,
+            backgroundColor: "#121212",
+            mixBlendMode: "multiply",
+          }}
+        ></div>
       </div>
 
       {/* Content overlay */}
-      <div className="relative z-10 flex w-full flex-col lg:flex-row">
-        {/* Left side - Title and About */}
-        <div className="lg:w-1/2 flex items-start justify-left lg:p-16 p-4 flex-col">
-          <div className="lg:text-[8vw] xl:text-[3vw] text-[30px] font-extrabold tracking-tight text-left text-white font-grotesque pl-4 lg:pl-8">
-            _flowgeist
-          </div>
-          <div className="mt-4 lg:mt-8 text-justify pt-2 lg:pt-10 w-full lg:max-w-[40vw] xl:max-w-[45vw] px-4 lg:pl-8">
-            <p className="text-lg lg:text-[1.2vw] xl:text-[1.3vw] leading-relaxed text-white font-grotesque">
-              Flowgeist is an interdisciplinary project unfolding through the
-              space where structure blurs into abstraction, allowing polyhedral
-              sonic textures to merge and momentum to lead. Nothing is overly
-              defined.
-            </p>
+      <div className="relative z-10 flex items-center justify-center w-full h-full min-h-screen">
+        <div className="px-4 w-full max-w-7xl mx-auto py-20">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-[200px]">
+            {/* Immagine a sinistra */}
+            <div className="flex-shrink-0">
+              <Image
+                src="/artists/flowgeist.svg"
+                alt="flowgeist"
+                width={500}
+                height={700}
+                className="w-full max-w-md lg:max-w-md"
+                priority
+              />
+            </div>
 
-            {/* Artists Section */}
-            <div className="mt-8 lg:mt-12 pt-6 border-t border-white/20">
-              <h3 className="text-sm lg:text-base font-medium text-white/80 uppercase tracking-wider mb-4 font-grotesque">
-                Featured Artists
-              </h3>
-              <div className="flex space-x-6">
-                {artists.map((artist, index) => (
-                  <motion.div
-                    key={artist.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.8 + index * 0.2 }}
-                    className="flex flex-col items-center group cursor-pointer"
-                    onClick={() => handleArtistClick(artist)}
-                  >
-                    <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden mb-3 border-2 border-white/20 group-hover:border-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
-                      <Image
-                        src={artist.image}
-                        alt={artist.name}
-                        width={80}
-                        height={80}
-                        className={`w-full h-full object-cover ${
-                          artist.id === "artist1" ? "grayscale" : ""
-                        }`}
-                        onError={() => {
-                          // Fallback handled by Next.js Image component
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs lg:text-sm text-white/70 font-grotesque text-center group-hover:text-white/90 transition-colors">
-                      {artist.name}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
+            {/* Testo in una colonna a destra */}
+            <div className="flex-1 max-w-xl text-white/90 font-grotesque">
+              <p className="text-lg lg:text-lg leading-relaxed text-justify">
+                Flowgeist resonates across purest sound and form through endless
+                definition. Structures surface, loosen, and fall away, allowing
+                material to reorganise in real time. Forms are driven to the
+                point of wear: edges soften, outlines blur, and stylistic
+                markers lose stability. Rhythm functions as a spatial force,
+                contracting and releasing density as tension gathers and
+                dissipates. Long-form electronic construction intersects with
+                physical intensity, where restraint and impact remain closely
+                linked and abstraction stays tethered to sensation. Genre
+                remains peripheral, treated as material rather than structure.
+                Sound leads the process, leaving interpretation to emerge
+                through listening, over time.
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Right side - Track List */}
-        <div className="w-full lg:w-1/2 flex items-start justify-center lg:p-16 p-4">
-          <div className="w-full max-w-md p-6 relative">
-            {/* Blurry background behind tracks */}
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-md rounded-lg -z-10"></div>
-
-            <div className="flex items-center justify-between mb-8 border-b-1 pb-4">
-              <h2 className="text-2xl font-bold text-white uppercase font-grotesque">
-                {useLocalFiles ? "I TUOI FILE" : `${brandName} | DEMOS`}
-              </h2>
-              <a
-                href={soundcloudUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleSoundcloudClick}
-                className="ml-4 flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2 rounded-full transition-colors border border-white/20 shadow-sm"
+          {/* Email link */}
+          <div className="mt-8 lg:mt-24 text-center">
+            <a
+              href="mailto:flowgeistmusic@gmail.com"
+              className="inline-flex items-center justify-center text-white/80 hover:text-white transition-colors"
+              aria-label="Email flowgeistmusic@gmail.com"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  viewBox="0 0 32 32"
-                  width="22"
-                  height="22"
-                  fill="currentColor"
-                  className="text-orange-400"
-                >
-                  <path d="M25.6 18.667c-0.267 0-0.533 0.027-0.8 0.08-0.267-2.987-2.773-5.28-5.867-5.28-0.64 0-1.28 0.107-1.92 0.32-0.267 0.093-0.427 0.373-0.373 0.64v8.213c0 0.267 0.213 0.48 0.48 0.48h8.48c2.027 0 3.68-1.653 3.68-3.68s-1.653-3.68-3.68-3.68zM7.573 22.507c0.267 0 0.48-0.213 0.48-0.48v-6.507c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v6.507c0 0.267 0.213 0.48 0.48 0.48zM10.293 22.507c0.267 0 0.48-0.213 0.48-0.48v-7.36c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v7.36c0 0.267 0.213 0.48 0.48 0.48zM13.013 22.507c0.267 0 0.48-0.213 0.48-0.48v-8.213c0-0.267-0.213-0.48-0.48-0.48s-0.48 0.213-0.48 0.48v8.213c0 0.267 0.213 0.48 0.48 0.48z"></path>
-                </svg>
-                <span className="hidden sm:inline text-[10px]">SOUNDCLOUD</span>
-              </a>
-            </div>
-
-            {/* Loading indicator for individual tracks */}
-            {!useLocalFiles && isLoadingFromFirebase && tracks.length === 0 && (
-              <div className="mb-4 text-center">
-                <p className="text-sm text-white">Loading...</p>
-              </div>
-            )}
-
-            {/* File Upload Controls */}
-
-            <div className="space-y-4">
-              <AnimatePresence>
-                {tracks.map((track, index) => (
-                  <motion.div
-                    key={track.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{
-                      duration: 0.6,
-                      delay: index * 0.1, // Delay progressivo per effetto cascade
-                      ease: "easeOut",
-                    }}
-                  >
-                    <AudioPlayer
-                      track={track}
-                      isPlaying={isPlaying}
-                      onTogglePlay={handleTogglePlay}
-                      currentTrackId={currentTrackId}
-                      isPreloaded={preloadedTracks.has(track.id)}
-                      onTrackClick={trackClick}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+            </a>
           </div>
         </div>
       </div>
-
-      {/* Expandable Artist Panel */}
-      <AnimatePresence>
-        {isArtistPanelOpen && (
-          <>
-            {/* Backdrop for clicking outside */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-transparent z-30"
-              onClick={closeArtistPanel}
-            />
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="fixed bottom-0 left-0 right-0 bg-black/90 border-t border-white/20 backdrop-blur-md z-40 overflow-hidden"
-            >
-              {/* Panel Header */}
-              <div
-                className="flex items-center justify-between p-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h3 className="text-lg font-bold text-white font-grotesque">
-                  Featured Artists
-                </h3>
-                <button
-                  onClick={closeArtistPanel}
-                  className="text-white/60 hover:text-white transition-colors"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Panel Content */}
-              <motion.div
-                initial={false}
-                animate={{ opacity: isArtistPanelOpen ? 1 : 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: isArtistPanelOpen ? 0.2 : 0,
-                }}
-                className="px-4 pb-6"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {selectedArtist && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                    className="flex flex-col lg:flex-row items-start space-x-6 p-6 bg-white/5 rounded-lg border border-white/10"
-                  >
-                    {/* Artist Image */}
-                    <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0">
-                      <Image
-                        src={selectedArtist.image}
-                        alt={selectedArtist.name}
-                        width={128}
-                        height={128}
-                        className={`w-full h-full object-cover ${
-                          selectedArtist.id === "artist1" ? "grayscale" : ""
-                        }`}
-                        onError={() => {
-                          // Fallback handled by Next.js Image component
-                        }}
-                      />
-                    </div>
-
-                    {/* Artist Info */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-2xl lg:text-3xl font-bold text-white font-grotesque my-3 lg:my-0">
-                        {selectedArtist.name}
-                      </h4>
-                      {selectedArtist.description && (
-                        <p className="text-white/80 text-base lg:text-lg leading-relaxed font-grotesque mb-4">
-                          {selectedArtist.description}
-                        </p>
-                      )}
-
-                      {/* Action Buttons */}
-                      <div className="flex space-x-3">
-                        <a
-                          href={selectedArtist.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() =>
-                            handleArtistLinkClick(
-                              selectedArtist.name,
-                              "Profile",
-                              selectedArtist.link
-                            )
-                          }
-                          className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
-                        >
-                          <span>Visit Profile</span>
-                        </a>
-                        {selectedArtist.link2 && (
-                          <a
-                            href={selectedArtist.link2}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() =>
-                              handleArtistLinkClick(
-                                selectedArtist.name,
-                                selectedArtist.link2Label || "Link2",
-                                selectedArtist.link2!
-                              )
-                            }
-                            className="bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition-colors font-medium font-grotesque flex items-center space-x-2"
-                          >
-                            <span>{selectedArtist.link2Label || "Link 2"}</span>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Artist Modal */}
-      <AnimatePresence>
-        {isArtistModalOpen && selectedArtist && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            onClick={closeArtistModal}
-          >
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-
-            {/* Modal Content */}
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative bg-black/90 border border-white/20 rounded-2xl p-8 max-w-md w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button */}
-              <button
-                onClick={closeArtistModal}
-                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-
-              {/* Artist Info */}
-              <div className="text-center">
-                {/* Artist Image */}
-                <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-full overflow-hidden mx-auto mb-6 border-2 border-white/30">
-                  <Image
-                    src={selectedArtist.image}
-                    alt={selectedArtist.name}
-                    width={128}
-                    height={128}
-                    className={`w-full h-full object-cover ${
-                      selectedArtist.id === "artist1" ? "grayscale" : ""
-                    }`}
-                    onError={() => {
-                      // Fallback handled by Next.js Image component
-                    }}
-                  />
-                </div>
-
-                {/* Artist Name */}
-                <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 font-grotesque">
-                  {selectedArtist.name}
-                </h2>
-
-                {/* Artist Description */}
-                {selectedArtist.description && (
-                  <p className="text-white/80 text-sm lg:text-base mb-6 leading-relaxed font-grotesque">
-                    {selectedArtist.description}
-                  </p>
-                )}
-
-                {/* Social Links */}
-                <div className="space-y-3">
-                  <a
-                    href={selectedArtist.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      handleArtistLinkClick(
-                        selectedArtist.name,
-                        "Profile",
-                        selectedArtist.link
-                      )
-                    }
-                    className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition-colors font-medium font-grotesque"
-                  >
-                    <div className="flex items-center justify-center space-x-2">
-                      <svg
-                        className="w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
-                      </svg>
-                      <span>View Profile</span>
-                    </div>
-                  </a>
-                  {selectedArtist.link2 && (
-                    <a
-                      href={selectedArtist.link2}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() =>
-                        handleArtistLinkClick(
-                          selectedArtist.name,
-                          selectedArtist.link2Label || "Link2",
-                          selectedArtist.link2!
-                        )
-                      }
-                      className="block w-full bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-lg transition-colors font-medium font-grotesque"
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <svg
-                          className="w-5 h-5"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
-                        </svg>
-                        <span>{selectedArtist.link2Label || "Link 2"}</span>
-                      </div>
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </main>
   );
 }
