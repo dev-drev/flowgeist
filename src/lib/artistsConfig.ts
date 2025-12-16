@@ -27,7 +27,7 @@ export const FEATURED_ARTISTS: Artist[] = [
     link2: "https://linktr.ee/velvetmay",
     link2Label: "Linktree",
     description:
-      "As a versatile live performer, singer and DJ, he ventures beyond the ordinary, blending experimentation, meticulous sound design, and rhythmic beats that echo the cutting-edge landscapes of electronic music. His musical expression is a vibrant fusion, marrying Industrial grit, evocative Body Music and Rock elements and unfolds as an independent variant, weaving influences of psychedelic and breakbeat into his sonic repertoire.",
+      "Jagged edges of electronic body music meet fractured breakbeats and off-kilter rhythms, with subtle cinematic color and a propulsive energy that nods to the bold new wave sounds of the ’80s and the adventurous electronic explorations of the ’90s. As a versatile live performer, singer, and DJ, Velvet May moves beyond the ordinary, blending experimentation, meticulous sound design, and rhythmic tension that reflects the ever-shifting frontiers of electronic music. His sonic identity is a collision of Industrial grit, evocative Body Music, and raw Rock intensity — an independent form that intertwines psychedelic inflections and breakbeat pulse into its DNA.",
   },
 ];
 
