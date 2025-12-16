@@ -75,9 +75,14 @@ export default function Home() {
             ref={(el) => {
               if (el) {
                 try {
-                  // Imposta la velocità dopo che il video è caricato
+                  // Imposta la velocità e forza il play dopo che il video è caricato
                   el.addEventListener("loadedmetadata", () => {
                     el.playbackRate = 0.1; // Rallenta il video al 10% della velocità normale
+                    el.play().catch(() => {}); // Forza il play
+                  });
+                  // Forza il play anche quando può essere riprodotto
+                  el.addEventListener("canplay", () => {
+                    el.play().catch(() => {});
                   });
                 } catch (error) {}
               }
@@ -91,7 +96,7 @@ export default function Home() {
           className="absolute inset-0"
           style={{
             zIndex: 3,
-            backgroundColor: "#121212",
+            backgroundColor: "#121212D7",
             mixBlendMode: "multiply",
           }}
         ></div>

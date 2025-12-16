@@ -40,7 +40,9 @@ export default function PoetryClouds({
     import("p5").then((p5Module) => {
       const p5 = p5Module.default;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sketch = (p: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let img: any = null;
         let imageLoaded = false;
 
@@ -49,6 +51,7 @@ export default function PoetryClouds({
 
           // Load image if provided
           if (imageUrl) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             p.loadImage(imageUrl, (loadedImg: any) => {
               img = loadedImg;
               imageLoaded = true;
@@ -72,7 +75,7 @@ export default function PoetryClouds({
           p.textAlign(p.LEFT, p.CENTER);
           p.textSize(cloudPixelScale * 1.15);
 
-          let tinyTimeOffset = p.millis() / 100000;
+          const tinyTimeOffset = p.millis() / 100000;
 
           // Calculate total width of all words with spaces
           const spaceWidth = cloudPixelScale * 0.5;
@@ -99,8 +102,8 @@ export default function PoetryClouds({
               const x = currentX;
 
               // Use noise to determine visibility and alpha for cloud effect
-              let noiseScale = 0.01;
-              let n = p.noise(
+              const noiseScale = 0.01;
+              const n = p.noise(
                 x * noiseScale + tinyTimeOffset * panSpeed,
                 startY * noiseScale + tinyTimeOffset * 0.25 * panSpeed,
                 tinyTimeOffset * cloudEvolutionSpeed
@@ -113,7 +116,7 @@ export default function PoetryClouds({
               }
 
               // Use the alpha channel to fade out the edges of the clouds
-              let alpha = p.map(n, cloudCutOff, 0.65, 10, 255);
+              const alpha = p.map(n, cloudCutOff, 0.65, 10, 255);
               p.fill(255, alpha);
 
               // Draw the letter at the current position
@@ -143,10 +146,10 @@ export default function PoetryClouds({
                 continue;
               }
 
-              let tinyTimeOffsetScatter = p.millis() / 100000;
-              let noiseScale = 0.01;
+              const tinyTimeOffsetScatter = p.millis() / 100000;
+              const noiseScale = 0.01;
 
-              let n = p.noise(
+              const n = p.noise(
                 x * noiseScale + tinyTimeOffsetScatter * panSpeed,
                 y * noiseScale + tinyTimeOffsetScatter * 0.25 * panSpeed,
                 tinyTimeOffsetScatter * cloudEvolutionSpeed
@@ -156,7 +159,7 @@ export default function PoetryClouds({
                 continue;
               }
 
-              let alpha = p.map(n, cloudCutOff, 0.65, 10, 150); // More transparent for scattered letters
+              const alpha = p.map(n, cloudCutOff, 0.65, 10, 150); // More transparent for scattered letters
 
               p.textAlign(p.CENTER, p.CENTER);
               p.text(getLetterForCoordinate(p, x, y, textWithoutSpaces), x, y);
@@ -176,6 +179,7 @@ export default function PoetryClouds({
           }
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const getLetterForCoordinate = (
           p: any,
           x: number,
@@ -183,8 +187,8 @@ export default function PoetryClouds({
           textSource: string
         ) => {
           // Use position-based hash to select character from the text
-          let hash = (x + y * 1000) * p.sin(x * 0.01) * p.cos(y * 0.01);
-          let index = p.abs(p.int(hash)) % textSource.length;
+          const hash = (x + y * 1000) * p.sin(x * 0.01) * p.cos(y * 0.01);
+          const index = p.abs(p.int(hash)) % textSource.length;
 
           // Return character from the provided text
           return textSource[index];
