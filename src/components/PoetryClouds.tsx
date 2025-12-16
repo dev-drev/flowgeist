@@ -31,6 +31,7 @@ export default function PoetryClouds({
   imageSize = 200,
 }: PoetryCloudsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const p5InstanceRef = useRef<any>(null);
 
   useEffect(() => {
@@ -181,6 +182,7 @@ export default function PoetryClouds({
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const getLetterForCoordinate = (
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           p: any,
           x: number,
           y: number,

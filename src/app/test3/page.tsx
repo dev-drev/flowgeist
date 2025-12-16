@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 export default function Test3Page() {
   const containerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const p5InstanceRef = useRef<any>(null);
 
   useEffect(() => {
@@ -11,6 +12,7 @@ export default function Test3Page() {
     import("p5").then((p5Module) => {
       const p5 = p5Module.default;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sketch = (p: any) => {
         p.setup = () => {
           p.createCanvas(p.windowWidth, p.windowHeight);
@@ -19,28 +21,28 @@ export default function Test3Page() {
 
           // Establish a range of values on the complex plane
           // Different width values change the zoom level
-          let w = 4;
-          let h = (w * p.height) / p.width;
+          const w = 4;
+          const h = (w * p.height) / p.width;
 
           // Start at negative half the width and height
-          let xMin = -w / 2;
-          let yMin = -h / 2;
+          const xMin = -w / 2;
+          const yMin = -h / 2;
 
           // Access the pixels[] array
           p.loadPixels();
 
           // Set the maximum number of iterations for each point on the complex plane
-          let maxIterations = 100;
+          const maxIterations = 100;
 
           // x goes from xMin to xMax
-          let xMax = xMin + w;
+          const xMax = xMin + w;
 
           // y goes from yMin to yMax
-          let yMax = yMin + h;
+          const yMax = yMin + h;
 
           // Calculate amount we increment x,y for each pixel
-          let dx = (xMax - xMin) / p.width;
-          let dy = (yMax - yMin) / p.height;
+          const dx = (xMax - xMin) / p.width;
+          const dy = (yMax - yMin) / p.height;
 
           // Start y
           let y = yMin;
@@ -53,9 +55,9 @@ export default function Test3Page() {
               let b = y;
               let iterations = 0;
               while (iterations < maxIterations) {
-                let aSquared = p.pow(a, 2);
-                let bSquared = p.pow(b, 2);
-                let twoAB = 2.0 * a * b;
+                const aSquared = p.pow(a, 2);
+                const bSquared = p.pow(b, 2);
+                const twoAB = 2.0 * a * b;
                 a = aSquared - bSquared + x;
                 b = twoAB + y;
 
@@ -68,22 +70,22 @@ export default function Test3Page() {
 
               // Color each pixel based on how long it takes to get to infinity
 
-              let index = (i + j * p.width) * 4;
+              const index = (i + j * p.width) * 4;
 
               // Convert number of iterations to range of 0-1
-              let normalized = p.map(iterations, 0, maxIterations, 0, 1);
+              const normalized = p.map(iterations, 0, maxIterations, 0, 1);
 
               // Use square root of normalized value for color interpolation
-              let lerpAmount = p.sqrt(normalized);
+              const lerpAmount = p.sqrt(normalized);
 
               // Set default color to black
               let pixelColor = p.color(0);
 
               // Blue
-              let startColor = p.color(47, 68, 159);
+              const startColor = p.color(47, 68, 159);
 
               // Light yellow
-              let endColor = p.color(255, 255, 128);
+              const endColor = p.color(255, 255, 128);
 
               // If iteration is under the maximum, interpolate a color
               if (iterations < maxIterations) {

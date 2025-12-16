@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 export default function Test2Page() {
   const containerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const p5InstanceRef = useRef<any>(null);
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export default function Test2Page() {
       // The angle button will calculate the angle at which each section is rotated.
       const angle = 360 / symmetry;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sketch = (p: any) => {
         p.setup = () => {
           p.createCanvas(p.windowWidth, p.windowHeight);
@@ -40,10 +42,10 @@ export default function Test2Page() {
           ) {
             // Translate the current position and the previous position of the
             // cursor to the new coordinates set with the translate() function above.
-            let lineStartX = p.mouseX - p.width / 2;
-            let lineStartY = p.mouseY - p.height / 2;
-            let lineEndX = p.pmouseX - p.width / 2;
-            let lineEndY = p.pmouseY - p.height / 2;
+            const lineStartX = p.mouseX - p.width / 2;
+            const lineStartY = p.mouseY - p.height / 2;
+            const lineEndX = p.pmouseX - p.width / 2;
+            const lineEndY = p.pmouseY - p.height / 2;
 
             // Draw continuously as mouse moves (no click required)
             // For every reflective section the canvas is split into, draw the cursor's
