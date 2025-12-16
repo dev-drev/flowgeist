@@ -104,7 +104,7 @@ export default function Home() {
 
       {/* Content overlay */}
       <div className="relative z-10 flex items-center justify-center w-full h-full min-h-screen">
-        <div className="px-4 w-full max-w-7xl mx-auto py-20">
+        <div className="px-8 w-full max-w-7xl mx-auto py-20">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-[200px]">
             {/* Immagine a sinistra */}
             <div className="flex-shrink-0">
