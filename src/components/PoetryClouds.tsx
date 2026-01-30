@@ -180,7 +180,6 @@ export default function PoetryClouds({
           }
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const getLetterForCoordinate = (
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           p: any,

@@ -7,8 +7,6 @@ import { useTracking } from "@/lib/useTracking";
 import { getFeaturedArtists, Artist } from "@/lib/artistsConfig";
 
 export default function Home() {
-  const [videoSource, setVideoSource] = useState("");
-  const [videoURL, setVideoURL] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [socialRailVisible, setSocialRailVisible] = useState(false);
   const [contentRevealed, setContentRevealed] = useState(false);
@@ -25,16 +23,9 @@ export default function Home() {
     trackPageView("Website opened");
   }, [trackPageView]);
 
-  // Load initial video
+  // Hide loader after 3 seconds
   useEffect(() => {
-    // Use vd1.mp4 from public/artists folder
-    setVideoURL("/artists/vd1.mp4");
-    setVideoSource("vd1.mp4");
-  }, []);
-
-  // Hide loader after 3 seconds, then reveal social rail for entrance animation
-  useEffect(() => {
-    const hideLoader = setTimeout(() => setIsLoading(false), 3000);
+    const hideLoader = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(hideLoader);
   }, []);
   useEffect(() => {
@@ -146,11 +137,7 @@ export default function Home() {
               className="flex pt-4 lg:pt-0 flex-col items-center justify-center gap-5 lg:gap-8 flex-shrink-0"
             >
               <div
-                className={`flex justify-center w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[300px] ${
-                  imageSectionVisible
-                    ? "animate-fade-in-image animate-delay-1"
-                    : "animate-on-reveal"
-                }`}
+                className={`flex justify-center w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[300px]`}
               >
                 <Image
                   src="/artists/flowhite.png"
@@ -160,7 +147,7 @@ export default function Home() {
                   className="w-full h-auto object-contain"
                 />
               </div>
-              <div className="flex items-center gap-3 lg:gap-4 pt-8 lg:pt-0">
+              <div className="flex items-center gap-3 lg:gap-4 pt-8 lg:pt-7">
                 <button
                   onClick={() => artists[0] && setSelectedArtist(artists[0])}
                   className={`relative w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center rounded-full border border-white/20 overflow-hidden hover:border-white/80 transition-all duration-300 cursor-pointer flex-shrink-0 group ${
