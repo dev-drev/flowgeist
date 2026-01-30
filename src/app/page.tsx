@@ -118,16 +118,17 @@ export default function Home() {
           />
         </section>
 
-        {/* Sezione 2: Paragrafo + flowhite + artisti + social — 100vh, social a destra */}
+        {/* Sezione 2: Paragrafo + flowhite + artisti + social — 100vh, su mobile verticale */}
         <section
           ref={textSectionRef}
-          className={`min-h-[100vh] w-full flex items-center justify-center relative border-t border-white/10 ${
+          className={`h-screen min-h-[100vh] w-full flex items-start lg:items-center justify-center relative border-t border-white/10 overflow-y-auto ${
             textSectionVisible ? "animate-fade-up" : "animate-on-reveal"
           }`}
           aria-label="About"
         >
-          <div className="flex-1 flex flex-col items-center justify-center gap-10 lg:gap-16 pt-40 px-6 sm:px-12 lg:px-20 py-16 max-w-4xl mx-auto">
-            <p className="text-white/90 font-grotesque text-base sm:text-lg lg:text-[17px] leading-relaxed text-justify max-w-3xl text-center">
+          {/* Mobile: colonna con pt (paragrafo in alto), gap, immagine grande, gap, artisti. Desktop: come prima */}
+          <div className="space-y-4 flex-1 flex flex-col items-center justify-center lg:justify-center pt-20 pb-10 lg:pt-0 lg:pb-0 gap-6 lg:gap-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto w-full">
+            <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center w-full flex-shrink-0 px-8 lg:px-0 lg:pb-6">
               Flowgeist resonates across purest sound and form through endless
               definition. Structures surface, loosen, and fall away, allowing
               material to reorganise in real time. Forms are driven to the point
@@ -142,10 +143,10 @@ export default function Home() {
             </p>
             <div
               ref={imageSectionRef}
-              className="flex flex-col items-center justify-center gap-8"
+              className="flex pt-4 lg:pt-0 flex-col items-center justify-center gap-5 lg:gap-8 flex-shrink-0"
             >
               <div
-                className={`flex justify-center max-w-[300px] ${
+                className={`flex justify-center w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[300px] ${
                   imageSectionVisible
                     ? "animate-fade-in-image animate-delay-1"
                     : "animate-on-reveal"
@@ -159,7 +160,7 @@ export default function Home() {
                   className="w-full h-auto object-contain"
                 />
               </div>
-              <div className="flex items-center gap-3 lg:gap-4">
+              <div className="flex items-center gap-3 lg:gap-4 pt-8 lg:pt-0">
                 <button
                   onClick={() => artists[0] && setSelectedArtist(artists[0])}
                   className={`relative w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center rounded-full border border-white/20 overflow-hidden hover:border-white/80 transition-all duration-300 cursor-pointer flex-shrink-0 group ${
@@ -200,7 +201,7 @@ export default function Home() {
 
           {/* Social — stessa sezione, attaccati a destra */}
           <div
-            className="absolute right-0 bottom-0 -translate-y-1/2 pr-4 lg:pr-8 flex flex-col items-center gap-5"
+            className="absolute right-0 -bottom-5 lg:bottom-0 -translate-y-1/2 pr-4 lg:pr-8 flex flex-col items-center gap-5"
             aria-label="Social links"
           >
             <div
