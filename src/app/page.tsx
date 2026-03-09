@@ -38,7 +38,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden">
+    <main className="fixed inset-0 flex h-[100vh] max-h-[100dvh] w-full overflow-hidden">
       <div
         className="fixed inset-0 w-full h-full overflow-hidden z-0"
         style={{
@@ -77,16 +77,16 @@ export default function Home() {
           {/* Retro: about — scroll solo qui dentro */}
           <div className="flip-face flip-face-back flex flex-col w-full h-full min-h-0 overflow-hidden" aria-label="About">
             <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-contain about-scroll">
-              <div className="flex flex-col items-center justify-center min-h-full py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
+              <div className="flex flex-col items-center justify-center min-h-full py-4 lg:py-12 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <div
-                className="space-y-4 flex flex-col items-center justify-center gap-4 lg:gap-10 flex-1 pt-8 cursor-pointer"
+                className="space-y-6 flex flex-col items-center justify-center gap-4 lg:gap-10 flex-1 pt-0 lg:pt-8 cursor-pointer"
                 onClick={() => setShowAbout(false)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && setShowAbout(false)}
                 aria-label="Torna al logo"
               >
-                <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center px-4 sm:px-8 lg:px-0 w-full">
+                <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center px-10 sm:px-8 lg:px-0 w-full">
                   Flowgeist resonates across purest sound and form through endless
                   definition. Structures surface, loosen, and fall away, allowing
                   material to reorganise in real time. Forms are driven to the point
@@ -99,7 +99,7 @@ export default function Home() {
                   material rather than structure. Sound leads the process, leaving
                   interpretation to emerge through listening, over time.
                 </p>
-                <div className="flex flex-col items-center justify-center gap-5 lg:gap-8">
+                <div className="pt-4 lg:pt-0 flex flex-col items-center justify-center gap-5 lg:gap-8">
                   <div className="flex justify-center w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[300px]">
                     <Image
                       src="/artists/flowhite.png"
@@ -109,7 +109,7 @@ export default function Home() {
                       className="w-full h-auto object-contain"
                     />
                   </div>
-                  <div className="flex items-center gap-2 lg:gap-3 pt-2" aria-label="Social links" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-0 lg:gap-3 pt-10 lg:pt-2" aria-label="Social links" onClick={(e) => e.stopPropagation()}>
                     <a
                       href="mailto:flowgeistmusic@gmail.com"
                       className="social-icon-link flex items-center justify-center text-white/80 hover:text-white w-10 h-10 lg:w-11 lg:h-11 transition-opacity duration-300 animate-scale-in"
