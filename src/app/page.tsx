@@ -86,7 +86,7 @@ export default function Home() {
                 onKeyDown={(e) => e.key === "Enter" && setShowAbout(false)}
                 aria-label="Torna al logo"
               >
-                <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center px-10 sm:px-8 lg:px-0 w-full">
+                <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center px-2 sm:px-8 lg:px-0 w-full">
                   Flowgeist resonates across purest sound and form through endless
                   definition. Structures surface, loosen, and fall away, allowing
                   material to reorganise in real time. Forms are driven to the point
