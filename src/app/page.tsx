@@ -13,7 +13,7 @@ export default function Home() {
   }, [trackPageView]);
 
   return (
-    <main className="flex min-h-screen h-screen w-full relative overflow-hidden">
+    <main className="flex min-h-screen h-screen max-h-[100dvh] w-full relative overflow-hidden">
       <div
         className="fixed inset-0 w-full h-full overflow-hidden z-0"
         style={{
@@ -23,17 +23,17 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 w-full h-full flip-container">
+      <div className="relative z-10 w-full h-full max-h-[100dvh] flip-container">
         <div className={`flip-inner h-full ${showAbout ? "is-flipped" : ""}`}>
-          {/* Fronte: solo logo */}
+          {/* Fronte: solo logo, centrato */}
           <div
-            className="flip-face flex items-center justify-center px-6 sm:px-12 lg:px-20 animate-fade-in"
+            className="flip-face flex items-center justify-center w-full h-full min-h-0 px-6 sm:px-12 lg:px-20 animate-fade-in"
             aria-label="Landing"
           >
             <button
               type="button"
               onClick={() => setShowAbout(true)}
-              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg cursor-pointer block"
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg cursor-pointer flex items-center justify-center w-full h-full min-h-0"
               aria-label="Mostra about"
             >
               <Image
@@ -42,26 +42,25 @@ export default function Home() {
                 width={500}
                 height={700}
                 quality={100}
-                className="w-full max-w-[280px] h-auto object-contain hover:opacity-90 transition-opacity"
+                className="w-full max-w-[280px] h-auto object-contain object-center hover:opacity-90 transition-opacity"
                 priority
                 style={{ objectFit: "contain", objectPosition: "center" }}
               />
             </button>
           </div>
 
-          {/* Retro: about */}
-          <div className="flip-face flip-face-back flex items-center justify-center overflow-y-auto" aria-label="About">
-            <div className="relative w-full h-full min-h-0 flex flex-col items-center justify-center py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
-            
+          {/* Retro: about — mobile: tutto in 100vh */}
+          <div className="flip-face flip-face-back flex items-center justify-center w-full h-full min-h-0 overflow-hidden md:overflow-y-auto" aria-label="About">
+            <div className="relative w-full h-full max-h-[100dvh] min-h-0 flex flex-col items-center justify-center py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <div
-                className="space-y-12 flex flex-col items-center justify-center gap-6 lg:gap-12 flex-1 pt-10 cursor-pointer"
+                className="space-y-4 flex flex-col items-center justify-center gap-6 lg:gap-10 flex-1 pt-8 cursor-pointer"
                 onClick={() => setShowAbout(false)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && setShowAbout(false)}
                 aria-label="Torna al logo"
               >
-                <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center w-full">
+                <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center px-4 sm:px-8 lg:px-0 w-full">
                   Flowgeist resonates across purest sound and form through endless
                   definition. Structures surface, loosen, and fall away, allowing
                   material to reorganise in real time. Forms are driven to the point
@@ -74,7 +73,7 @@ export default function Home() {
                   material rather than structure. Sound leads the process, leaving
                   interpretation to emerge through listening, over time.
                 </p>
-                <div className="flex flex-col items-center justify-center gap-6 lg:gap-12">
+                <div className="flex flex-col items-center justify-center gap-5 lg:gap-8">
                   <div className="flex justify-center w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[300px]">
                     <Image
                       src="/artists/flowhite.png"
