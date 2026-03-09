@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { ScaleLoader } from "react-spinners";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { useTracking } from "@/lib/useTracking";
 
 export default function Home() {
@@ -56,22 +55,13 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 w-full h-full overflow-hidden">
-        <motion.div
-          className="flex h-full"
-          style={{ width: "200%" }}
-          animate={{ x: showAbout ? "-50%" : "0%" }}
-          transition={{
-            duration: 0.75,
-            ease: [0, 0, 0.2, 1],
-          }}
-        >
-          {/* Pannello logo */}
+      <div className="relative z-10 w-full h-full flip-container">
+        <div className={`flip-inner h-full ${showAbout ? "is-flipped" : ""}`}>
+          {/* Fronte: solo logo */}
           <div
-            className={`flex flex-shrink-0 w-1/2 items-center justify-center px-6 sm:px-12 lg:px-20 ${
+            className={`flip-face flex items-center justify-center px-6 sm:px-12 lg:px-20 ${
               contentRevealed ? "animate-fade-in" : "animate-on-reveal"
             }`}
-            style={{ minWidth: "50%" }}
             aria-label="Landing"
           >
             <button
@@ -93,12 +83,8 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Pannello about: entra da destra e si posiziona al centro */}
-          <div
-            className="flex flex-shrink-0 w-1/2 items-center justify-center overflow-y-auto"
-            style={{ minWidth: "50%" }}
-            aria-label="About"
-          >
+          {/* Retro: about */}
+          <div className="flip-face flip-face-back flex items-center justify-center overflow-y-auto" aria-label="About">
             <div className="relative w-full h-full min-h-0 flex flex-col items-center justify-center py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <button
                 type="button"
@@ -109,10 +95,17 @@ export default function Home() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                indietro
+             
               </button>
 
-              <div className="space-y-4 flex flex-col items-center justify-center gap-6 lg:gap-10 flex-1 pt-8">
+              <div
+                className="space-y-4 flex flex-col items-center justify-center gap-6 lg:gap-10 flex-1 pt-8 cursor-pointer"
+                onClick={() => setShowAbout(false)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && setShowAbout(false)}
+                aria-label="Torna al logo"
+              >
                 <p className="text-white/90 font-grotesque text-[15px] sm:text-[17px] lg:text-[19px] leading-relaxed text-justify max-w-3xl text-center w-full">
                   Flowgeist resonates across purest sound and form through endless
                   definition. Structures surface, loosen, and fall away, allowing
@@ -136,7 +129,7 @@ export default function Home() {
                       className="w-full h-auto object-contain"
                     />
                   </div>
-                  <div className="flex items-center gap-2 lg:gap-3 pt-2" aria-label="Social links">
+                  <div className="flex items-center gap-2 lg:gap-3 pt-2" aria-label="Social links" onClick={(e) => e.stopPropagation()}>
                     <a
                       href="mailto:flowgeistmusic@gmail.com"
                       className="social-icon-link flex items-center justify-center text-white/80 hover:text-white w-10 h-10 lg:w-11 lg:h-11 transition-opacity duration-300 animate-scale-in"
@@ -178,7 +171,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </main>
   );
