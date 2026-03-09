@@ -63,7 +63,7 @@ export default function Home() {
             <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-contain about-scroll">
               <div className="flex flex-col items-center justify-center min-h-full py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <div
-                className="space-y-4 flex flex-col items-center justify-center gap-6 lg:gap-10 flex-1 pt-8 cursor-pointer"
+                className="space-y-4 flex flex-col items-center justify-center gap-4 lg:gap-10 flex-1 pt-8 cursor-pointer"
                 onClick={() => setShowAbout(false)}
                 role="button"
                 tabIndex={0}
