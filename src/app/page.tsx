@@ -21,6 +21,22 @@ export default function Home() {
     };
   }, []);
 
+  /* Blocco scroll totale: consentito solo dentro .about-scroll (mobile e desktop) */
+  useEffect(() => {
+    const blockScroll = (e: Event) => {
+      const target = e.target as Node;
+      const scrollable = document.querySelector(".about-scroll");
+      if (scrollable && scrollable.contains(target)) return;
+      e.preventDefault();
+    };
+    document.addEventListener("touchmove", blockScroll, { passive: false });
+    document.addEventListener("wheel", blockScroll, { passive: false });
+    return () => {
+      document.removeEventListener("touchmove", blockScroll);
+      document.removeEventListener("wheel", blockScroll);
+    };
+  }, []);
+
   return (
     <main className="fixed inset-0 flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden">
       <div
