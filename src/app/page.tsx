@@ -12,8 +12,17 @@ export default function Home() {
     trackPageView("Website opened");
   }, [trackPageView]);
 
+  useEffect(() => {
+    document.documentElement.classList.add("home-page");
+    document.body.classList.add("home-page");
+    return () => {
+      document.documentElement.classList.remove("home-page");
+      document.body.classList.remove("home-page");
+    };
+  }, []);
+
   return (
-    <main className="flex min-h-screen h-screen max-h-[100dvh] w-full relative overflow-hidden">
+    <main className="fixed inset-0 flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden">
       <div
         className="fixed inset-0 w-full h-full overflow-hidden z-0"
         style={{
@@ -49,9 +58,10 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Retro: about — mobile: tutto in 100vh */}
-          <div className="flip-face flip-face-back flex items-center justify-center w-full h-full min-h-0 overflow-hidden md:overflow-y-auto" aria-label="About">
-            <div className="relative w-full h-full max-h-[100dvh] min-h-0 flex flex-col items-center justify-center py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
+          {/* Retro: about — scroll solo qui dentro */}
+          <div className="flip-face flip-face-back flex flex-col w-full h-full min-h-0 overflow-hidden" aria-label="About">
+            <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-contain about-scroll">
+              <div className="flex flex-col items-center justify-center min-h-full py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <div
                 className="space-y-4 flex flex-col items-center justify-center gap-6 lg:gap-10 flex-1 pt-8 cursor-pointer"
                 onClick={() => setShowAbout(false)}
@@ -123,6 +133,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>

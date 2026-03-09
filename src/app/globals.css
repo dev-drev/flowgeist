@@ -26,6 +26,26 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Home page: niente scroll su body/html su tutti i mobile (iOS, Android, ecc.) */
+html.home-page,
+body.home-page {
+  overflow: hidden;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+body.home-page .about-scroll {
+  touch-action: pan-y;
+}
+
+/* Scroll solo nel pannello about, fluido su iOS e tutti i mobile */
+.about-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Custom slider styles */
 .slider::-webkit-slider-thumb {
   appearance: none;
