@@ -1,13 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ScaleLoader } from "react-spinners";
 import Image from "next/image";
 import { useTracking } from "@/lib/useTracking";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [contentRevealed, setContentRevealed] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
 
@@ -15,37 +12,8 @@ export default function Home() {
     trackPageView("Website opened");
   }, [trackPageView]);
 
-  useEffect(() => {
-    const hideLoader = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(hideLoader);
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading) {
-      const t = setTimeout(() => setContentRevealed(true), 250);
-      return () => clearTimeout(t);
-    }
-  }, [isLoading]);
-
   return (
     <main className="flex min-h-screen h-screen w-full relative overflow-hidden">
-      {isLoading && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4">
-              <ScaleLoader
-                color="#ffffff"
-                height={40}
-                width={4}
-                radius={2}
-                margin={2}
-              />
-            </div>
-            <p className="text-white text-lg font-grotesque">_flowgeist</p>
-          </div>
-        </div>
-      )}
-
       <div
         className="fixed inset-0 w-full h-full overflow-hidden z-0"
         style={{
@@ -59,9 +27,7 @@ export default function Home() {
         <div className={`flip-inner h-full ${showAbout ? "is-flipped" : ""}`}>
           {/* Fronte: solo logo */}
           <div
-            className={`flip-face flex items-center justify-center px-6 sm:px-12 lg:px-20 ${
-              contentRevealed ? "animate-fade-in" : "animate-on-reveal"
-            }`}
+            className="flip-face flex items-center justify-center px-6 sm:px-12 lg:px-20 animate-fade-in"
             aria-label="Landing"
           >
             <button
@@ -86,20 +52,9 @@ export default function Home() {
           {/* Retro: about */}
           <div className="flip-face flip-face-back flex items-center justify-center overflow-y-auto" aria-label="About">
             <div className="relative w-full h-full min-h-0 flex flex-col items-center justify-center py-12 lg:py-16 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
-              <button
-                type="button"
-                onClick={() => setShowAbout(false)}
-                className="absolute top-4 left-4 lg:top-8 lg:left-8 text-white/70 hover:text-white transition-colors flex items-center gap-2 font-grotesque text-sm"
-                aria-label="Torna alla home"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-             
-              </button>
-
+            
               <div
-                className="space-y-4 flex flex-col items-center justify-center gap-6 lg:gap-10 flex-1 pt-8 cursor-pointer"
+                className="space-y-12 flex flex-col items-center justify-center gap-6 lg:gap-12 flex-1 pt-10 cursor-pointer"
                 onClick={() => setShowAbout(false)}
                 role="button"
                 tabIndex={0}
@@ -119,7 +74,7 @@ export default function Home() {
                   material rather than structure. Sound leads the process, leaving
                   interpretation to emerge through listening, over time.
                 </p>
-                <div className="flex flex-col items-center justify-center gap-5 lg:gap-8">
+                <div className="flex flex-col items-center justify-center gap-6 lg:gap-12">
                   <div className="flex justify-center w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[300px]">
                     <Image
                       src="/artists/flowhite.png"
