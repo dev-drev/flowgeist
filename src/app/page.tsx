@@ -4,13 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useTracking } from "@/lib/useTracking";
 
-const SWIPE_THRESHOLD = 60;
+const SWIPE_THRESHOLD = 35;
 
 export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const showAboutRef = useRef(showAbout);
+  const logoFaceRef = useRef<HTMLDivElement>(null);
 
   showAboutRef.current = showAbout;
 
@@ -29,12 +30,10 @@ export default function Home() {
 
   /* Touch: swipe giù o destra sulla vista logo → flip ad about (solo mobile) */
   useEffect(() => {
-    const scrollable = document.querySelector(".about-scroll");
-    const isInAboutScroll = (target: EventTarget | null) =>
-      target && scrollable && scrollable.contains(target as Node);
+    const logoEl = logoFaceRef.current;
+    if (!logoEl) return;
 
     const onTouchStart = (e: TouchEvent) => {
-      if (isInAboutScroll(e.target)) return;
       if (showAboutRef.current) return;
       touchStartRef.current = {
         x: e.touches[0].clientX,
@@ -45,28 +44,30 @@ export default function Home() {
       touchStartRef.current = null;
     };
     const onTouchMove = (e: TouchEvent) => {
+      const scrollable = document.querySelector(".about-scroll");
       const target = e.target as Node;
-      if (scrollable && scrollable.contains(target)) return;
+      if (scrollable?.contains(target)) return;
 
       if (!showAboutRef.current && touchStartRef.current && e.touches[0]) {
         const dx = e.touches[0].clientX - touchStartRef.current.x;
         const dy = e.touches[0].clientY - touchStartRef.current.y;
-        if (dy > SWIPE_THRESHOLD || dx > SWIPE_THRESHOLD) {
+        if (Math.abs(dy) > SWIPE_THRESHOLD || Math.abs(dx) > SWIPE_THRESHOLD) {
           setShowAbout(true);
           touchStartRef.current = null;
         }
       }
       e.preventDefault();
     };
-    document.addEventListener("touchstart", onTouchStart, { passive: true });
+
+    logoEl.addEventListener("touchstart", onTouchStart, { passive: true });
     document.addEventListener("touchend", onTouchEnd, { passive: true });
     document.addEventListener("touchcancel", onTouchEnd, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
     return () => {
-      document.removeEventListener("touchstart", onTouchStart);
+      logoEl.removeEventListener("touchstart", onTouchStart);
       document.removeEventListener("touchend", onTouchEnd);
       document.removeEventListener("touchcancel", onTouchEnd);
-      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchmove", onTouchMove, { capture: true });
     };
   }, []);
 
@@ -97,6 +98,7 @@ export default function Home() {
         <div className={`flip-inner h-full ${showAbout ? "is-flipped" : ""}`}>
           {/* Fronte: solo logo, centrato */}
           <div
+            ref={logoFaceRef}
             className="flip-face flex items-center justify-center w-full h-full min-h-0 px-6 sm:px-12 lg:px-20 animate-fade-in"
             aria-label="Landing"
           >
@@ -128,7 +130,7 @@ export default function Home() {
             <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-contain about-scroll">
               <div className="flex flex-col items-center justify-center min-h-full py-4 lg:py-12 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <div
-                className="space-y-6 flex flex-col items-center justify-center gap-4 lg:gap-10 flex-1 pt-0 lg:pt-8 cursor-pointer"
+                className="space-y-4 flex flex-col items-center justify-center lg:gap-10 flex-1 pt-0 lg:pt-8 cursor-pointer"
                 onClick={() => setShowAbout(false)}
                 role="button"
                 tabIndex={0}
