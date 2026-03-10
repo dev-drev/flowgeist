@@ -189,7 +189,7 @@ export default function Home() {
                       className="w-full h-auto object-contain"
                     />
                   </div>
-                  <div className="flex items-center gap-0 lg:gap-3 pt-10 lg:pt-2" aria-label="Social links" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-0 lg:gap-3 pt-2 lg:pt-2" aria-label="Social links" onClick={(e) => e.stopPropagation()}>
                     <a
                       href="mailto:flowgeistmusic@gmail.com"
                       className="social-icon-link flex items-center justify-center text-white/80 hover:text-white w-10 h-10 lg:w-11 lg:h-11 transition-opacity duration-300 animate-scale-in"
