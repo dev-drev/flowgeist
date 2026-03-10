@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   description: "Nothing is overly defined.",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
       {
         url: "/favicon_io/favicon-16x16.png",
         sizes: "16x16",
