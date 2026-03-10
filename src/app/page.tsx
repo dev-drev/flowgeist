@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useTracking } from "@/lib/useTracking";
+
+const SWIPE_THRESHOLD = 60;
 
 export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const showAboutRef = useRef(showAbout);
+
+  showAboutRef.current = showAbout;
 
   useEffect(() => {
     trackPageView("Website opened");
@@ -21,20 +27,59 @@ export default function Home() {
     };
   }, []);
 
-  /* Blocco scroll totale: consentito solo dentro .about-scroll (mobile e desktop) */
+  /* Touch: swipe giù o destra sulla vista logo → flip ad about (solo mobile) */
   useEffect(() => {
+    const scrollable = document.querySelector(".about-scroll");
+    const isInAboutScroll = (target: EventTarget | null) =>
+      target && scrollable && scrollable.contains(target as Node);
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (isInAboutScroll(e.target)) return;
+      if (showAboutRef.current) return;
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+    };
+    const onTouchEnd = () => {
+      touchStartRef.current = null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const target = e.target as Node;
+      if (scrollable && scrollable.contains(target)) return;
+
+      if (!showAboutRef.current && touchStartRef.current && e.touches[0]) {
+        const dx = e.touches[0].clientX - touchStartRef.current.x;
+        const dy = e.touches[0].clientY - touchStartRef.current.y;
+        if (dy > SWIPE_THRESHOLD || dx > SWIPE_THRESHOLD) {
+          setShowAbout(true);
+          touchStartRef.current = null;
+        }
+      }
+      e.preventDefault();
+    };
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+    document.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", onTouchEnd);
+      document.removeEventListener("touchmove", onTouchMove);
+    };
+  }, []);
+
+  /* Blocco scroll: consentito solo dentro .about-scroll (wheel su desktop) */
+  useEffect(() => {
+    const scrollable = document.querySelector(".about-scroll");
     const blockScroll = (e: Event) => {
       const target = e.target as Node;
-      const scrollable = document.querySelector(".about-scroll");
       if (scrollable && scrollable.contains(target)) return;
       e.preventDefault();
     };
-    document.addEventListener("touchmove", blockScroll, { passive: false });
     document.addEventListener("wheel", blockScroll, { passive: false });
-    return () => {
-      document.removeEventListener("touchmove", blockScroll);
-      document.removeEventListener("wheel", blockScroll);
-    };
+    return () => document.removeEventListener("wheel", blockScroll);
   }, []);
 
   return (
@@ -57,7 +102,11 @@ export default function Home() {
           >
             <button
               type="button"
-              onClick={() => setShowAbout(true)}
+              onClick={() => {
+                if (typeof window !== "undefined" && !("ontouchstart" in window)) {
+                  setShowAbout(true);
+                }
+              }}
               className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg cursor-pointer flex items-center justify-center w-full h-full min-h-0"
               aria-label="Mostra about"
             >
