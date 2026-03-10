@@ -9,9 +9,10 @@ const SWIPE_THRESHOLD = 35;
 export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; onAbout?: boolean } | null>(null);
   const showAboutRef = useRef(showAbout);
   const logoFaceRef = useRef<HTMLDivElement>(null);
+  const aboutFaceRef = useRef<HTMLDivElement>(null);
 
   showAboutRef.current = showAbout;
 
@@ -28,16 +29,26 @@ export default function Home() {
     };
   }, []);
 
-  /* Touch: swipe giù o destra sulla vista logo → flip ad about (solo mobile) */
+  /* Touch: swipe sulla vista logo → flip ad about; swipe sulla vista about → torna al logo */
   useEffect(() => {
     const logoEl = logoFaceRef.current;
-    if (!logoEl) return;
+    const aboutEl = aboutFaceRef.current;
+    if (!logoEl || !aboutEl) return;
 
-    const onTouchStart = (e: TouchEvent) => {
+    const onTouchStartLogo = (e: TouchEvent) => {
       if (showAboutRef.current) return;
       touchStartRef.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
+        onAbout: false,
+      };
+    };
+    const onTouchStartAbout = (e: TouchEvent) => {
+      if (!showAboutRef.current) return;
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        onAbout: true,
       };
     };
     const onTouchEnd = () => {
@@ -46,25 +57,39 @@ export default function Home() {
     const onTouchMove = (e: TouchEvent) => {
       const scrollable = document.querySelector(".about-scroll");
       const target = e.target as Node;
-      if (scrollable?.contains(target)) return;
+      const inAboutScroll = scrollable?.contains(target) ?? false;
 
-      if (!showAboutRef.current && touchStartRef.current && e.touches[0]) {
+      if (inAboutScroll && touchStartRef.current?.onAbout && e.touches[0]) {
         const dx = e.touches[0].clientX - touchStartRef.current.x;
         const dy = e.touches[0].clientY - touchStartRef.current.y;
         if (Math.abs(dy) > SWIPE_THRESHOLD || Math.abs(dx) > SWIPE_THRESHOLD) {
-          setShowAbout(true);
+          setShowAbout(false);
           touchStartRef.current = null;
+          e.preventDefault();
         }
+        return;
       }
-      e.preventDefault();
+      if (!inAboutScroll) {
+        if (!showAboutRef.current && touchStartRef.current && !touchStartRef.current.onAbout && e.touches[0]) {
+          const dx = e.touches[0].clientX - touchStartRef.current.x;
+          const dy = e.touches[0].clientY - touchStartRef.current.y;
+          if (Math.abs(dy) > SWIPE_THRESHOLD || Math.abs(dx) > SWIPE_THRESHOLD) {
+            setShowAbout(true);
+            touchStartRef.current = null;
+          }
+        }
+        e.preventDefault();
+      }
     };
 
-    logoEl.addEventListener("touchstart", onTouchStart, { passive: true });
+    logoEl.addEventListener("touchstart", onTouchStartLogo, { passive: true });
+    aboutEl.addEventListener("touchstart", onTouchStartAbout, { passive: true });
     document.addEventListener("touchend", onTouchEnd, { passive: true });
     document.addEventListener("touchcancel", onTouchEnd, { passive: true });
     document.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
     return () => {
-      logoEl.removeEventListener("touchstart", onTouchStart);
+      logoEl.removeEventListener("touchstart", onTouchStartLogo);
+      aboutEl.removeEventListener("touchstart", onTouchStartAbout);
       document.removeEventListener("touchend", onTouchEnd);
       document.removeEventListener("touchcancel", onTouchEnd);
       document.removeEventListener("touchmove", onTouchMove, { capture: true });
@@ -126,7 +151,11 @@ export default function Home() {
           </div>
 
           {/* Retro: about — scroll solo qui dentro */}
-          <div className="flip-face flip-face-back flex flex-col w-full h-full min-h-0 overflow-hidden" aria-label="About">
+          <div
+            ref={aboutFaceRef}
+            className="flip-face flip-face-back flex flex-col w-full h-full min-h-0 overflow-hidden"
+            aria-label="About"
+          >
             <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden overscroll-contain about-scroll">
               <div className="flex flex-col items-center justify-center min-h-full py-4 lg:py-12 px-4 sm:px-8 lg:px-20 max-w-4xl mx-auto">
               <div
