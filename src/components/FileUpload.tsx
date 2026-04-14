@@ -176,7 +176,7 @@ Suggerimenti:
               </span>
             </div>
 
-            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+            <div className="w-full bg-gray-200 rounded-full h-4 ">
               <div
                 className="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-300 ease-out shadow-sm"
                 style={{ width: `${uploadProgress}%` }}

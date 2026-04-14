@@ -260,7 +260,7 @@ export default function FlowgeistAnalytics() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8"
+        className="bg-white rounded-xl shadow-lg border border-gray-200  mb-8"
       >
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-xl font-bold text-gray-800">Dettagli Eventi</h3>
@@ -323,8 +323,8 @@ export default function FlowgeistAnalytics() {
                             item.action === "download"
                               ? "bg-green-100 text-green-800"
                               : item.action === "click"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-purple-100 text-purple-800"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-purple-100 text-purple-800"
                           }`}
                         >
                           {item.action}
@@ -433,8 +433,8 @@ export default function FlowgeistAnalytics() {
                                 {item.geoInfo?.proxy
                                   ? "Proxy"
                                   : item.geoInfo?.hosting
-                                  ? "Hosting"
-                                  : "No"}
+                                    ? "Hosting"
+                                    : "No"}
                               </p>
                             </div>
                             <div>
@@ -453,7 +453,7 @@ export default function FlowgeistAnalytics() {
                                 0 && (
                                 <p className="text-xs text-gray-500">
                                   {getAuthenticityScore(item).reasons.join(
-                                    ", "
+                                    ", ",
                                   )}
                                 </p>
                               )}
