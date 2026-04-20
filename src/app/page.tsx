@@ -9,7 +9,6 @@ export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
-  const aboutColorBlockRef = useRef<HTMLDivElement | null>(null);
   const aboutHeroEffectPlayedRef = useRef(false);
   const aboutHeroInstanceRef = useRef<{
     next?: () => void;
@@ -34,68 +33,10 @@ export default function Home() {
 
     let isUnmounted = false;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    const runId = `about-hero-${Date.now()}`;
 
     const initAboutHeroEffect = async () => {
       const parent = aboutHeroEffectRef.current;
       if (!parent) return;
-      const imgProbe = new window.Image();
-      imgProbe.onload = () => {
-        // #region agent log
-        fetch(
-          "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "d66309",
-            },
-            body: JSON.stringify({
-              sessionId: "d66309",
-              runId,
-              hypothesisId: "H5",
-              location: "src/app/page.tsx:initAboutHeroEffect:imageProbe",
-              message: "Image intrinsic dimensions for artists.jpeg",
-              data: {
-                naturalWidth: imgProbe.naturalWidth,
-                naturalHeight: imgProbe.naturalHeight,
-                naturalRatio:
-                  imgProbe.naturalHeight > 0
-                    ? imgProbe.naturalWidth / imgProbe.naturalHeight
-                    : null,
-              },
-              timestamp: Date.now(),
-            }),
-          },
-        ).catch(() => {});
-        // #endregion
-      };
-      imgProbe.src = "/artists.jpeg";
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "d66309",
-          },
-          body: JSON.stringify({
-            sessionId: "d66309",
-            runId,
-            hypothesisId: "H1",
-            location: "src/app/page.tsx:initAboutHeroEffect:parentRect",
-            message: "Parent rect before hover-effect init",
-            data: {
-              showAbout,
-              parentRect: parent.getBoundingClientRect().toJSON(),
-              parentClass: parent.className,
-            },
-            timestamp: Date.now(),
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
 
       const hoverEffectModule = await import("hover-effect");
       const HoverEffect = hoverEffectModule.default ?? hoverEffectModule;
@@ -114,225 +55,17 @@ export default function Home() {
         easing: "expo.out",
       });
       aboutHeroEffectPlayedRef.current = true;
-      const canvas = parent.querySelector("canvas");
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "d66309",
-          },
-          body: JSON.stringify({
-            sessionId: "d66309",
-            runId,
-            hypothesisId: "H2",
-            location: "src/app/page.tsx:initAboutHeroEffect:canvasAfterInit",
-            message: "Canvas sizing and computed styles after init",
-            data: {
-              canvasFound: Boolean(canvas),
-              canvasRect: canvas?.getBoundingClientRect().toJSON() ?? null,
-              parentRect: parent.getBoundingClientRect().toJSON(),
-              canvasInlineStyles: canvas?.getAttribute("style") ?? null,
-            },
-            timestamp: Date.now(),
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
 
       timeoutId = setTimeout(() => {
-        // #region agent log
-        fetch(
-          "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "d66309",
-            },
-            body: JSON.stringify({
-              sessionId: "d66309",
-              runId,
-              hypothesisId: "H4",
-              location: "src/app/page.tsx:initAboutHeroEffect:beforeNext",
-              message: "Calling next() on hover-effect instance",
-              data: {
-                timeoutMs: 180,
-                parentRect: parent.getBoundingClientRect().toJSON(),
-              },
-              timestamp: Date.now(),
-            }),
-          },
-        ).catch(() => {});
-        // #endregion
         aboutHeroInstanceRef.current?.next?.();
       }, 180);
     };
 
     initAboutHeroEffect();
-    const onResize = () => {
-      const parent = aboutHeroEffectRef.current;
-      if (!parent) return;
-      const canvas = parent.querySelector("canvas");
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "d66309",
-          },
-          body: JSON.stringify({
-            sessionId: "d66309",
-            runId,
-            hypothesisId: "H3",
-            location: "src/app/page.tsx:onResize:layout",
-            message: "Layout after resize for parent and canvas",
-            data: {
-              parentRect: parent.getBoundingClientRect().toJSON(),
-              canvasRect: canvas?.getBoundingClientRect().toJSON() ?? null,
-              viewport: {
-                width: window.innerWidth,
-                height: window.innerHeight,
-              },
-            },
-            timestamp: Date.now(),
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
-    };
-    window.addEventListener("resize", onResize);
-    onResize();
 
     return () => {
       isUnmounted = true;
       if (timeoutId) clearTimeout(timeoutId);
-      window.removeEventListener("resize", onResize);
-    };
-  }, [showAbout]);
-
-  useEffect(() => {
-    if (!showAbout) return;
-    const runId = `bg-check-${Date.now()}`;
-    const logColorStacking = () => {
-      const parent = aboutHeroEffectRef.current?.parentElement;
-      const webglHost = aboutHeroEffectRef.current;
-      const colorBlock = aboutColorBlockRef.current;
-      if (!parent || !webglHost || !colorBlock) return;
-      const parentRect = parent.getBoundingClientRect();
-      const webglRect = webglHost.getBoundingClientRect();
-      const colorRect = colorBlock.getBoundingClientRect();
-      const probeX = Math.floor(parentRect.left + parentRect.width / 2);
-      const probeY = Math.floor(parentRect.top + parentRect.height / 2);
-      const topElement = document.elementFromPoint(
-        probeX,
-        probeY,
-      ) as HTMLElement | null;
-
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "d66309",
-          },
-          body: JSON.stringify({
-            sessionId: "d66309",
-            runId,
-            hypothesisId: "H6",
-            location: "src/app/page.tsx:logColorStacking:layout",
-            message: "Background block layout and stacking",
-            data: {
-              parentRect: parentRect.toJSON(),
-              webglRect: webglRect.toJSON(),
-              colorRect: colorRect.toJSON(),
-              parentBg: getComputedStyle(parent).backgroundColor,
-              webglBg: getComputedStyle(webglHost).backgroundColor,
-              colorBg: getComputedStyle(colorBlock).backgroundColor,
-              topElementTag: topElement?.tagName ?? null,
-              topElementClass: topElement?.className ?? null,
-            },
-            timestamp: Date.now(),
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
-    };
-
-    requestAnimationFrame(logColorStacking);
-  }, [showAbout]);
-
-  useEffect(() => {
-    const runId = `mobile-overflow-${Date.now()}`;
-    const logHorizontalOverflow = (phase: string, hypothesisId: string) => {
-      const viewportWidth = window.innerWidth;
-      const candidates = Array.from(
-        document.querySelectorAll<HTMLElement>("body *")
-      )
-        .filter((el) => {
-          const rect = el.getBoundingClientRect();
-          return rect.right > viewportWidth + 1 || rect.left < -1;
-        })
-        .slice(0, 8)
-        .map((el) => {
-          const rect = el.getBoundingClientRect();
-          return {
-            tag: el.tagName,
-            className: el.className,
-            left: Math.round(rect.left),
-            right: Math.round(rect.right),
-            width: Math.round(rect.width),
-          };
-        });
-
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "d66309",
-          },
-          body: JSON.stringify({
-            sessionId: "d66309",
-            runId,
-            hypothesisId,
-            location: "src/app/page.tsx:logHorizontalOverflow",
-            message: "Horizontal overflow snapshot",
-            data: {
-              phase,
-              showAbout,
-              viewportWidth,
-              bodyClientWidth: document.body.clientWidth,
-              bodyScrollWidth: document.body.scrollWidth,
-              docClientWidth: document.documentElement.clientWidth,
-              docScrollWidth: document.documentElement.scrollWidth,
-              offenders: candidates,
-            },
-            timestamp: Date.now(),
-          }),
-        }
-      ).catch(() => {});
-      // #endregion
-    };
-
-    logHorizontalOverflow("effect-start", "H7");
-    const raf = requestAnimationFrame(() => {
-      logHorizontalOverflow("raf-after-layout", "H8");
-    });
-    const onResize = () => logHorizontalOverflow("resize", "H9");
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
     };
   }, [showAbout]);
 
@@ -342,6 +75,169 @@ export default function Home() {
       if (aboutHeroEffectRef.current) aboutHeroEffectRef.current.innerHTML = "";
     };
   }, []);
+
+  // #region agent log
+  useEffect(() => {
+    if (!showAbout) return;
+    const send = (hypothesisId: string, message: string, data: unknown) => {
+      fetch(
+        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d66309",
+          },
+          body: JSON.stringify({
+            sessionId: "d66309",
+            runId: "post-fix",
+            hypothesisId,
+            location: "src/app/page.tsx:overflow-probe",
+            message,
+            data,
+            timestamp: Date.now(),
+          }),
+        }
+      ).catch(() => {});
+    };
+
+    const probe = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const de = document.documentElement;
+      const body = document.body;
+
+      send("H3", "viewport + media", {
+        vw,
+        vh,
+        dpr: window.devicePixelRatio,
+        mqMobile: window.matchMedia("(max-width: 1023.98px)").matches,
+        mqLg: window.matchMedia("(min-width: 1024px)").matches,
+      });
+
+      send("H4", "html/body state", {
+        htmlClass: de.className,
+        bodyClass: body.className,
+        htmlOverflowX: getComputedStyle(de).overflowX,
+        htmlOverflowY: getComputedStyle(de).overflowY,
+        bodyOverflowX: getComputedStyle(body).overflowX,
+        bodyOverflowY: getComputedStyle(body).overflowY,
+        bodyPosition: getComputedStyle(body).position,
+        htmlScrollW: de.scrollWidth,
+        htmlClientW: de.clientWidth,
+        bodyScrollW: body.scrollWidth,
+        bodyClientW: body.clientWidth,
+        bodyScrollLeft: body.scrollLeft,
+        htmlScrollLeft: de.scrollLeft,
+      });
+
+      const all = Array.from(document.querySelectorAll<HTMLElement>("*"));
+      const scrollers = all
+        .filter((el) => {
+          const cs = getComputedStyle(el);
+          const scrollsX =
+            el.scrollWidth > el.clientWidth + 1 &&
+            (cs.overflowX === "auto" ||
+              cs.overflowX === "scroll" ||
+              cs.overflow === "auto" ||
+              cs.overflow === "scroll");
+          return scrollsX;
+        })
+        .slice(0, 10)
+        .map((el) => ({
+          tag: el.tagName,
+          cls: el.className?.toString().slice(0, 160),
+          sw: el.scrollWidth,
+          cw: el.clientWidth,
+          sl: el.scrollLeft,
+          ox: getComputedStyle(el).overflowX,
+        }));
+      send("H1", "x-scrollable containers", { count: scrollers.length, scrollers });
+
+      const aboutScroll = document.querySelector<HTMLElement>(".about-scroll");
+      if (aboutScroll) {
+        const cs = getComputedStyle(aboutScroll);
+        send("H1", ".about-scroll metrics", {
+          sw: aboutScroll.scrollWidth,
+          cw: aboutScroll.clientWidth,
+          sl: aboutScroll.scrollLeft,
+          overflowX: cs.overflowX,
+          overflowY: cs.overflowY,
+        });
+        const asRect = aboutScroll.getBoundingClientRect();
+        const inside = Array.from(
+          aboutScroll.querySelectorAll<HTMLElement>("*")
+        )
+          .map((el) => {
+            const r = el.getBoundingClientRect();
+            return { el, r };
+          })
+          .filter(({ r }) => r.right > asRect.right + 0.5)
+          .sort((a, b) => b.r.right - a.r.right)
+          .slice(0, 8)
+          .map(({ el, r }) => ({
+            tag: el.tagName,
+            cls: (el.className || "").toString().slice(0, 200),
+            right: Math.round(r.right),
+            left: Math.round(r.left),
+            width: Math.round(r.width),
+            over: Math.round(r.right - asRect.right),
+          }));
+        send("H2", "children overflowing .about-scroll right", {
+          asRight: Math.round(asRect.right),
+          count: inside.length,
+          inside,
+        });
+      }
+
+      const offenders = all
+        .map((el) => {
+          const r = el.getBoundingClientRect();
+          return { el, r };
+        })
+        .filter(({ r }) => r.right > vw + 0.5 || r.left < -0.5)
+        .sort((a, b) => b.r.right - a.r.right)
+        .slice(0, 12)
+        .map(({ el, r }) => ({
+          tag: el.tagName,
+          cls: (el.className || "").toString().slice(0, 200),
+          right: Math.round(r.right),
+          left: Math.round(r.left),
+          width: Math.round(r.width),
+          over: Math.round(r.right - vw),
+        }));
+      send("H2", "elements overflowing viewport right", {
+        vw,
+        count: offenders.length,
+        offenders,
+      });
+    };
+
+    const t1 = setTimeout(probe, 800);
+    const onScroll = () => {
+      const as = document.querySelector<HTMLElement>(".about-scroll");
+      send("H1", "scroll event", {
+        winX: window.scrollX,
+        winY: window.scrollY,
+        aboutSL: as?.scrollLeft,
+        aboutSW: as?.scrollWidth,
+        aboutCW: as?.clientWidth,
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document
+      .querySelector(".about-scroll")
+      ?.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      clearTimeout(t1);
+      window.removeEventListener("scroll", onScroll);
+      document
+        .querySelector(".about-scroll")
+        ?.removeEventListener("scroll", onScroll);
+    };
+  }, [showAbout]);
+  // #endregion agent log
 
   return (
     <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full px-2 pt-1">
@@ -460,10 +356,7 @@ export default function Home() {
                           className="h-[100%] w-[100%] object-contain ml-auto  "
                           alt="Flowgeist logo black"
                         />
-                        <div
-                          ref={aboutColorBlockRef}
-                          className=" w-full h-full  mr-2 pr-4 "
-                        >
+                        <div className=" w-full h-full  mr-2 pr-4 ">
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
                             <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
@@ -566,10 +459,7 @@ export default function Home() {
                       className="h-[100%] w-[100%] object-contain ml-auto  "
                       alt="Flowgeist logo black"
                     />
-                    <div
-                      ref={aboutColorBlockRef}
-                      className=" w-full h-full border-r-20 border-[#ffffff] mr-2 pr-4 "
-                    >
+                    <div className=" w-full h-full border-r-20 border-[#ffffff] mr-2 pr-4 ">
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                         {" "}
                         <p

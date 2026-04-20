@@ -53,6 +53,8 @@ body.home-page .about-scroll {
 /* Scroll solo nel pannello about, fluido su iOS e tutti i mobile */
 .about-scroll {
   -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 /* Custom slider styles */
