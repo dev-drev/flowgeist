@@ -97,8 +97,8 @@ export default function Home() {
       ).catch(() => {});
       // #endregion
 
-      const module = await import("hover-effect");
-      const HoverEffect = module.default ?? module;
+      const hoverEffectModule = await import("hover-effect");
+      const HoverEffect = hoverEffectModule.default ?? hoverEffectModule;
       if (isUnmounted) return;
 
       parent.innerHTML = "";
@@ -440,7 +440,7 @@ export default function Home() {
                         height={150}
                         className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
                       />
-                      <p className="text-[22px] font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
+                      <p className="text-[22px]  font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
                         [contacts]
                       </p>
                       <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
