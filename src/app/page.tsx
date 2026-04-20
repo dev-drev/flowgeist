@@ -282,7 +282,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
+                  <div className="translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block bg-[#BABABA]">
                     {/* <div
                       ref={aboutHeroEffectRef}
                       className="hover-webgl-host h-full w-full object-contain "
@@ -300,7 +300,7 @@ export default function Home() {
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                         {" "}
                         <p
-                          className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-6  text-[20px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Flowgeist resonates across sound and form through
