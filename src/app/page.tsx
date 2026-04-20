@@ -269,6 +269,74 @@ export default function Home() {
   }, [showAbout]);
 
   useEffect(() => {
+    const runId = `mobile-overflow-${Date.now()}`;
+    const logHorizontalOverflow = (phase: string, hypothesisId: string) => {
+      const viewportWidth = window.innerWidth;
+      const candidates = Array.from(
+        document.querySelectorAll<HTMLElement>("body *")
+      )
+        .filter((el) => {
+          const rect = el.getBoundingClientRect();
+          return rect.right > viewportWidth + 1 || rect.left < -1;
+        })
+        .slice(0, 8)
+        .map((el) => {
+          const rect = el.getBoundingClientRect();
+          return {
+            tag: el.tagName,
+            className: el.className,
+            left: Math.round(rect.left),
+            right: Math.round(rect.right),
+            width: Math.round(rect.width),
+          };
+        });
+
+      // #region agent log
+      fetch(
+        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d66309",
+          },
+          body: JSON.stringify({
+            sessionId: "d66309",
+            runId,
+            hypothesisId,
+            location: "src/app/page.tsx:logHorizontalOverflow",
+            message: "Horizontal overflow snapshot",
+            data: {
+              phase,
+              showAbout,
+              viewportWidth,
+              bodyClientWidth: document.body.clientWidth,
+              bodyScrollWidth: document.body.scrollWidth,
+              docClientWidth: document.documentElement.clientWidth,
+              docScrollWidth: document.documentElement.scrollWidth,
+              offenders: candidates,
+            },
+            timestamp: Date.now(),
+          }),
+        }
+      ).catch(() => {});
+      // #endregion
+    };
+
+    logHorizontalOverflow("effect-start", "H7");
+    const raf = requestAnimationFrame(() => {
+      logHorizontalOverflow("raf-after-layout", "H8");
+    });
+    const onResize = () => logHorizontalOverflow("resize", "H9");
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [showAbout]);
+
+  useEffect(() => {
     return () => {
       aboutHeroInstanceRef.current?.destroy?.();
       if (aboutHeroEffectRef.current) aboutHeroEffectRef.current.innerHTML = "";
@@ -398,7 +466,7 @@ export default function Home() {
                         >
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-black/55 text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist resonates across sound and form through
                               endless definition. Structures surface, loosen,
                               and fall away, allowing material to reorganise in
@@ -420,7 +488,7 @@ export default function Home() {
                               height={150}
                               className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
                             />
-                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -444,7 +512,7 @@ export default function Home() {
                         [contacts]
                       </p>
                       <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
-                        <div className="flex flex-col bg-[#BABABA] gap-16 ml-8 p-4 h-full">
+                        <div className="flex flex-col bg-[#BABABA] gap-16 ml-0 sm:ml-4 lg:ml-8 p-4 h-full">
                           <a
                             href="https://instagram.com"
                             target="_blank"
@@ -505,7 +573,7 @@ export default function Home() {
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                         {" "}
                         <p
-                          className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Flowgeist resonates across sound and form through
@@ -515,7 +583,7 @@ export default function Home() {
                           releasing density as tension gathers and dissolves.
                         </p>
                         <p
-                          className=" pb-5 pt-4 text-[20px] font-semibold leading-[1.16] text-black/55 text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-4 text-[20px] font-semibold leading-[1.16] text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Long-form electronic construction meets physical
