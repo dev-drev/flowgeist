@@ -350,7 +350,7 @@ export default function Home() {
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
                     </div>
                   </div>
-                  <div className="flex h-full w-full items-end border-r-20 border-l-5 lg:border-black/45">
+                  <div className="flex h-full w-full items-end border-r-20 border-l-5  lg:border-black/45  ">
                     <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px]" />
                     <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
@@ -431,7 +431,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#BABABA] hover-webgl-card relative h-[320px] border-t border-white/20 lg:col-start-2 lg:col-end-4 lg:h-[570px] lg:border-l lg:border-t-0">
+                  <div className="bg-[#ffffff] translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0">
                     {/* <div
                       ref={aboutHeroEffectRef}
                       className="hover-webgl-host h-full w-full object-contain "
@@ -442,50 +442,51 @@ export default function Home() {
                         objectFit: "contain",
                         objectPosition: "right top",
                       }}
-                      className="h-[100%] w-[100%] object-contain ml-auto "
+                      className="h-[100%] w-[100%] object-contain ml-auto  "
                       alt="Flowgeist logo black"
                     />
                     <div
                       ref={aboutColorBlockRef}
-                      className="bg-[#BABABA] w-full h-full bg-[#ccc] "
+                      className=" w-full h-full bg-[#ffffff] mr-2 pr-4 "
                     >
-                      <p className=" pb-5 pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-3">
-                        Flowgeist resonates across sound and form through
-                        endless definition. Structures surface, loosen, and fall
-                        away, allowing material to reorganise in real time.
-                        Rhythm acts as a spatial force, contracting and
-                        releasing density as tension gathers and dissolves.
-                      </p>
-                      <p className=" pb-5 pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-50  pr-10">
-                        Long-form electronic construction meets physical
-                        intensity, where restraint and impact remain closely
-                        linked, and abstraction stays tethered to sensation.
-                        Genre remains peripheral, treated as material rather
-                        than structure. Sound leads the process, leaving meaning
-                        to emerge gradually through listening.
-                      </p>{" "}
+                      <div className="mr-2 pr-4 bg-[#BABABA] h-full">
+                        {" "}
+                        <p className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-4">
+                          Flowgeist resonates across sound and form through
+                          endless definition. Structures surface, loosen, and
+                          fall away, allowing material to reorganise in real
+                          time. Rhythm acts as a spatial force, contracting and
+                          releasing density as tension gathers and dissolves.
+                        </p>
+                        <p className=" pb-5 pt-4 text-[20px] font-semibold leading-[1.16] text-black/55 text-justify pl-50  pr-10">
+                          Long-form electronic construction meets physical
+                          intensity, where restraint and impact remain closely
+                          linked, and abstraction stays tethered to sensation.
+                          Genre remains peripheral, treated as material rather
+                          than structure. Sound leads the process, leaving
+                          meaning to emerge gradually through listening.
+                        </p>{" "}
+                        <Image
+                          src="/artists/art-white.png"
+                          alt="Flowgeist logo grey"
+                          width={520}
+                          height={520}
+                          className="mx-auto mt-4 h-auto w-[520px] object-contain p-2"
+                        />
+                      </div>
                     </div>
                   </div>
                 </section>
 
-                <section className=" border-black/15 px-5 py-2 sm:px-8">
+                <section className=" border-black/15 px-5 py-0 sm:px-8">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="relative h-[500px] overflow-hidden bg-black/5">
+                    <div className="relative h-[450px] overflow-hidden">
                       <Image
                         src="/artists/pic-negative.jpeg"
                         alt="Flowgeist logo black"
                         fill
                         sizes="(max-width: 640px) 100vw, 50vw"
                         className="object-contain"
-                      />
-                    </div>
-                    <div className="relative h-[260px] overflow-hidden bg-black/5">
-                      <Image
-                        src="/artists/art-white.png"
-                        alt="Flowgeist logo grey"
-                        fill
-                        sizes="(max-width: 640px) 100vw, 50vw"
-                        className="object-contain p-4"
                       />
                     </div>
                   </div>
