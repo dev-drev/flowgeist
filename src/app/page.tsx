@@ -196,7 +196,10 @@ export default function Home() {
                         <div className=" w-full h-full  mr-2 pr-4 ">
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
+                            <p
+                              className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 font-alte-haas-bold"
+                              style={{ color: "#5c5c5c" }}
+                            >
                               Flowgeist resonates across sound and form through
                               endless definition. Structures surface, loosen,
                               and fall away, allowing material to reorganise in
@@ -218,7 +221,10 @@ export default function Home() {
                               height={150}
                               className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
                             />
-                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
+                            <p
+                              className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 font-alte-haas-bold"
+                              style={{ color: "#5c5c5c" }}
+                            >
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -236,7 +242,7 @@ export default function Home() {
                         alt="Flowgeist symbol"
                         width={150}
                         height={150}
-                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
+                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-8 hidden lg:block"
                       />
                       <p className="text-[22px]  font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
                         [contacts]
@@ -291,7 +297,7 @@ export default function Home() {
                       src="/artists.jpeg"
                       style={{
                         objectFit: "contain",
-                        objectPosition: "right top",
+                        objectPosition: "left top",
                       }}
                       className="h-[100%] w-[100%] object-contain ml-auto  "
                       alt="Flowgeist logo black"
