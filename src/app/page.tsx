@@ -286,7 +286,7 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 w-full h-full max-h-[100vh]">
+      <div className="relative z-10 mx-auto h-full w-full max-h-[100vh] max-w-[1500px]">
         <div
           className={`absolute inset-0 flex items-center justify-center px-6 sm:px-12 lg:px-20 transition-all duration-500 ${
             showAbout
@@ -343,18 +343,18 @@ export default function Home() {
                       alt="Flowgeist"
                       width={200}
                       height={56}
-                      className="h-auto  sm:w-[550px] object-contain"
+                      className="h-auto w-[700px] sm:w-[550px] object-contain"
                     />
                   </button>
-                  <div className="flex h-full w-full items-end  border-b-20 lg:border-black/45 lg:block hidden">
-                    <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px]" />
+                  <div className="hidden h-full w-full items-end border-b-20 md:flex lg:border-black/45">
+                    <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px] " />
                     <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
                     </div>
                   </div>
                   <div className="flex h-full w-full items-end border-r-20 border-l-5  lg:border-black/45  ">
-                    <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px]" />
-                    <div className="flex h-full items-end justify-end bg-[#BABABA]">
+                    <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px] lg:block hidden" />
+                    <div className="flex h-full items-end justify-end bg-[#BABABA] lg:block hidden">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
                         [Berlin, DE]
                       </p>
@@ -374,23 +374,73 @@ export default function Home() {
                   className={`grid min-h-[60vh] grid-cols-1 ${headerGridCols}`}
                 >
                   <div className="flex h-full flex-col gap-8 lg:col-start-1 lg:col-end-2">
-                    <div className="space-y-6 ">
-                      <p className="font-pt-mono text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
+                    <div className="lg:space-y-6 ">
+                      <p className="font-pt-mono text-[10px] lg:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
                         A PROJECT CURATED BY /
                         <br />
-                        <span className="font-alte-haas-bold normal-case text-xl text-black/65 tracking-[0.03px] pl-10">
+                        <span className="font-alte-haas-bold normal-case text-xl text-black/65 tracking-[0.03px] pl-10 text-[16px] lg:text-[20px]">
                           Marco Bruno and Velvet May.
                         </span>
                       </p>
+                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] translate-x-2 hover-webgl-card relative lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
+                        <img
+                          src="/artists.jpeg"
+                          style={{
+                            objectFit: "contain",
+                            objectPosition: "right top",
+                          }}
+                          className="h-[100%] w-[100%] object-contain ml-auto  "
+                          alt="Flowgeist logo black"
+                        />
+                        <div
+                          ref={aboutColorBlockRef}
+                          className=" w-full h-full lg:bg-[#ffffff] mr-2 pr-4 "
+                        >
+                          <div className="mr-2 pr-4 bg-[#BABABA] h-full">
+                            {" "}
+                            <p className=" pb-5 pt-6 text-[16px] font-semibold leading-[1.16] text-black/55 text-justify lg:pr-50 pr-2 pl-4">
+                              Flowgeist resonates across sound and form through
+                              endless definition. Structures surface, loosen,
+                              and fall away, allowing material to reorganise in
+                              real time. Rhythm acts as a spatial force,
+                              contracting and releasing density as tension
+                              gathers and dissolves.
+                            </p>
+                            <Image
+                              src="/artists/pic-negative.jpeg"
+                              alt="Flowgeist logo grey"
+                              width={520}
+                              height={520}
+                              className="mx-auto  h-auto w-[520px] object-contain"
+                            />
+                            <Image
+                              src="/logo-grey.png"
+                              alt="Flowgeist symbol"
+                              width={150}
+                              height={150}
+                              className="h-auto w-[144px] sm:w-[190px] pt-12 object-contain mt-0 pb-3 p-5 pr-2 sm:p-8  float-right"
+                            />
+                            <p className=" pb-5 pt-8 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-3  pr-3">
+                              Long-form electronic construction meets physical
+                              intensity, where restraint and impact remain
+                              closely linked, and abstraction stays tethered to
+                              sensation. Genre remains peripheral, treated as
+                              material rather than structure. Sound leads the
+                              process, leaving meaning to emerge gradually
+                              through listening.
+                            </p>{" "}
+                          </div>
+                        </div>
+                      </div>
 
                       <Image
                         src="/logo-grey.png"
                         alt="Flowgeist symbol"
                         width={150}
                         height={150}
-                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20"
+                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden md:block"
                       />
-                      <p className="text-[22px] font-semibold  tracking-[0.1em] text-black/65 ml-10">
+                      <p className="text-[22px] font-semibold  tracking-[0.1em] text-black/65 ml-10 pt-10 md:pt-0">
                         [contacts]
                       </p>
                       <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full h-full ">
@@ -412,7 +462,7 @@ export default function Home() {
                             rel="noreferrer"
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
-                            INSTAGRAM_ <br />
+                            _INSTAGRAM <br />
                             <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
                               @flowgeistx
                             </span>
@@ -423,7 +473,8 @@ export default function Home() {
                             rel="noreferrer"
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
-                            SOUNDCLOUD_ <br />
+                            SOUNDCLOUD --
+                            <br />
                             <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
                               @flowgeistx{" "}
                             </span>
@@ -433,7 +484,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#ffffff] translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0">
+                  <div className="bg-[#ffffff] translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
                     {/* <div
                       ref={aboutHeroEffectRef}
                       className="hover-webgl-host h-full w-full object-contain "
