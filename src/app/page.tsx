@@ -299,7 +299,7 @@ export default function Home() {
                         objectFit: "contain",
                         objectPosition: "left top",
                       }}
-                      className="h-[100%] w-[100%] object-contain ml-auto  "
+                      className="h-[100%] w-[99.9%] object-contain ml-auto  "
                       alt="Flowgeist logo black"
                     />
                     <div className=" w-full h-full border-r-20 border-[#ffffff] mr-2 pr-4 ">
