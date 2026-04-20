@@ -440,10 +440,10 @@ export default function Home() {
                         height={150}
                         className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden md:block"
                       />
-                      <p className="text-[22px] font-semibold  tracking-[0.1em] text-black/65 ml-10 pt-10 md:pt-0">
+                      <p className="text-[22px] font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-0">
                         [contacts]
                       </p>
-                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full h-full ">
+                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
                         <div className="flex flex-col bg-[#BABABA] gap-16 ml-8 p-4 h-full">
                           <a
                             href="https://instagram.com"
@@ -452,7 +452,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             MAIL_ <br />
-                            <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal">
                               flowgeistmusic@gmail.com
                             </span>
                           </a>{" "}
@@ -463,7 +463,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             _INSTAGRAM <br />
-                            <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal">
                               @flowgeistx
                             </span>
                           </a>
@@ -475,7 +475,7 @@ export default function Home() {
                           >
                             SOUNDCLOUD --
                             <br />
-                            <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal">
                               @flowgeistx{" "}
                             </span>
                           </a>
@@ -531,7 +531,7 @@ export default function Home() {
                   </div>
                 </section>
 
-                <section className=" border-black/15 px-5 py-0 sm:px-8">
+                <section className=" border-black/15 px-5 py-0 lg:py-6 sm:px-1 hidden md:block">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="relative h-[450px] overflow-hidden">
                       <Image
