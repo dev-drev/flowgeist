@@ -329,7 +329,9 @@ export default function Home() {
                     : "opacity-0 -translate-y-3 scale-95"
                 }`}
               >
-                <div className={`grid w-full grid-cols-1 ${headerGridCols}`}>
+                <div
+                  className={`flex lg:grid w-full grid-cols-1 ${headerGridCols}`}
+                >
                   <button
                     type="button"
                     onClick={() => setShowAbout(false)}
@@ -344,7 +346,7 @@ export default function Home() {
                       className="h-auto  sm:w-[550px] object-contain"
                     />
                   </button>
-                  <div className="flex h-full w-full items-end  border-b-20 lg:border-black/45">
+                  <div className="flex h-full w-full items-end  border-b-20 lg:border-black/45 lg:block hidden">
                     <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px]" />
                     <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
