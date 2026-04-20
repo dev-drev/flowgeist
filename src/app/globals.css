@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #D9D8D5;
+  --background: #BABABA;
   --foreground: #171717;
 }
 
@@ -11,11 +11,13 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-grotesque: var(--font-grotesque);
+  --font-pt-mono: var(--font-pt-mono);
+  --font-alte-haas-bold: var(--font-alte-haas-bold);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-  --background: #D9D8D5;
+  --background: #BABABA;
   --foreground: #171717;
   }
 }
@@ -220,6 +222,15 @@ body.home-page .about-scroll {
 
 .flip-face-back {
   transform: rotateY(180deg);
+}
+
+/* WebGL hover effect cards */
+.hover-webgl-card > .hover-webgl-host,
+.hover-webgl-card canvas {
+  width: 100% !important;
+  height: 100% !important;
+  background-color: black !important;
+  display: block;
 }
 
 /* Custom utilities */

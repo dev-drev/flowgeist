@@ -1,12 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTracking } from "@/lib/useTracking";
 
 export default function Home() {
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
+  const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
+  const aboutColorBlockRef = useRef<HTMLDivElement | null>(null);
+  const aboutHeroEffectPlayedRef = useRef(false);
+  const aboutHeroInstanceRef = useRef<{
+    next?: () => void;
+    destroy?: () => void;
+  } | null>(null);
 
   useEffect(() => {
     trackPageView("Website opened");
@@ -21,8 +28,254 @@ export default function Home() {
     };
   }, [showAbout]);
 
+  useEffect(() => {
+    if (!showAbout || aboutHeroEffectPlayedRef.current) return;
+
+    let isUnmounted = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const runId = `about-hero-${Date.now()}`;
+
+    const initAboutHeroEffect = async () => {
+      const parent = aboutHeroEffectRef.current;
+      if (!parent) return;
+      const imgProbe = new window.Image();
+      imgProbe.onload = () => {
+        // #region agent log
+        fetch(
+          "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Debug-Session-Id": "d66309",
+            },
+            body: JSON.stringify({
+              sessionId: "d66309",
+              runId,
+              hypothesisId: "H5",
+              location: "src/app/page.tsx:initAboutHeroEffect:imageProbe",
+              message: "Image intrinsic dimensions for artists.jpeg",
+              data: {
+                naturalWidth: imgProbe.naturalWidth,
+                naturalHeight: imgProbe.naturalHeight,
+                naturalRatio:
+                  imgProbe.naturalHeight > 0
+                    ? imgProbe.naturalWidth / imgProbe.naturalHeight
+                    : null,
+              },
+              timestamp: Date.now(),
+            }),
+          },
+        ).catch(() => {});
+        // #endregion
+      };
+      imgProbe.src = "/artists.jpeg";
+      // #region agent log
+      fetch(
+        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d66309",
+          },
+          body: JSON.stringify({
+            sessionId: "d66309",
+            runId,
+            hypothesisId: "H1",
+            location: "src/app/page.tsx:initAboutHeroEffect:parentRect",
+            message: "Parent rect before hover-effect init",
+            data: {
+              showAbout,
+              parentRect: parent.getBoundingClientRect().toJSON(),
+              parentClass: parent.className,
+            },
+            timestamp: Date.now(),
+          }),
+        },
+      ).catch(() => {});
+      // #endregion
+
+      const module = await import("hover-effect");
+      const HoverEffect = module.default ?? module;
+      if (isUnmounted) return;
+
+      parent.innerHTML = "";
+      aboutHeroInstanceRef.current = new HoverEffect({
+        parent,
+        intensity: 0.32,
+        image1: "/flowgeist.png",
+        image2: "/artists.jpeg",
+        displacementImage: "/flowgeist.png",
+        hover: false,
+        speedIn: 2.4,
+        speedOut: 2.4,
+        easing: "expo.out",
+      });
+      aboutHeroEffectPlayedRef.current = true;
+      const canvas = parent.querySelector("canvas");
+      // #region agent log
+      fetch(
+        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d66309",
+          },
+          body: JSON.stringify({
+            sessionId: "d66309",
+            runId,
+            hypothesisId: "H2",
+            location: "src/app/page.tsx:initAboutHeroEffect:canvasAfterInit",
+            message: "Canvas sizing and computed styles after init",
+            data: {
+              canvasFound: Boolean(canvas),
+              canvasRect: canvas?.getBoundingClientRect().toJSON() ?? null,
+              parentRect: parent.getBoundingClientRect().toJSON(),
+              canvasInlineStyles: canvas?.getAttribute("style") ?? null,
+            },
+            timestamp: Date.now(),
+          }),
+        },
+      ).catch(() => {});
+      // #endregion
+
+      timeoutId = setTimeout(() => {
+        // #region agent log
+        fetch(
+          "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Debug-Session-Id": "d66309",
+            },
+            body: JSON.stringify({
+              sessionId: "d66309",
+              runId,
+              hypothesisId: "H4",
+              location: "src/app/page.tsx:initAboutHeroEffect:beforeNext",
+              message: "Calling next() on hover-effect instance",
+              data: {
+                timeoutMs: 180,
+                parentRect: parent.getBoundingClientRect().toJSON(),
+              },
+              timestamp: Date.now(),
+            }),
+          },
+        ).catch(() => {});
+        // #endregion
+        aboutHeroInstanceRef.current?.next?.();
+      }, 180);
+    };
+
+    initAboutHeroEffect();
+    const onResize = () => {
+      const parent = aboutHeroEffectRef.current;
+      if (!parent) return;
+      const canvas = parent.querySelector("canvas");
+      // #region agent log
+      fetch(
+        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d66309",
+          },
+          body: JSON.stringify({
+            sessionId: "d66309",
+            runId,
+            hypothesisId: "H3",
+            location: "src/app/page.tsx:onResize:layout",
+            message: "Layout after resize for parent and canvas",
+            data: {
+              parentRect: parent.getBoundingClientRect().toJSON(),
+              canvasRect: canvas?.getBoundingClientRect().toJSON() ?? null,
+              viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+              },
+            },
+            timestamp: Date.now(),
+          }),
+        },
+      ).catch(() => {});
+      // #endregion
+    };
+    window.addEventListener("resize", onResize);
+    onResize();
+
+    return () => {
+      isUnmounted = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [showAbout]);
+
+  useEffect(() => {
+    if (!showAbout) return;
+    const runId = `bg-check-${Date.now()}`;
+    const logColorStacking = () => {
+      const parent = aboutHeroEffectRef.current?.parentElement;
+      const webglHost = aboutHeroEffectRef.current;
+      const colorBlock = aboutColorBlockRef.current;
+      if (!parent || !webglHost || !colorBlock) return;
+      const parentRect = parent.getBoundingClientRect();
+      const webglRect = webglHost.getBoundingClientRect();
+      const colorRect = colorBlock.getBoundingClientRect();
+      const probeX = Math.floor(parentRect.left + parentRect.width / 2);
+      const probeY = Math.floor(parentRect.top + parentRect.height / 2);
+      const topElement = document.elementFromPoint(
+        probeX,
+        probeY,
+      ) as HTMLElement | null;
+
+      // #region agent log
+      fetch(
+        "http://127.0.0.1:7893/ingest/ba57b2af-0dca-4900-bc00-390f193e315b",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d66309",
+          },
+          body: JSON.stringify({
+            sessionId: "d66309",
+            runId,
+            hypothesisId: "H6",
+            location: "src/app/page.tsx:logColorStacking:layout",
+            message: "Background block layout and stacking",
+            data: {
+              parentRect: parentRect.toJSON(),
+              webglRect: webglRect.toJSON(),
+              colorRect: colorRect.toJSON(),
+              parentBg: getComputedStyle(parent).backgroundColor,
+              webglBg: getComputedStyle(webglHost).backgroundColor,
+              colorBg: getComputedStyle(colorBlock).backgroundColor,
+              topElementTag: topElement?.tagName ?? null,
+              topElementClass: topElement?.className ?? null,
+            },
+            timestamp: Date.now(),
+          }),
+        },
+      ).catch(() => {});
+      // #endregion
+    };
+
+    requestAnimationFrame(logColorStacking);
+  }, [showAbout]);
+
+  useEffect(() => {
+    return () => {
+      aboutHeroInstanceRef.current?.destroy?.();
+      if (aboutHeroEffectRef.current) aboutHeroEffectRef.current.innerHTML = "";
+    };
+  }, []);
+
   return (
-    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full ">
+    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full p-2 pt-2">
       <div
         className="fixed inset-0 w-full h-full z-0"
         style={{
@@ -67,19 +320,19 @@ export default function Home() {
           aria-label="About"
         >
           <div className="flex h-full w-full overflow-hidden">
-            <div className="mx-auto flex h-full w-full flex-col">
+            <div className="mx-auto flex h-full w-full flex-col overflow-y-auto about-scroll">
               <header
-                className={`w-full   bg-[#d9d8d5] pl-4  text-black/80 sm:px-l transition-all duration-500 ${
+                className={`w-full   bg-[#BABABA] pl-4  text-black/80 sm:px-l transition-all duration-500 ${
                   showAbout
                     ? "opacity-100 translate-y-0 scale-100"
                     : "opacity-0 -translate-y-3 scale-95"
                 }`}
               >
-                <div className="grid w-full grid-cols-1 lg:grid-cols-[0.927fr_0.75fr_0.80fr]">
+                <div className="grid w-full grid-cols-1 lg:grid-cols-[0.997fr_0.547fr_0.80fr]">
                   <button
                     type="button"
                     onClick={() => setShowAbout(false)}
-                    className="inline-flex items-center rounded-md pt-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                    className="inline-flex items-center rounded-md pt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
                     aria-label="Torna al logo iniziale"
                   >
                     <Image
@@ -87,18 +340,18 @@ export default function Home() {
                       alt="Flowgeist"
                       width={200}
                       height={56}
-                      className="h-auto  sm:w-[500px] object-contain"
+                      className="h-auto  sm:w-[550px] object-contain"
                     />
                   </button>
                   <div className="flex h-full w-full items-end  border-b-20 lg:border-black/45">
                     <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px]" />
-                    <div className="flex h-full items-end justify-end bg-[#d9d8d5]">
+                    <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
                     </div>
                   </div>
                   <div className="flex h-full w-full items-end border-r-20 border-l-5 lg:border-black/45">
                     <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px]" />
-                    <div className="flex h-full items-end justify-end bg-[#d9d8d5]">
+                    <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
                         [Berlin, DE]
                       </p>
@@ -108,98 +361,121 @@ export default function Home() {
               </header>
 
               <div
-                className={`flex-1 overflow-y-auto about-scroll bg-[#d9d8d5] text-black/85 transition-all duration-500 delay-100 ${
+                className={`bg-[#BABABA] text-black/85 transition-all duration-500 delay-100 ${
                   showAbout
                     ? "opacity-100 translate-y-0 scale-100"
                     : "opacity-0 translate-y-4 scale-95"
                 }`}
               >
-                <section className="grid min-h-[65vh] grid-cols-1 lg:grid-cols-[0.95fr_1.55fr]">
-                  <div className="flex h-full flex-col gap-8 p-5 sm:p-8">
-                    <div className="space-y-6">
-                      <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-black/65">
+                <section className="grid min-h-[60vh] grid-cols-1 lg:grid-cols-[0.95fr_1.55fr]">
+                  <div className="flex h-full flex-col gap-8 ">
+                    <div className="space-y-6 ">
+                      <p className="font-pt-mono text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
                         A PROJECT CURATED BY /
                         <br />
-                        Marco Bruno and Velvet May.
+                        <span className="font-alte-haas-bold normal-case text-xl text-black/65 tracking-[0.03px] pl-10">
+                          Marco Bruno and Velvet May.
+                        </span>
                       </p>
+
                       <Image
                         src="/logo-grey.png"
                         alt="Flowgeist symbol"
                         width={150}
                         height={150}
-                        className="h-auto w-[84px] sm:w-[110px] object-contain pt-5 pb-5"
+                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20"
                       />
-                      <div className="space-y-12 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify">
-                        <p className="pr-20">
-                          Flowgeist resonates across sound and form through
-                          endless definition. Structures surface, loosen, and
-                          fall away, allowing material to reorganise in real
-                          time. Rhythm acts as a spatial force, contracting and
-                          releasing density as tension gathers and dissolves.
-                        </p>
-                        <p className="pl-0 pl-20">
-                          Long-form electronic construction meets physical
-                          intensity, where restraint and impact remain closely
-                          linked, and abstraction stays tethered to sensation.
-                          Genre remains peripheral, treated as material rather
-                          than structure. Sound leads the process, leaving
-                          meaning to emerge gradually through listening.
-                        </p>
+                      <p className="text-[22px] font-semibold  tracking-[0.1em] text-black/65 ml-10">
+                        [contacts]
+                      </p>
+                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full h-full ">
+                        <div className="flex flex-col bg-[#BABABA] gap-16 ml-8 p-4 h-full">
+                          <a
+                            href="https://instagram.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="transition-opacity hover:opacity-70 text-black/90"
+                          >
+                            MAIL_ <br />
+                            <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
+                              flowgeistmusic@gmail.com
+                            </span>
+                          </a>{" "}
+                          <a
+                            href="https://instagram.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="transition-opacity hover:opacity-70 text-black/90"
+                          >
+                            INSTAGRAM_ <br />
+                            <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
+                              @flowgeistx
+                            </span>
+                          </a>
+                          <a
+                            href="https://instagram.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="transition-opacity hover:opacity-70 text-black/90"
+                          >
+                            SOUNDCLOUD_ <br />
+                            <span className="font-alte-haas-bold text-[16px] text-black/65 pl-10 normal-case tracking-normal">
+                              flowgeistmusic{" "}
+                            </span>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="relative h-[320px] border-t border-white/20 lg:h-full lg:border-l lg:border-t-0">
-                    <Image
+                  <div className="bg-[#BABABA] hover-webgl-card relative h-[320px] border-t border-white/20 lg:h-[570px] lg:border-l lg:border-t-0  ">
+                    {/* <div
+                      ref={aboutHeroEffectRef}
+                      className="hover-webgl-host h-full w-full object-contain "
+                    /> */}
+                    <img
                       src="/artists.jpeg"
-                      alt="Flowgeist visual"
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 60vw"
-                      className="object-contain object-top"
+                      style={{ objectFit: "contain", objectPosition: "right" }}
+                      className="w-full h-full object-contain"
+                      alt="Flowgeist logo black"
                     />
+                    <div
+                      ref={aboutColorBlockRef}
+                      className="bg-[#BABABA] w-full h-full "
+                    >
+                      <p className=" pb-5 pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-19">
+                        Flowgeist resonates across sound and form through
+                        endless definition. Structures surface, loosen, and fall
+                        away, allowing material to reorganise in real time.
+                        Rhythm acts as a spatial force, contracting and
+                        releasing density as tension gathers and dissolves.
+                      </p>
+                      <p className=" pb-5 pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-50  pr-10">
+                        Long-form electronic construction meets physical
+                        intensity, where restraint and impact remain closely
+                        linked, and abstraction stays tethered to sensation.
+                        Genre remains peripheral, treated as material rather
+                        than structure. Sound leads the process, leaving meaning
+                        to emerge gradually through listening.
+                      </p>{" "}
+                    </div>
                   </div>
                 </section>
 
-                <section className="border-t border-black/15 px-5 py-8 sm:px-8">
-                  <div className="mb-6 flex flex-wrap gap-4 text-[12px] font-semibold uppercase tracking-[0.2em] text-black/65">
-                    <a
-                      href="https://instagram.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="transition-opacity hover:opacity-70"
-                    >
-                      Instagram
-                    </a>
-                    <a
-                      href="https://soundcloud.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="transition-opacity hover:opacity-70"
-                    >
-                      SoundCloud
-                    </a>
-                    <a
-                      href="https://ra.co"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="transition-opacity hover:opacity-70"
-                    >
-                      Resident Advisor
-                    </a>
-                  </div>
+                <section className=" border-black/15 px-5 py-2 sm:px-8">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="relative h-[260px] bg-black/5">
+                    <div className="relative h-[500px] overflow-hidden bg-black/5">
                       <Image
-                        src="/logo-black.png"
+                        src="/artists/pic-negative.jpeg"
                         alt="Flowgeist logo black"
                         fill
                         sizes="(max-width: 640px) 100vw, 50vw"
-                        className="object-contain p-4"
+                        className="object-contain"
                       />
                     </div>
-                    <div className="relative h-[260px] bg-black/5">
+                    <div className="relative h-[260px] overflow-hidden bg-black/5">
                       <Image
-                        src="/logo-grey.png"
+                        src="/artists/art-white.png"
                         alt="Flowgeist logo grey"
                         fill
                         sizes="(max-width: 640px) 100vw, 50vw"

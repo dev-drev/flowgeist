@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
+import { Geist, Geist_Mono, PT_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +17,18 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-grotesque",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+const ptMono = PT_Mono({
+  variable: "--font-pt-mono",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const alteHaasBold = localFont({
+  src: "../../public/fonts/AlteHaasGroteskBold.ttf",
+  variable: "--font-alte-haas-bold",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -64,7 +77,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${ptMono.variable} ${alteHaasBold.variable} antialiased`}
       >
         {children}
       </body>

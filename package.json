@@ -14,12 +14,14 @@
     "cloudinary": "^2.7.0",
     "firebase": "^11.9.1",
     "framer-motion": "^12.23.0",
+    "hover-effect": "^1.2.1",
     "next": "^15.3.5",
     "p5": "^2.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-p5": "^1.4.1",
-    "react-spinners": "^0.17.0"
+    "react-spinners": "^0.17.0",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
