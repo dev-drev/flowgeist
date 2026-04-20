@@ -378,7 +378,7 @@ export default function Home() {
                       <p className="font-pt-mono text-[10px] lg:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
                         A PROJECT CURATED BY /
                         <br />
-                        <span className="font-alte-haas-bold normal-case text-xl tracking-[0.03px] pl-10 text-[16px] lg:text-[20px] text-[#8A8A8A]">
+                        <span className="font-alte-haas-bold normal-case text-xl tracking-[0.03px] pl-10 text-[16px] lg:text-[20px] text-[#5c5c5c]">
                           Marco Bruno and Velvet May.
                         </span>
                       </p>
