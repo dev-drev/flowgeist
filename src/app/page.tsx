@@ -346,7 +346,7 @@ export default function Home() {
                       className="h-auto w-[700px] sm:w-[550px] object-contain"
                     />
                   </button>
-                  <div className="hidden h-full w-full items-end border-b-20 md:flex lg:border-black/45">
+                  <div className="hidden h-full w-full items-end border-b-20 lg:flex lg:border-black/45">
                     <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px] " />
                     <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
@@ -398,7 +398,7 @@ export default function Home() {
                         >
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p className=" pb-5 pt-6 text-[16px] font-semibold leading-[1.16] text-black/55 text-justify lg:pr-50 pr-2 pl-4">
+                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-black/55 text-justify lg:pr-50 pr-2 pl-4">
                               Flowgeist resonates across sound and form through
                               endless definition. Structures surface, loosen,
                               and fall away, allowing material to reorganise in
@@ -411,16 +411,16 @@ export default function Home() {
                               alt="Flowgeist logo grey"
                               width={520}
                               height={520}
-                              className="mx-auto  h-auto w-[520px] object-contain"
+                              className="mx-auto  h-auto w-[520px] object-contain md:hidden"
                             />
                             <Image
                               src="/logo-grey.png"
                               alt="Flowgeist symbol"
                               width={150}
                               height={150}
-                              className="h-auto w-[144px] sm:w-[190px] pt-12 object-contain mt-0 pb-3 p-5 pr-2 sm:p-8  float-right"
+                              className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
                             />
-                            <p className=" pb-5 pt-8 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-3  pr-3">
+                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-3 md:pl-4  pr-3">
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -438,9 +438,9 @@ export default function Home() {
                         alt="Flowgeist symbol"
                         width={150}
                         height={150}
-                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden md:block"
+                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
                       />
-                      <p className="text-[22px] font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-0">
+                      <p className="text-[22px] font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
                         [contacts]
                       </p>
                       <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
@@ -531,7 +531,7 @@ export default function Home() {
                   </div>
                 </section>
 
-                <section className=" border-black/15 px-5 py-0 lg:py-6 sm:px-1 hidden md:block">
+                <section className=" border-black/15 px-5 py-0 lg:py-6 sm:px-1 hidden lg:block">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="relative h-[450px] overflow-hidden">
                       <Image
