@@ -276,12 +276,12 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full p-2 pt-4">
+    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full px-2 pt-1">
       <div
         className="fixed inset-0 w-full h-full z-0"
         style={{
           zIndex: 3,
-          backgroundColor: "#121212f6",
+          backgroundColor: "#272727f6",
           mixBlendMode: "multiply",
         }}
       />
@@ -422,8 +422,8 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             SOUNDCLOUD_ <br />
-                            <span className="font-alte-haas-bold text-[16px] text-black/65 pl-10 normal-case tracking-normal">
-                              flowgeistmusic{" "}
+                            <span className="font-alte-haas-bold text-[22px] text-black/65 pl-10 normal-case tracking-normal">
+                              @flowgeistx{" "}
                             </span>
                           </a>
                         </div>
@@ -442,14 +442,14 @@ export default function Home() {
                         objectFit: "contain",
                         objectPosition: "right top",
                       }}
-                      className="w-full h-full object-contain"
+                      className="h-[100%] w-[100%] object-contain ml-auto "
                       alt="Flowgeist logo black"
                     />
                     <div
                       ref={aboutColorBlockRef}
-                      className="bg-[#BABABA] w-full h-full "
+                      className="bg-[#BABABA] w-full h-full bg-[#ccc] "
                     >
-                      <p className=" pb-5 pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-19">
+                      <p className=" pb-5 pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-3">
                         Flowgeist resonates across sound and form through
                         endless definition. Structures surface, loosen, and fall
                         away, allowing material to reorganise in real time.
