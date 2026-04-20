@@ -354,7 +354,7 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 mx-auto h-full w-full max-h-[100vh] max-w-[1500px]">
+      <div className="relative z-10 mx-auto h-full w-full max-h-[100vh] max-w-[1490px]">
         <div
           className={`absolute inset-0 flex items-center justify-center px-6 sm:px-12 lg:px-20 transition-all duration-500 ${
             showAbout
@@ -552,7 +552,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#ffffff] translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
+                  <div className="translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
                     {/* <div
                       ref={aboutHeroEffectRef}
                       className="hover-webgl-host h-full w-full object-contain "
