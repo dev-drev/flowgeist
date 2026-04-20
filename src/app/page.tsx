@@ -346,7 +346,7 @@ export default function Home() {
   return (
     <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full px-2 pt-1">
       <div
-        className="fixed inset-0 w-full h-full z-0"
+        className="fixed inset-0 w-full h-full z-0 overflow-hidden"
         style={{
           zIndex: 3,
           backgroundColor: "#272727f6",
@@ -450,7 +450,7 @@ export default function Home() {
                           Marco Bruno and Velvet May.
                         </span>
                       </p>
-                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] translate-x-2 hover-webgl-card relative lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
+                      <div className="bg-[#5a5a5a]  translate-x-2 hover-webgl-card relative lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
                         <img
                           src="/artists.jpeg"
                           style={{
@@ -462,7 +462,7 @@ export default function Home() {
                         />
                         <div
                           ref={aboutColorBlockRef}
-                          className=" w-full h-full lg:bg-[#ffffff] mr-2 pr-4 "
+                          className=" w-full h-full  mr-2 pr-4 "
                         >
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
@@ -568,7 +568,7 @@ export default function Home() {
                     />
                     <div
                       ref={aboutColorBlockRef}
-                      className=" w-full h-full bg-[#ffffff] mr-2 pr-4 "
+                      className=" w-full h-full border-r-20 border-[#ffffff] mr-2 pr-4 "
                     >
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                         {" "}
