@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTracking } from "@/lib/useTracking";
 
 export default function Home() {
+  const headerGridCols = "lg:grid-cols-[0.997fr_0.548fr_0.80fr]";
   const [showAbout, setShowAbout] = useState(false);
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
@@ -275,7 +276,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full p-2 pt-2">
+    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full p-2 pt-4">
       <div
         className="fixed inset-0 w-full h-full z-0"
         style={{
@@ -328,7 +329,7 @@ export default function Home() {
                     : "opacity-0 -translate-y-3 scale-95"
                 }`}
               >
-                <div className="grid w-full grid-cols-1 lg:grid-cols-[0.997fr_0.547fr_0.80fr]">
+                <div className={`grid w-full grid-cols-1 ${headerGridCols}`}>
                   <button
                     type="button"
                     onClick={() => setShowAbout(false)}
@@ -367,8 +368,10 @@ export default function Home() {
                     : "opacity-0 translate-y-4 scale-95"
                 }`}
               >
-                <section className="grid min-h-[60vh] grid-cols-1 lg:grid-cols-[0.95fr_1.55fr]">
-                  <div className="flex h-full flex-col gap-8 ">
+                <section
+                  className={`grid min-h-[60vh] grid-cols-1 ${headerGridCols}`}
+                >
+                  <div className="flex h-full flex-col gap-8 lg:col-start-1 lg:col-end-2">
                     <div className="space-y-6 ">
                       <p className="font-pt-mono text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
                         A PROJECT CURATED BY /
@@ -428,14 +431,17 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#BABABA] hover-webgl-card relative h-[320px] border-t border-white/20 lg:h-[570px] lg:border-l lg:border-t-0  ">
+                  <div className="bg-[#BABABA] hover-webgl-card relative h-[320px] border-t border-white/20 lg:col-start-2 lg:col-end-4 lg:h-[570px] lg:border-l lg:border-t-0">
                     {/* <div
                       ref={aboutHeroEffectRef}
                       className="hover-webgl-host h-full w-full object-contain "
                     /> */}
                     <img
                       src="/artists.jpeg"
-                      style={{ objectFit: "contain", objectPosition: "right" }}
+                      style={{
+                        objectFit: "contain",
+                        objectPosition: "right top",
+                      }}
                       className="w-full h-full object-contain"
                       alt="Flowgeist logo black"
                     />
