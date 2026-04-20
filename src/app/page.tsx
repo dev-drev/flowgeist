@@ -153,10 +153,10 @@ export default function Home() {
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
                     </div>
                   </div>
-                  <div className="flex h-full w-full items-end border-r-20 border-l-5  lg:border-black/45  ">
+                  <div className=" flex h-full w-full items-end border-r-20 border-l-5  lg:border-black/45  ">
                     <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px] lg:block hidden" />
                     <div className="flex h-full items-end justify-end bg-[#BABABA] lg:block hidden">
-                      <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
+                      <p className="px-5 py-4 text-[23px] absolute bottom-2 right-[40px] text-[#5e5e5e] font-semibold align-end justify-end">
                         [Berlin, DE]
                       </p>
                     </div>
@@ -165,7 +165,7 @@ export default function Home() {
               </header>
 
               <div
-                className={`bg-[#BABABA] text-black/85 transition-all duration-500 delay-100 ${
+                className={`bg-[#BABABA] transition-all duration-500 delay-100 ${
                   showAbout
                     ? "opacity-100 translate-y-0 scale-100"
                     : "opacity-0 translate-y-4 scale-95"
@@ -196,10 +196,7 @@ export default function Home() {
                         <div className=" w-full h-full  mr-2 pr-4 ">
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p
-                              className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 font-alte-haas-bold"
-                              style={{ color: "#5c5c5c" }}
-                            >
+                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 font-alte-haas-bold text-[#5c5c5c]">
                               Flowgeist resonates across sound and form through
                               endless definition. Structures surface, loosen,
                               and fall away, allowing material to reorganise in
@@ -221,10 +218,7 @@ export default function Home() {
                               height={150}
                               className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
                             />
-                            <p
-                              className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 font-alte-haas-bold"
-                              style={{ color: "#5c5c5c" }}
-                            >
+                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 font-alte-haas-bold text-[#5c5c5c]">
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -256,7 +250,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             MAIL_ <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
                               flowgeistmusic@gmail.com
                             </span>
                           </a>{" "}
@@ -267,7 +261,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             _INSTAGRAM <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx
                             </span>
                           </a>
@@ -279,7 +273,7 @@ export default function Home() {
                           >
                             SOUNDCLOUD --
                             <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx{" "}
                             </span>
                           </a>
