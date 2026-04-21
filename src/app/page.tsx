@@ -371,12 +371,12 @@ export default function Home() {
             <Image
               src="/artists/flowhite.png"
               alt="Flowgeist white mark"
-              width={420}
-              height={260}
-              className="mt-8 h-auto w-[min(48vw,420px)] object-contain"
+              width={560}
+              height={346}
+              className="mt-12 h-auto w-[min(56vw,560px)] object-contain"
               priority
             />
-            <div className="mt-7 flex items-center gap-5">
+            <div className="mt-12 flex items-center gap-5">
               <a
                 href="mailto:flowgeistmusic@gmail.com"
                 className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
@@ -463,7 +463,7 @@ export default function Home() {
               width={500}
               height={700}
               quality={100}
-              className="w-full max-w-[280px] h-auto object-contain object-center hover:opacity-90 transition-opacity"
+              className="mx-auto h-auto w-full max-w-[280px] 2xl:max-w-[360px] object-contain object-center transition-opacity hover:opacity-90"
               priority
               style={{ objectFit: "contain", objectPosition: "center" }}
             />
@@ -491,7 +491,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setShowAbout(false)}
-                    className="inline-flex items-center rounded-md pt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                    className="inline-flex cursor-pointer items-center rounded-md pt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
                     aria-label="Torna al logo iniziale"
                   >
                     <Image
