@@ -499,7 +499,7 @@ export default function Home() {
                       alt="Flowgeist"
                       width={200}
                       height={56}
-                      className="h-auto w-[700px] sm:w-[550px] object-contain"
+                      className="h-auto w-full max-w-[320px] sm:max-w-[550px] lg:max-w-[700px] object-contain"
                     />
                   </button>
                   <div className="hidden h-full w-full items-end border-b-20 lg:flex lg:border-black/45">
@@ -538,7 +538,7 @@ export default function Home() {
                           Marco Bruno and Velvet May.
                         </span>
                       </p>
-                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] translate-x-2 hover-webgl-card relative lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
+                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
                         <img
                           src="/artists.jpeg"
                           style={{
@@ -640,7 +640,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#ffffff] translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
+                  <div className="bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
                     {/* <div
                       ref={aboutHeroEffectRef}
                       className="hover-webgl-host h-full w-full object-contain "
