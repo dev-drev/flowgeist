@@ -7,6 +7,8 @@ import { useTracking } from "@/lib/useTracking";
 export default function Home() {
   const headerGridCols = "lg:grid-cols-[0.997fr_0.548fr_0.80fr]";
   const [showAbout, setShowAbout] = useState(false);
+  const [showDesktopIntro, setShowDesktopIntro] = useState(false);
+  const [isDesktopLg, setIsDesktopLg] = useState(false);
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
   const aboutColorBlockRef = useRef<HTMLDivElement | null>(null);
@@ -19,6 +21,22 @@ export default function Home() {
   useEffect(() => {
     trackPageView("Website opened");
   }, [trackPageView]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const onViewportChange = (event: MediaQueryListEvent) =>
+      setIsDesktopLg(event.matches);
+    setIsDesktopLg(mediaQuery.matches);
+    mediaQuery.addEventListener("change", onViewportChange);
+    return () => mediaQuery.removeEventListener("change", onViewportChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktopLg && showDesktopIntro) {
+      setShowDesktopIntro(false);
+    }
+  }, [isDesktopLg, showDesktopIntro]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("home-page", !showAbout);
@@ -288,8 +306,132 @@ export default function Home() {
 
       <div className="relative z-10 mx-auto h-full w-full max-h-[100vh] max-w-[1500px]">
         <div
+          className={`absolute inset-0 hidden transition-opacity duration-700 lg:block ${
+            showAbout || showDesktopIntro ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <Image
+            src="/artists.jpeg"
+            alt="Flowgeist artists background"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-black/55" />
+        </div>
+
+        <section
+          className={`absolute inset-0 z-30 hidden transition-opacity duration-700 lg:flex ${
+            showDesktopIntro
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <Image
+            src="/artists.jpeg"
+            alt="Flowgeist artists background"
+            fill
+            priority
+            className="z-0 object-cover object-center"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 z-[1] bg-black/65" />
+          <div
+            className="absolute inset-0 z-[2]"
+            style={{ backgroundColor: "#272727f6", mixBlendMode: "multiply" }}
+          />
+          <div
+            className={`relative z-[3] mx-auto flex h-full w-full max-w-[1180px] flex-col items-center justify-center px-20 text-left transition-all duration-700 lg:px-32 ${
+              showDesktopIntro
+                ? "translate-y-0 scale-100 opacity-100"
+                : "translate-y-2 scale-[0.985] opacity-0"
+            }`}
+          >
+            <p className="max-w-[920px] font-alte-haas-bold text-[16px] leading-[1.2] text-white/90 text-justify">
+              Flowgeist resonates across sound and form through endless
+              definition. Structures surface, loosen, and fall away, allowing
+              material to reorganise in real time. Rhythm acts as a spatial
+              force, contracting and releasing density as tension gathers and
+              dissolves.
+            </p>
+            <p className="mt-4 max-w-[920px] font-alte-haas-bold text-[16px] leading-[1.2] text-white/90 text-justify">
+              Long-form electronic construction meets physical intensity, where
+              restraint and impact remain closely linked, and abstraction stays
+              tethered to sensation.
+            </p>
+            <Image
+              src="/artists/flowhite.png"
+              alt="Flowgeist white mark"
+              width={420}
+              height={260}
+              className="mt-8 h-auto w-[min(48vw,320px)] object-contain"
+              priority
+            />
+            <div className="mt-7 flex items-center gap-5">
+              <a
+                href="mailto:flowgeistmusic@gmail.com"
+                className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
+                aria-label="Mail Flowgeist"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <rect x="3.5" y="6.5" width="17" height="11" rx="1.8" />
+                  <path d="M4.5 8l7.5 5.6L19.5 8" />
+                </svg>
+              </a>
+              <a
+                href="https://instagram.com/flowgeistx"
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
+                aria-label="Instagram Flowgeist"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                >
+                  <rect x="4" y="4" width="16" height="16" rx="4.5" />
+                  <circle cx="12" cy="12" r="3.8" />
+                  <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
+                </svg>
+              </a>
+              <a
+                href="https://soundcloud.com/flowgeistx"
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
+                aria-label="SoundCloud Flowgeist"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                >
+                  <path d="M4 16h12a3.5 3.5 0 1 0-.6-6.95A5 5 0 0 0 6.6 10" />
+                  <path d="M5 16V11.8M7 16V10.8M9 16V10.2M11 16v-.6M13 16v-.5M15 16v-.2" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <div
           className={`absolute inset-0 flex items-center justify-center px-6 sm:px-12 lg:px-20 transition-all duration-500 ${
-            showAbout
+            showAbout || showDesktopIntro
               ? "opacity-0 scale-95 pointer-events-none"
               : "opacity-100 scale-100"
           }`}
@@ -297,9 +439,15 @@ export default function Home() {
         >
           <button
             type="button"
-            onClick={() => setShowAbout(true)}
+            onClick={() => {
+              if (isDesktopLg) {
+                setShowDesktopIntro(true);
+                return;
+              }
+              setShowAbout(true);
+            }}
             className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg cursor-pointer flex items-center justify-center w-full h-full min-h-0"
-            aria-label="Mostra about"
+            aria-label="Apri schermata Flowgeist"
           >
             <Image
               src="/artists/icon.png"
@@ -398,7 +546,7 @@ export default function Home() {
                         >
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-black/55 text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist resonates across sound and form through
                               endless definition. Structures surface, loosen,
                               and fall away, allowing material to reorganise in
@@ -420,7 +568,7 @@ export default function Home() {
                               height={150}
                               className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
                             />
-                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-black/55 text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -452,7 +600,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             MAIL_ <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
                               flowgeistmusic@gmail.com
                             </span>
                           </a>{" "}
@@ -463,7 +611,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             _INSTAGRAM <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx
                             </span>
                           </a>
@@ -475,7 +623,7 @@ export default function Home() {
                           >
                             SOUNDCLOUD --
                             <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] text-black/65 pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx{" "}
                             </span>
                           </a>
@@ -505,7 +653,7 @@ export default function Home() {
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                         {" "}
                         <p
-                          className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-black/55 text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Flowgeist resonates across sound and form through
@@ -515,7 +663,7 @@ export default function Home() {
                           releasing density as tension gathers and dissolves.
                         </p>
                         <p
-                          className=" pb-5 pt-4 text-[20px] font-semibold leading-[1.16] text-black/55 text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-4 text-[20px] font-semibold leading-[1.16]  text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Long-form electronic construction meets physical
