@@ -318,7 +318,7 @@ export default function Home() {
             className="object-cover object-center"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-black/55" />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
 
         <section
@@ -342,7 +342,7 @@ export default function Home() {
             style={{ backgroundColor: "#272727f6", mixBlendMode: "multiply" }}
           />
           <div
-            className={`relative z-[3] mx-auto flex h-full w-full max-w-[1180px] flex-col items-center justify-center px-20 text-left transition-all duration-700 lg:px-32 ${
+            className={`relative z-[3] mx-auto flex h-full w-full max-w-[1180px] flex-col items-center justify-center px-32 text-left transition-all duration-700 lg:px-64 ${
               showDesktopIntro
                 ? "translate-y-0 scale-100 opacity-100"
                 : "translate-y-2 scale-[0.985] opacity-0"
@@ -365,7 +365,7 @@ export default function Home() {
               alt="Flowgeist white mark"
               width={420}
               height={260}
-              className="mt-8 h-auto w-[min(48vw,320px)] object-contain"
+              className="mt-8 h-auto w-[min(48vw,420px)] object-contain"
               priority
             />
             <div className="mt-7 flex items-center gap-5">
