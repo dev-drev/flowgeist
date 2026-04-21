@@ -304,7 +304,7 @@ export default function Home() {
         }}
       />
 
-      <div className="relative z-10 mx-auto h-full w-full max-h-[100vh] max-w-[1500px]">
+      <div className="relative z-10 mx-auto h-full w-full max-h-[100vh]">
         <div
           className={`absolute inset-0 hidden transition-opacity duration-700 lg:block ${
             showAbout || showDesktopIntro ? "opacity-0" : "opacity-100"
