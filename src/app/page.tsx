@@ -356,14 +356,14 @@ export default function Home() {
               }
             }}
           >
-            <p className="max-w-[920px] font-alte-haas-regular text-[22px] font-normal leading-[1.15] text-white/90 text-justify">
+            <p className="max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[26px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
               Flowgeist resonates across sound and form through endless
               definition. Structures surface, loosen, and fall away, allowing
               material to reorganise in real time. Rhythm acts as a spatial
               force, contracting and releasing density as tension gathers and
               dissolves.
             </p>
-            <p className="mt-5 max-w-[920px] font-alte-haas-regular text-[22px] font-normal leading-[1.15] text-white/90 text-justify">
+            <p className="mt-5 max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[26px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
               Long-form electronic construction meets physical intensity, where
               restraint and impact remain closely linked, and abstraction stays
               tethered to sensation.
@@ -554,7 +554,7 @@ export default function Home() {
                         >
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 md:pb-0 pt-6 text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist resonates across sound and form through
                               endless definition. Structures surface, loosen,
                               and fall away, allowing material to reorganise in
@@ -576,7 +576,7 @@ export default function Home() {
                               height={150}
                               className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
                             />
-                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] 2xl:text-[22px] 3xl:text-[26px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -596,7 +596,7 @@ export default function Home() {
                         height={150}
                         className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
                       />
-                      <p className="text-[22px]  font-semibold  tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
+                      <p className="text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
                         [contacts]
                       </p>
                       <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
@@ -608,7 +608,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             MAIL_ <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
                               flowgeistmusic@gmail.com
                             </span>
                           </a>{" "}
@@ -619,7 +619,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             _INSTAGRAM <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx
                             </span>
                           </a>
@@ -631,7 +631,7 @@ export default function Home() {
                           >
                             SOUNDCLOUD --
                             <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px]  pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx{" "}
                             </span>
                           </a>
@@ -661,7 +661,7 @@ export default function Home() {
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                         {" "}
                         <p
-                          className=" pb-5 pt-6 text-[20px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-6 text-[20px] 2xl:text-[26px] 3xl:text-[32px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Flowgeist resonates across sound and form through
@@ -671,7 +671,7 @@ export default function Home() {
                           releasing density as tension gathers and dissolves.
                         </p>
                         <p
-                          className=" pb-5 pt-4 text-[20px] font-semibold leading-[1.16]  text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
+                          className=" pb-5 pt-4 text-[20px] 2xl:text-[26px] 3xl:text-[32px] font-semibold leading-[1.16]  text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Long-form electronic construction meets physical
