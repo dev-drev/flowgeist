@@ -322,11 +322,12 @@ export default function Home() {
         </div>
 
         <section
-          className={`absolute inset-0 z-30 hidden transition-opacity duration-700 lg:flex ${
+          className={`absolute inset-0 z-30 hidden cursor-auto transition-opacity duration-700 lg:flex ${
             showDesktopIntro
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
+          onClick={() => setShowDesktopIntro(false)}
         >
           <Image
             src="/artists.jpeg"
@@ -342,11 +343,18 @@ export default function Home() {
             style={{ backgroundColor: "#272727f6", mixBlendMode: "multiply" }}
           />
           <div
-            className={`relative z-[3] mx-auto flex h-full w-full max-w-[1180px] flex-col items-center justify-center px-32 text-left transition-all duration-700 lg:px-64 ${
+            className={`relative z-[3] mx-auto flex h-full w-full max-w-[1180px] cursor-auto flex-col items-center justify-center px-32 text-left transition-all duration-700 lg:px-64 ${
               showDesktopIntro
                 ? "translate-y-0 scale-100 opacity-100"
                 : "translate-y-2 scale-[0.985] opacity-0"
             }`}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                setShowDesktopIntro(false);
+              }
+            }}
           >
             <p className="max-w-[920px] font-alte-haas-regular text-[22px] font-normal leading-[1.15] text-white/90 text-justify">
               Flowgeist resonates across sound and form through endless
