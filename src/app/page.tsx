@@ -574,9 +574,9 @@ export default function Home() {
                               alt="Flowgeist symbol"
                               width={150}
                               height={150}
-                              className="h-auto w-[144px] sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-8  float-right"
+                              className="h-auto  sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-6  float-right"
                             />
-                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] 2xl:text-[22px] 3xl:text-[26px] font-semibold leading-[1.16] text-justify pl-3 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] 2xl:text-[22px] 3xl:text-[26px] font-semibold leading-[1.16] text-justify pl-4 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
                               Long-form electronic construction meets physical
                               intensity, where restraint and impact remain
                               closely linked, and abstraction stays tethered to
@@ -596,7 +596,7 @@ export default function Home() {
                         height={150}
                         className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
                       />
-                      <p className="text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-6 lg:pt-10 md:pt-4">
+                      <p className="text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
                         [contacts]
                       </p>
                       <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
