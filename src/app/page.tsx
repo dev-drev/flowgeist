@@ -348,14 +348,14 @@ export default function Home() {
                 : "translate-y-2 scale-[0.985] opacity-0"
             }`}
           >
-            <p className="max-w-[920px] font-alte-haas-bold text-[16px] leading-[1.2] text-white/90 text-justify">
+            <p className="max-w-[920px] font-alte-haas-regular text-[22px] font-normal leading-[1.15] text-white/90 text-justify">
               Flowgeist resonates across sound and form through endless
               definition. Structures surface, loosen, and fall away, allowing
               material to reorganise in real time. Rhythm acts as a spatial
               force, contracting and releasing density as tension gathers and
               dissolves.
             </p>
-            <p className="mt-4 max-w-[920px] font-alte-haas-bold text-[16px] leading-[1.2] text-white/90 text-justify">
+            <p className="mt-5 max-w-[920px] font-alte-haas-regular text-[22px] font-normal leading-[1.15] text-white/90 text-justify">
               Long-form electronic construction meets physical intensity, where
               restraint and impact remain closely linked, and abstraction stays
               tethered to sensation.
