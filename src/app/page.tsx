@@ -551,12 +551,7 @@ export default function Home() {
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
                             <p className=" pb-5 md:pb-0 pt-6 text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
-                              Flowgeist resonates across sound and form through
-                              endless definition. Structures surface, loosen,
-                              and fall away, allowing material to reorganise in
-                              real time. Rhythm acts as a spatial force,
-                              contracting and releasing density as tension
-                              gathers and dissolves.
+                            Flowgeist forges new sonic paths through meticulous sound design and a finely tuned live dynamic. Rhythm acts as a spatial force, contracting and releasing structures, while genre remains peripheral and abstraction stays tethered to sensation. Nothing is overly defined, meaning emerges throughout the experience.
                             </p>
                             <Image
                               src="/artists/pic-negative.jpeg"
