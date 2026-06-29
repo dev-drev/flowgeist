@@ -356,18 +356,14 @@ export default function Home() {
               }
             }}
           >
-            <p className="max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[26px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
-              Flowgeist resonates across sound and form through endless
-              definition. Structures surface, loosen, and fall away, allowing
-              material to reorganise in real time. Rhythm acts as a spatial
-              force, contracting and releasing density as tension gathers and
-              dissolves.
+            <p className="max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[22px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
+            Flowgeist forges new sonic paths through meticulous sound design, rhythmic intensity, and a finely tuned live dynamic. Rhythm acts as a spatial force, contracting and releasing structures, while genre remains peripheral and abstraction stays tethered to sensation. Nothing is overly defined, meaning emerges throughout the experience.
             </p>
-            <p className="mt-5 max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[26px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
+            {/* <p className="mt-5 max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[26px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
               Long-form electronic construction meets physical intensity, where
               restraint and impact remain closely linked, and abstraction stays
               tethered to sensation.
-            </p>
+            </p> */}
             <Image
               src="/artists/flowhite.png"
               alt="Flowgeist white mark"
