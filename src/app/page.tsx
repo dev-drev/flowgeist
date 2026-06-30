@@ -578,7 +578,7 @@ export default function Home() {
                       <p className="text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
                         [contacts]
                       </p>
-                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-1 md:pb-0 ">
+                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-10 md:pb-0 ">
                         <div className="flex flex-col bg-[#BABABA] gap-6 ml-8 p-4 h-full">
                           <a
                             href="https://instagram.com"
