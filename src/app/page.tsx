@@ -359,11 +359,6 @@ export default function Home() {
             <p className="max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[22px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
             Flowgeist forges new sonic paths through meticulous sound design, rhythmic intensity, and a finely tuned live dynamic. Rhythm acts as a spatial force, contracting and releasing structures, while genre remains peripheral and abstraction stays tethered to sensation. Nothing is overly defined, meaning emerges throughout the experience.
             </p>
-            {/* <p className="mt-5 max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[26px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
-              Long-form electronic construction meets physical intensity, where
-              restraint and impact remain closely linked, and abstraction stays
-              tethered to sensation.
-            </p> */}
             <Image
               src="/artists/flowhite.png"
               alt="Flowgeist white mark"
@@ -553,29 +548,22 @@ export default function Home() {
                             <p className=" pb-5 md:pb-0 pt-6 text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
                             Flowgeist forges new sonic paths through meticulous sound design and a finely tuned live dynamic. Rhythm acts as a spatial force, contracting and releasing structures, while genre remains peripheral and abstraction stays tethered to sensation. Nothing is overly defined, meaning emerges throughout the experience.
                             </p>
-                            <Image
-                              src="/artists/pic-negative.jpeg"
-                              alt="Flowgeist logo grey"
-                              width={520}
-                              height={520}
-                              className="mx-auto  h-auto w-[520px] object-contain md:hidden"
-                            />
-                            <Image
-                              src="/logo-grey.png"
-                              alt="Flowgeist symbol"
-                              width={150}
-                              height={150}
-                              className="h-auto  sm:w-[190px] md:w-[150px] pt-12 md:pt-4 object-contain mt-0 pb-3 p-5 pr-2 md:pr-0 sm:p-6  float-right"
-                            />
-                            <p className=" pb-5 pt-8 md:pt-4 text-[18px] 2xl:text-[22px] 3xl:text-[26px] font-semibold leading-[1.16] text-justify pl-4 md:pl-4  pr-3 text-[#5c5c5c] font-alte-haas-bold">
-                              Long-form electronic construction meets physical
-                              intensity, where restraint and impact remain
-                              closely linked, and abstraction stays tethered to
-                              sensation. Genre remains peripheral, treated as
-                              material rather than structure. Sound leads the
-                              process, leaving meaning to emerge gradually
-                              through listening.
-                            </p>{" "}
+                            <div className="flex w-full items-center justify-between gap-4 md:hidden">
+                              <Image
+                                src="/artists/pic-negative.jpeg"
+                                alt="Flowgeist logo grey"
+                                width={520}
+                                height={520}
+                                className="h-auto w-[65%] min-w-0 object-contain"
+                              />
+                              <Image
+                                src="/logo-grey.png"
+                                alt="Flowgeist symbol"
+                                width={150}
+                                height={150}
+                                className="h-auto w-[30%] min-w-0 object-contain"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -661,17 +649,6 @@ export default function Home() {
                           time. Rhythm acts as a spatial force, contracting and
                           releasing density as tension gathers and dissolves.
                         </p>
-                        <p
-                          className=" pb-5 pt-4 text-[20px] 2xl:text-[26px] 3xl:text-[32px] font-semibold leading-[1.16]  text-justify pl-50  pr-10 text-[#5c5c5c] font-alte-haas-bold"
-                          style={{ letterSpacing: "0.03px" }}
-                        >
-                          Long-form electronic construction meets physical
-                          intensity, where restraint and impact remain closely
-                          linked, and abstraction stays tethered to sensation.
-                          Genre remains peripheral, treated as material rather
-                          than structure. Sound leads the process, leaving
-                          meaning to emerge gradually through listening.
-                        </p>{" "}
                         <Image
                           src="/artists/art-white.png"
                           alt="Flowgeist logo grey"
