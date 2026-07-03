@@ -39,6 +39,51 @@ export default function Home() {
   }, [isDesktopLg, showDesktopIntro]);
 
   useEffect(() => {
+    if (showAbout || isDesktopLg || showDesktopIntro) return;
+
+    const SCROLL_THRESHOLD = 48;
+    let touchStartY: number | null = null;
+
+    const openAbout = () => setShowAbout(true);
+
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY > SCROLL_THRESHOLD) {
+        openAbout();
+      }
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? null;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (touchStartY === null) return;
+      const currentY = event.touches[0]?.clientY;
+      if (currentY === undefined) return;
+      if (touchStartY - currentY > SCROLL_THRESHOLD) {
+        openAbout();
+        touchStartY = null;
+      }
+    };
+
+    const onTouchEnd = () => {
+      touchStartY = null;
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [showAbout, isDesktopLg, showDesktopIntro]);
+
+  useEffect(() => {
     document.documentElement.classList.toggle("home-page", !showAbout);
     document.body.classList.toggle("home-page", !showAbout);
     return () => {
