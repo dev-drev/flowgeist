@@ -356,7 +356,7 @@ export default function Home() {
               }
             }}
           >
-            <p className="max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[22px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
+            <p className="max-w-[920px] font-alte-haas-regular text-[18px] 2xl:text-[18px] 3xl:text-[20px] font-normal leading-[1.15] text-white/90 text-justify">
               Flowgeist is a research-led multidisciplinary project across
               sound and aesthetics. It forges sonic paths through meticulous
               sound design and a finely tuned live dynamic, where genre remains
@@ -562,7 +562,7 @@ export default function Home() {
                         >
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
-                            <p className=" pb-5 md:pb-0 pt-6 text-[14px] lg:text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className=" pb-5 md:pb-0 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist is a research-led multidisciplinary
                               project across sound and aesthetics. It forges
                               sonic paths through meticulous sound design and a
@@ -585,7 +585,7 @@ export default function Home() {
                                 className="h-auto w-[30%] min-w-0 object-contain"
                               />
                             </div>
-                            <p className="pb-2 pt-6 text-[14px] lg:text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
+                            <p className="pb-2 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
                               Marco Bruno is an Electronic Music storyteller
                               whose releases span platforms including Helena
                               Hauff&apos;s Return to Disorder, James
