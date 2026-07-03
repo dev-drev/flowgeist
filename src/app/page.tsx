@@ -617,10 +617,10 @@ export default function Home() {
                         height={150}
                         className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
                       />
-                      <p className="text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
+                      <p className="text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
                         [contacts]
                       </p>
-                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-3 md:pb-0 ">
+                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] sm:text-[13px] lg:text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-3 md:pb-0 ">
                         <div className="flex flex-col bg-[#BABABA] gap-6 ml-8 p-4 h-full">
                           <a
                             href="https://instagram.com"
@@ -629,7 +629,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             MAIL_ <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
+                            <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
                               flowgeistmusic@gmail.com
                             </span>
                           </a>{" "}
@@ -640,7 +640,7 @@ export default function Home() {
                             className="transition-opacity hover:opacity-70 text-black/90"
                           >
                             _INSTAGRAM <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx
                             </span>
                           </a>
@@ -652,7 +652,7 @@ export default function Home() {
                           >
                             SOUNDCLOUD --
                             <br />
-                            <span className="font-alte-haas-bold text-[18px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                            <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
                               @flowgeistx{" "}
                             </span>
                           </a>
