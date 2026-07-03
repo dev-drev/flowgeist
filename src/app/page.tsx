@@ -357,7 +357,24 @@ export default function Home() {
             }}
           >
             <p className="max-w-[920px] font-alte-haas-regular text-[22px] 2xl:text-[22px] 3xl:text-[30px] font-normal leading-[1.15] text-white/90 text-justify">
-            Flowgeist forges new sonic paths through meticulous sound design, rhythmic intensity, and a finely tuned live dynamic. Rhythm acts as a spatial force, contracting and releasing structures, while genre remains peripheral and abstraction stays tethered to sensation. Nothing is overly defined, meaning emerges throughout the experience.
+              Flowgeist is a research-led multidisciplinary project across
+              sound and aesthetics. It forges sonic paths through meticulous
+              sound design and a finely tuned live dynamic, where genre remains
+              peripheral and meaning stays tethered to sensation.
+              <br /> <br />
+              Marco Bruno is
+              an Electronic Music storyteller whose releases span platforms
+              including Helena Hauff&apos;s Return to Disorder, James
+              Ruskin&apos;s Blueprint and Ben Sims&apos; labels. He has
+              presented work on stages and platforms including TEDx and Tresor,
+              and is the founder of Evighet Records, a platform conceived as a
+              laboratory for identity, transformation and sonic evolution. <br /> <br /> Velvet
+              May is a live performer, singer and music producer whose practice
+              moves through industrial textures, body-driven tension and
+              rock-inflected intensity. Blending experimentation with meticulous
+              sound design, his work is raw, detailed and sharply controlled. He
+              has released music on labels including Veyl, Tears on Waves and
+              She Lost Kontrol.
             </p>
             <Image
               src="/artists/flowhite.png"
@@ -546,7 +563,11 @@ export default function Home() {
                           <div className="mr-2 pr-4 bg-[#BABABA] h-full">
                             {" "}
                             <p className=" pb-5 md:pb-0 pt-6 text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
-                            Flowgeist forges new sonic paths through meticulous sound design and a finely tuned live dynamic. Rhythm acts as a spatial force, contracting and releasing structures, while genre remains peripheral and abstraction stays tethered to sensation. Nothing is overly defined, meaning emerges throughout the experience.
+                              Flowgeist is a research-led multidisciplinary
+                              project across sound and aesthetics. It forges
+                              sonic paths through meticulous sound design and a
+                              finely tuned live dynamic, where genre remains
+                              peripheral and meaning stays tethered to sensation.
                             </p>
                             <div className="flex w-full items-center justify-between gap-4 md:hidden">
                               <Image
@@ -564,6 +585,27 @@ export default function Home() {
                                 className="h-auto w-[30%] min-w-0 object-contain"
                               />
                             </div>
+                            <p className="pb-2 pt-6 text-[16px] 2xl:text-[20px] 3xl:text-[24px] font-semibold leading-[1.16] text-justify pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
+                              Marco Bruno is an Electronic Music storyteller
+                              whose releases span platforms including Helena
+                              Hauff&apos;s Return to Disorder, James
+                              Ruskin&apos;s Blueprint and Ben Sims&apos;
+                              labels. He has presented work on stages and
+                              platforms including TEDx and Tresor, and is the
+                              founder of Evighet Records, a platform conceived as
+                              a laboratory for identity, transformation and
+                              sonic evolution.
+                              <br />
+                              <br />
+                              Velvet May is a live performer, singer and music
+                              producer whose practice moves through industrial
+                              textures, body-driven tension and rock-inflected
+                              intensity. Blending experimentation with
+                              meticulous sound design, his work is raw, detailed
+                              and sharply controlled. He has released music on
+                              labels including Veyl, Tears on Waves and She
+                              Lost Kontrol.
+                            </p>
                           </div>
                         </div>
                       </div>
