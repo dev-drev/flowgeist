@@ -46,6 +46,8 @@ body.home-page .about-scroll {
 /* Scroll solo nel pannello about, fluido su iOS e tutti i mobile */
 .about-scroll {
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 
 /* Custom slider styles */

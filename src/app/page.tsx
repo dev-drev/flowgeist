@@ -12,6 +12,7 @@ export default function Home() {
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
   const aboutColorBlockRef = useRef<HTMLDivElement | null>(null);
+  const aboutScrollRef = useRef<HTMLDivElement | null>(null);
   const aboutHeroEffectPlayedRef = useRef(false);
   const aboutHeroInstanceRef = useRef<{
     next?: () => void;
@@ -82,6 +83,100 @@ export default function Home() {
       window.removeEventListener("touchend", onTouchEnd);
     };
   }, [showAbout, isDesktopLg, showDesktopIntro]);
+
+  useEffect(() => {
+    if (!showAbout || isDesktopLg) return;
+
+    const SCROLL_THRESHOLD = 35;
+    const OPEN_GRACE_MS = 450;
+    const openedAt = Date.now();
+    let touchStartY: number | null = null;
+    let canCloseOnPull = false;
+    let lastScrollTop = 0;
+
+    const closeAbout = () => {
+      if (Date.now() - openedAt < OPEN_GRACE_MS) return;
+      setShowAbout(false);
+    };
+
+    const isAtTop = () => {
+      const scrollEl = aboutScrollRef.current;
+      return scrollEl ? scrollEl.scrollTop <= 8 : false;
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (isAtTop() && event.deltaY < -SCROLL_THRESHOLD) {
+        closeAbout();
+      }
+    };
+
+    const onTouchStart = (event: TouchEvent) => {
+      canCloseOnPull = isAtTop();
+      if (!canCloseOnPull) return;
+      touchStartY = event.touches[0]?.clientY ?? null;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!canCloseOnPull || touchStartY === null) return;
+      const currentY = event.touches[0]?.clientY;
+      if (currentY === undefined) return;
+      if (currentY - touchStartY > SCROLL_THRESHOLD) {
+        closeAbout();
+        touchStartY = null;
+        canCloseOnPull = false;
+      }
+    };
+
+    const onTouchEnd = () => {
+      touchStartY = null;
+      canCloseOnPull = false;
+    };
+
+    const onScroll = () => {
+      const scrollEl = aboutScrollRef.current;
+      if (!scrollEl) return;
+
+      const currentTop = scrollEl.scrollTop;
+
+      if (currentTop <= 0 && lastScrollTop > 12) {
+        closeAbout();
+        return;
+      }
+
+      if (!isAtTop()) {
+        canCloseOnPull = false;
+        touchStartY = null;
+      }
+
+      lastScrollTop = currentTop;
+    };
+
+    const scrollEl = aboutScrollRef.current;
+    if (scrollEl) scrollEl.scrollTop = 0;
+    lastScrollTop = 0;
+    scrollEl?.addEventListener("scroll", onScroll, { passive: true });
+
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener("touchmove", onTouchMove, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener("touchend", onTouchEnd, { capture: true });
+    window.addEventListener("touchcancel", onTouchEnd, { capture: true });
+
+    return () => {
+      scrollEl?.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart, { capture: true });
+      window.removeEventListener("touchmove", onTouchMove, { capture: true });
+      window.removeEventListener("touchend", onTouchEnd, { capture: true });
+      window.removeEventListener("touchcancel", onTouchEnd, { capture: true });
+    };
+  }, [showAbout, isDesktopLg]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("home-page", !showAbout);
@@ -530,7 +625,10 @@ export default function Home() {
           aria-label="About"
         >
           <div className="flex h-full w-full overflow-hidden">
-            <div className="mx-auto flex h-full w-full flex-col overflow-y-auto about-scroll">
+            <div
+              ref={aboutScrollRef}
+              className="mx-auto flex h-full w-full flex-col overflow-y-auto about-scroll"
+            >
               <header
                 className={`w-full   bg-[#BABABA] pl-4  text-black/80 sm:px-l transition-all duration-500 ${
                   showAbout
