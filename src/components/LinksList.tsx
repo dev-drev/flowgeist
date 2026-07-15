@@ -7,6 +7,8 @@ import { LINK_SECTIONS } from "@/lib/linksConfig";
 interface LinksListProps {
   sections?: LinkSection[];
   className?: string;
+  /** Use light section titles on dark backgrounds */
+  dark?: boolean;
 }
 
 function CopyButton({
@@ -69,7 +71,7 @@ function LinkIcon({ label, icon }: { label: string; icon?: string }) {
   if (!icon || failed) {
     return (
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-[11px] font-semibold tracking-wide text-neutral-600"
+        className="flex h-10 w-10 shrink-0 items-center justify-center bg-neutral-100 text-[11px] font-semibold tracking-wide text-neutral-600"
         aria-hidden
       >
         {initials}
@@ -84,7 +86,7 @@ function LinkIcon({ label, icon }: { label: string; icon?: string }) {
       alt=""
       width={40}
       height={40}
-      className="h-10 w-10 shrink-0 rounded-md object-cover"
+      className="h-10 w-10 shrink-0 object-cover"
       onError={() => setFailed(true)}
     />
   );
@@ -92,20 +94,25 @@ function LinkIcon({ label, icon }: { label: string; icon?: string }) {
 
 function FeaturedLinkCard({ item }: { item: LinkItem }) {
   const src = item.image ?? item.icon;
+  const isSvg = src?.endsWith(".svg");
 
   return (
     <a
       href={item.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="block w-full overflow-hidden rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
+      className="block w-full overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
     >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={src}
           alt=""
-          className="aspect-[16/10] w-full object-cover bg-neutral-900"
+          className={
+            isSvg
+              ? "aspect-[16/10] w-full object-contain bg-neutral-900 p-10"
+              : "aspect-[16/10] w-full object-cover bg-neutral-900"
+          }
         />
       ) : (
         <div className="aspect-[16/10] w-full bg-neutral-900" />
@@ -127,7 +134,7 @@ function LinkCard({ item }: { item: LinkItem }) {
       href={item.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative flex w-full items-center gap-3 rounded-xl bg-white px-3 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
+      className="group relative flex w-full items-center gap-3 bg-white px-3 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
     >
       <LinkIcon label={item.label} icon={item.icon} />
 
@@ -143,17 +150,18 @@ function LinkCard({ item }: { item: LinkItem }) {
 export default function LinksList({
   sections = LINK_SECTIONS,
   className = "",
+  dark = false,
 }: LinksListProps) {
   return (
-    <div className={`mx-auto w-full max-w-md px-4 py-6 ${className}`}>
+    <div className={`mx-auto w-full max-w-md py-2 px-4 ${className}`}>
       <div className="flex flex-col gap-3">
         {sections.map((section, sectionIndex) => (
           <div key={section.id} className="flex flex-col gap-3">
             {section.title ? (
               <h2
-                className={`mb-1 text-center text-lg font-bold text-black ${
-                  sectionIndex === 0 ? "mt-0" : "mt-4"
-                }`}
+                className={`mb-1 text-center text-lg font-bold ${
+                  dark ? "text-white" : "text-black"
+                } ${sectionIndex === 0 ? "mt-0" : "mt-4"}`}
               >
                 {section.title}
               </h2>

@@ -28,8 +28,7 @@ export const LINK_SECTIONS: LinkSection[] = [
         label: "Flowgeist — Berghain",
         href: "https://www.berghain.berlin/de/event/82079",
         variant: "featured",
-        image:
-          "https://ugc.production.linktr.ee/86e41e4c-eaf0-4ac4-9f23-b7cc3fa10514_Screenshot-2026-07-15-alle-20.10.57.png",
+        image: "/berghain-logo.svg",
       },
       {
         id: "resident-advisor",

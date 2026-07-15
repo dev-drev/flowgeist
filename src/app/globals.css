@@ -169,8 +169,61 @@ body.home-page .about-scroll {
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* Links modal enter / exit */
+@keyframes links-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes links-modal-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes links-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes links-modal-panel-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+.links-modal-backdrop-enter {
+  animation: links-modal-backdrop-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.links-modal-backdrop-exit {
+  animation: links-modal-backdrop-out 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.links-modal-panel-enter {
+  animation: links-modal-panel-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+.links-modal-panel-exit {
+  animation: links-modal-panel-out 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-fade-up {

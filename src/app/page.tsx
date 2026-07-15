@@ -2,12 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import LinksList from "@/components/LinksList";
 import { useTracking } from "@/lib/useTracking";
 
 export default function Home() {
   const headerGridCols = "lg:grid-cols-[0.997fr_0.548fr_0.80fr]";
   const [showAbout, setShowAbout] = useState(false);
   const [showDesktopIntro, setShowDesktopIntro] = useState(false);
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  const [linksModalMounted, setLinksModalMounted] = useState(false);
+  const [linksModalClosing, setLinksModalClosing] = useState(false);
   const [isDesktopLg, setIsDesktopLg] = useState(false);
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
@@ -38,6 +42,32 @@ export default function Home() {
       setShowDesktopIntro(false);
     }
   }, [isDesktopLg, showDesktopIntro]);
+
+  useEffect(() => {
+    if (showLinksModal) {
+      setLinksModalClosing(false);
+      setLinksModalMounted(true);
+      return;
+    }
+    if (!linksModalMounted) return;
+    setLinksModalClosing(true);
+    const timeout = window.setTimeout(() => {
+      setLinksModalMounted(false);
+      setLinksModalClosing(false);
+    }, 400);
+    return () => window.clearTimeout(timeout);
+  }, [showLinksModal, linksModalMounted]);
+
+  const closeLinksModal = () => setShowLinksModal(false);
+
+  useEffect(() => {
+    if (!showLinksModal) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeLinksModal();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showLinksModal]);
 
   useEffect(() => {
     if (showAbout || isDesktopLg || showDesktopIntro) return;
@@ -483,48 +513,31 @@ export default function Home() {
             style={{ backgroundColor: "#272727f6", mixBlendMode: "multiply" }}
           />
           <div
-            className={`relative z-[3] mx-auto flex h-full w-full max-w-[1180px] cursor-auto flex-col items-center justify-center px-32 text-left transition-all duration-700 lg:px-64 ${
+            className={`relative z-[3] mx-auto flex h-full w-full max-w-[920px] cursor-auto flex-col items-center justify-center px-12 text-left transition-all duration-700 lg:px-16 ${
               showDesktopIntro
                 ? "translate-y-0 scale-100 opacity-100"
                 : "translate-y-2 scale-[0.985] opacity-0"
             }`}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                setShowDesktopIntro(false);
-              }
-            }}
+            onClick={(event) => event.stopPropagation()}
           >
-            <p className="max-w-[920px] font-alte-haas-regular text-[18px] 2xl:text-[18px] 3xl:text-[20px] font-normal leading-[1.15] text-white/90 text-justify">
-              Flowgeist is a research-led multidisciplinary project across
-              sound and aesthetics. It forges sonic paths through meticulous
-              sound design and a finely tuned live dynamic, where genre remains
-              peripheral and meaning stays tethered to sensation.
-              <br /> <br />
-              Marco Bruno is
-              an Electronic Music storyteller whose releases span platforms
-              including Helena Hauff&apos;s Return to Disorder, James
-              Ruskin&apos;s Blueprint and Ben Sims&apos; labels. He has
-              presented work on stages and platforms including TEDx and Tresor,
-              and is the founder of Evighet Records, a platform conceived as a
-              laboratory for identity, transformation and sonic evolution. <br /> <br /> Velvet
-              May is a live performer, singer and music producer whose practice
-              moves through industrial textures, body-driven tension and
-              rock-inflected intensity. Blending experimentation with meticulous
-              sound design, his work is raw, detailed and sharply controlled. He
-              has released music on labels including Veyl, Tears on Waves and
-              She Lost Kontrol.
+            <p className="font-alte-haas-regular text-[18px] 2xl:text-[18px] 3xl:text-[20px] font-normal leading-[1.15] text-white/90 text-justify">
+              Flowgeist makes its live debut at Kantine am Berghain alongside
+              the release of its first full-length album. Conceived by
+              Berlin-based artists Marco Bruno and Velvet May, the project
+              emerges from a shared inquiry into sound and aesthetics.
+              Approaching electronic music as a cinematic field, Flowgeist
+              moves through dense atmospheres, fractured rhythms and sculptural
+              sound design.
             </p>
             <Image
               src="/artists/flowhite.png"
               alt="Flowgeist white mark"
               width={560}
               height={346}
-              className="mt-12 h-auto w-[min(56vw,560px)] object-contain"
+              className="mt-12 h-auto w-[min(48vw,420px)] object-contain"
               priority
             />
-            <div className="mt-12 flex items-center gap-5">
+            <div className="mt-10 flex items-center gap-5">
               <a
                 href="mailto:flowgeistmusic@gmail.com"
                 className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
@@ -582,8 +595,59 @@ export default function Home() {
                 </svg>
               </a>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowLinksModal(true)}
+              className="mt-12 font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:opacity-100 hover:text-white"
+            >
+              Tickets &amp; links →
+            </button>
           </div>
         </section>
+
+        {linksModalMounted ? (
+          <div
+            className="absolute inset-0 z-40 hidden items-center justify-center px-6 lg:flex"
+            onClick={closeLinksModal}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tickets and links"
+          >
+            <div
+              className={`absolute inset-0 bg-black/50 ${
+                linksModalClosing
+                  ? "links-modal-backdrop-exit"
+                  : "links-modal-backdrop-enter"
+              }`}
+              aria-hidden
+            />
+            <div
+              className={`relative z-10 max-h-[85vh] w-full max-w-[440px] overflow-y-auto bg-[#f3f3f1] shadow-2xl ${
+                linksModalClosing
+                  ? "links-modal-panel-exit"
+                  : "links-modal-panel-enter"
+              }`}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={closeLinksModal}
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
+                aria-label="Close links"
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                  <path
+                    d="M4.5 4.5l9 9M13.5 4.5l-9 9"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+              <LinksList className="py-8" />
+            </div>
+          </div>
+        ) : null}
 
         <div
           className={`absolute inset-0 flex items-center justify-center px-6 sm:px-12 lg:px-20 transition-all duration-500 ${
@@ -701,18 +765,37 @@ export default function Home() {
                         />
                         <div
                           ref={aboutColorBlockRef}
-                          className=" w-full h-full lg:bg-[#ffffff] mr-2 pr-4 "
+                          className="w-full h-full lg:bg-[#ffffff] lg:mr-2 lg:pr-4"
                         >
-                          <div className="mr-2 pr-4 bg-[#BABABA] h-full">
-                            {" "}
-                            <p className=" pb-5 md:pb-0 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify lg:pr-50 pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold">
-                              Flowgeist is a research-led multidisciplinary
-                              project across sound and aesthetics. It forges
-                              sonic paths through meticulous sound design and a
-                              finely tuned live dynamic, where genre remains
-                              peripheral and meaning stays tethered to sensation.
+                          <div className="bg-[#BABABA] h-full lg:mr-2 lg:pr-4">
+                            <p className="pb-5 md:pb-0 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
+                              Flowgeist makes its live debut at Kantine am
+                              Berghain alongside the release of its first
+                              full-length album. Conceived by Berlin-based
+                              artists Marco Bruno and Velvet May, the project
+                              emerges from a shared inquiry into sound and
+                              aesthetics. Approaching electronic music as a
+                              cinematic field, Flowgeist moves through dense
+                              atmospheres, fractured rhythms and sculptural
+                              sound design. Its language develops through
+                              detail: genre remains peripheral, meaning is
+                              tethered to sensation, drawing the listener into
+                              a world shaped by an unfolding narrative.
                             </p>
-                            <div className="flex w-full items-center justify-between gap-4 md:hidden">
+                            <div className="md:hidden w-full">
+                              <LinksList className="py-4" />
+                            </div>
+                            <p className="pb-5 pt-2 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
+                              Traces of trip hop, post punk, industrial
+                              electronics and breakbeat appear like residues
+                              within a wider dramaturgy, where rhythm, texture
+                              and voice carry the album&apos;s internal
+                              narrative into physical space. The performance
+                              marks the first live incarnation of the record,
+                              opening its layered studio architecture to the
+                              immediacy of the room.
+                            </p>
+                            <div className="flex w-full items-center justify-between gap-4 px-4 md:hidden">
                               <Image
                                 src="/artists/pic-negative.jpeg"
                                 alt="Flowgeist logo grey"
@@ -728,15 +811,14 @@ export default function Home() {
                                 className="h-auto w-[30%] min-w-0 object-contain"
                               />
                             </div>
-                            <p className="pb-2 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify pr-2 pl-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
-                              Marco Bruno is an Electronic Music storyteller
-                              whose releases span platforms including Helena
-                              Hauff&apos;s Return to Disorder, James
-                              Ruskin&apos;s Blueprint and Ben Sims&apos;
-                              labels. He has presented work on stages and
-                              platforms including TEDx and Tresor, and is the
-                              founder of Evighet Records, a platform conceived as
-                              a laboratory for identity, transformation and
+                            <p className="pb-2 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
+                              Marco Bruno is a multidisciplinary storyteller
+                              whose releases span Helena Hauff&apos;s Return to
+                              Disorder, James Ruskin&apos;s Blueprint and Ben
+                              Sims&apos; labels. His work has been presented on
+                              stages and platforms including TEDx and Tresor,
+                              and he is the founder of Evighet Records, a
+                              platform dedicated to identity, transformation and
                               sonic evolution.
                               <br />
                               <br />
@@ -804,28 +886,23 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 hidden lg:block">
-                    {/* <div
-                      ref={aboutHeroEffectRef}
-                      className="hover-webgl-host h-full w-full object-contain "
-                    /> */}
+                  <div className="bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px] lg:border-t-0 hidden lg:block">
                     <img
                       src="/artists.jpeg"
                       style={{
                         objectFit: "contain",
                         objectPosition: "right top",
                       }}
-                      className="h-[100%] w-[100%] object-contain ml-auto  "
+                      className="h-[100%] w-[100%] object-contain ml-auto"
                       alt="Flowgeist logo black"
                     />
                     <div
                       ref={aboutColorBlockRef}
-                      className=" w-full h-full bg-[#ffffff] mr-2 pr-4 "
+                      className="w-full h-full bg-[#ffffff] mr-2 pr-4"
                     >
                       <div className="mr-2 pr-4 bg-[#BABABA] h-full">
-                        {" "}
                         <p
-                          className=" pb-5 pt-6 text-[20px] 2xl:text-[26px] 3xl:text-[32px] font-semibold leading-[1.16] text-justify pr-50  pl-4 text-[#5c5c5c] font-alte-haas-bold"
+                          className="pb-5 pt-6 text-[20px] 2xl:text-[26px] 3xl:text-[32px] font-semibold leading-[1.16] text-justify pr-50 pl-4 text-[#5c5c5c] font-alte-haas-bold"
                           style={{ letterSpacing: "0.03px" }}
                         >
                           Flowgeist resonates across sound and form through
