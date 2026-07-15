@@ -814,36 +814,39 @@ export default function Home() {
                                 alt="Flowgeist logo grey"
                                 width={520}
                                 height={520}
-                                className="h-auto w-[65%] min-w-0 object-contain"
-                              />
-                              <Image
-                                src="/logo-grey.png"
-                                alt="Flowgeist symbol"
-                                width={150}
-                                height={150}
-                                className="h-auto w-[30%] min-w-0 object-contain"
+                                className="h-auto w-full min-w-0 object-contain"
                               />
                             </div>
-                            <p className="pb-2 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
-                              Marco Bruno is a multidisciplinary storyteller
-                              whose releases span Helena Hauff&apos;s Return to
-                              Disorder, James Ruskin&apos;s Blueprint and Ben
-                              Sims&apos; labels. His work has been presented on
-                              stages and platforms including TEDx and Tresor,
-                              and he is the founder of Evighet Records, a
-                              platform dedicated to identity, transformation and
-                              sonic evolution.
-                              <br />
-                              <br />
-                              Velvet May is a live performer, singer and music
-                              producer whose practice moves through industrial
-                              textures, body-driven tension and rock-inflected
-                              intensity. Blending experimentation with
-                              meticulous sound design, his work is raw, detailed
-                              and sharply controlled. He has released music on
-                              labels including Veyl, Tears on Waves and She
-                              Lost Kontrol.
-                            </p>
+                            <div className="relative md:hidden">
+                              <Image
+                                src="/logo-grey.png"
+                                alt=""
+                                width={600}
+                                height={600}
+                                aria-hidden
+                                className="pointer-events-none absolute right-0 top-[58%] z-0 h-[75vh] w-[75vw] -translate-y-1/2 translate-x-[18%] object-contain opacity-40"
+                              />
+                              <p className="relative z-10 pb-2 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
+                                Marco Bruno is a multidisciplinary storyteller
+                                whose releases span Helena Hauff&apos;s Return to
+                                Disorder, James Ruskin&apos;s Blueprint and Ben
+                                Sims&apos; labels. His work has been presented on
+                                stages and platforms including TEDx and Tresor,
+                                and he is the founder of Evighet Records, a
+                                platform dedicated to identity, transformation and
+                                sonic evolution.
+                                <br />
+                                <br />
+                                Velvet May is a live performer, singer and music
+                                producer whose practice moves through industrial
+                                textures, body-driven tension and rock-inflected
+                                intensity. Blending experimentation with
+                                meticulous sound design, his work is raw, detailed
+                                and sharply controlled. He has released music on
+                                labels including Veyl, Tears on Waves and She
+                                Lost Kontrol.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
