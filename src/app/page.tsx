@@ -49,21 +49,25 @@ export default function Home() {
       setLinksModalMounted(true);
       return;
     }
+
     if (!linksModalMounted) return;
+
     setLinksModalClosing(true);
     const timeout = window.setTimeout(() => {
       setLinksModalMounted(false);
       setLinksModalClosing(false);
     }, 400);
     return () => window.clearTimeout(timeout);
-  }, [showLinksModal, linksModalMounted]);
+    // Only react to open/close intent; mounted is read for the exit path.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showLinksModal]);
 
   const closeLinksModal = () => setShowLinksModal(false);
 
   useEffect(() => {
     if (!showLinksModal) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeLinksModal();
+      if (event.key === "Escape") setShowLinksModal(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
