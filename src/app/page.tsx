@@ -525,13 +525,22 @@ export default function Home() {
             onClick={(event) => event.stopPropagation()}
           >
             <p className="font-alte-haas-regular text-[18px] 2xl:text-[18px] 3xl:text-[20px] font-normal leading-[1.15] text-white/90 text-justify">
-              Flowgeist makes its live debut at Kantine am Berghain alongside
-              the release of its first full-length album. Conceived by
-              Berlin-based artists Marco Bruno and Velvet May, the project
-              emerges from a shared inquiry into sound and aesthetics.
+              <span className="font-alte-haas-bold">Flowgeist</span> makes its
+              live debut at{" "}
+              <span className="font-alte-haas-bold">Kantine am Berghain</span>{" "}
+              alongside the release of its{" "}
+              <span className="font-alte-haas-bold">first full-length album</span>
+              . Conceived by Berlin-based artists{" "}
+              <span className="font-alte-haas-bold">Marco Bruno</span> and{" "}
+              <span className="font-alte-haas-bold">Velvet May</span>, the
+              project emerges from a shared inquiry into sound and aesthetics.
+              <br />
+              <br />
               Approaching electronic music as a cinematic field, Flowgeist
               moves through dense atmospheres, fractured rhythms and sculptural
-              sound design.
+              sound design. Its language develops through detail: genre remains
+              peripheral, meaning is tethered to sensation, drawing the
+              listener into a world shaped by an unfolding narrative.
             </p>
             <Image
               src="/artists/flowhite.png"
@@ -544,7 +553,7 @@ export default function Home() {
             <div className="mt-10 flex items-center gap-5">
               <a
                 href="mailto:flowgeistmusic@gmail.com"
-                className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center text-white/85 transition-opacity hover:opacity-70"
                 aria-label="Mail Flowgeist"
               >
                 <svg
@@ -563,7 +572,7 @@ export default function Home() {
                 href="https://instagram.com/flowgeistx"
                 target="_blank"
                 rel="noreferrer"
-                className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center text-white/85 transition-opacity hover:opacity-70"
                 aria-label="Instagram Flowgeist"
               >
                 <svg
@@ -583,7 +592,7 @@ export default function Home() {
                 href="https://soundcloud.com/flowgeistx"
                 target="_blank"
                 rel="noreferrer"
-                className="flex h-7 w-7 items-center justify-center text-white/85 transition-opacity hover:opacity-70"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center text-white/85 transition-opacity hover:opacity-70"
                 aria-label="SoundCloud Flowgeist"
               >
                 <svg
@@ -602,7 +611,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setShowLinksModal(true)}
-              className="mt-12 font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:opacity-100 hover:text-white"
+              className="mt-12 cursor-pointer font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:opacity-100 hover:text-white"
             >
               Tickets &amp; links →
             </button>
@@ -636,7 +645,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={closeLinksModal}
-                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
                 aria-label="Close links"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
@@ -772,7 +781,7 @@ export default function Home() {
                           className="w-full h-full lg:bg-[#ffffff] lg:mr-2 lg:pr-4"
                         >
                           <div className="bg-[#BABABA] h-full lg:mr-2 lg:pr-4">
-                            <p className="pb-5 md:pb-0 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
+                            <p className="pb-5 md:pb-0 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist makes its live debut at Kantine am
                               Berghain alongside the release of its first
                               full-length album. Conceived by Berlin-based
@@ -789,7 +798,7 @@ export default function Home() {
                             <div className="md:hidden w-full">
                               <LinksList className="py-4" />
                             </div>
-                            <p className="pb-5 pt-2 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
+                            <p className="pb-5 pt-2 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
                               Traces of trip hop, post punk, industrial
                               electronics and breakbeat appear like residues
                               within a wider dramaturgy, where rhythm, texture
@@ -815,7 +824,7 @@ export default function Home() {
                                 className="h-auto w-[30%] min-w-0 object-contain"
                               />
                             </div>
-                            <p className="pb-2 pt-6 text-[12px] sm:text-[13px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
+                            <p className="pb-2 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
                               Marco Bruno is a multidisciplinary storyteller
                               whose releases span Helena Hauff&apos;s Return to
                               Disorder, James Ruskin&apos;s Blueprint and Ben
@@ -855,7 +864,7 @@ export default function Home() {
                             href="https://instagram.com"
                             target="_blank"
                             rel="noreferrer"
-                            className="transition-opacity hover:opacity-70 text-black/90"
+                            className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
                           >
                             MAIL_ <br />
                             <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
@@ -866,7 +875,7 @@ export default function Home() {
                             href="https://instagram.com"
                             target="_blank"
                             rel="noreferrer"
-                            className="transition-opacity hover:opacity-70 text-black/90"
+                            className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
                           >
                             _INSTAGRAM <br />
                             <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
@@ -877,7 +886,7 @@ export default function Home() {
                             href="https://instagram.com"
                             target="_blank"
                             rel="noreferrer"
-                            className="transition-opacity hover:opacity-70 text-black/90"
+                            className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
                           >
                             SOUNDCLOUD --
                             <br />

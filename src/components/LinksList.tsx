@@ -37,7 +37,7 @@ function CopyButton({
       type="button"
       onClick={copyLink}
       aria-label={copied ? "Link copied" : `Copy link for ${label}`}
-      className="relative z-10 ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+      className="relative z-10 ml-auto flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
     >
       {copied ? (
         <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
@@ -101,7 +101,7 @@ function FeaturedLinkCard({ item }: { item: LinkItem }) {
       href={item.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="block w-full overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
+      className="block w-full cursor-pointer overflow-hidden bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
     >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -134,7 +134,7 @@ function LinkCard({ item }: { item: LinkItem }) {
       href={item.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative flex w-full items-center gap-3 bg-white px-3 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
+      className="group relative flex w-full cursor-pointer items-center gap-3 bg-white px-3 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition hover:shadow-[0_2px_8px_rgba(0,0,0,0.16)] active:scale-[0.99]"
     >
       <LinkIcon label={item.label} icon={item.icon} />
 
