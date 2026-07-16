@@ -468,7 +468,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full px-2 pt-1">
+    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden px-2 pt-1">
       <div
         className="fixed inset-0 w-full h-full z-0"
         style={{
@@ -704,7 +704,7 @@ export default function Home() {
           <div className="flex h-full w-full overflow-hidden">
             <div
               ref={aboutScrollRef}
-              className="mx-auto flex h-full w-full flex-col overflow-y-auto about-scroll"
+              className="mx-auto flex h-full w-full flex-col overflow-y-auto overflow-x-hidden about-scroll"
             >
               <header
                 className={`w-full   bg-[#BABABA] pl-4  text-black/80 sm:px-l transition-all duration-500 ${
@@ -780,7 +780,7 @@ export default function Home() {
                           ref={aboutColorBlockRef}
                           className="w-full h-full lg:bg-[#ffffff] lg:mr-2 lg:pr-4"
                         >
-                          <div className="bg-[#BABABA] h-full lg:mr-2 lg:pr-4">
+                          <div className="bg-[#BABABA] h-full overflow-x-hidden lg:mr-2 lg:pr-4">
                             <p className="pb-5 md:pb-0 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist makes its live debut at Kantine am
                               Berghain alongside the release of its first
@@ -808,7 +808,7 @@ export default function Home() {
                               opening its layered studio architecture to the
                               immediacy of the room.
                             </p>
-                            <div className="flex w-full items-center justify-between gap-4 px-4 md:hidden">
+                            <div className="flex w-full max-w-full items-center justify-between gap-4 overflow-hidden px-4 md:hidden">
                               <Image
                                 src="/artists/pic-negative.jpeg"
                                 alt="Flowgeist logo grey"
@@ -817,14 +817,14 @@ export default function Home() {
                                 className="h-auto w-full min-w-0 object-contain"
                               />
                             </div>
-                            <div className="relative md:hidden">
+                            <div className="relative overflow-hidden md:hidden">
                               <Image
                                 src="/logo-grey.png"
                                 alt=""
                                 width={600}
                                 height={600}
                                 aria-hidden
-                                className="pointer-events-none absolute right-0 top-[58%] z-0 h-[75vh] w-[75vw] -translate-y-1/2 translate-x-[18%] object-contain opacity-40"
+                                className="pointer-events-none absolute right-0 top-[58%] z-0 h-[75vh] w-[75vw] max-w-none -translate-y-1/2 translate-x-[18%] object-contain opacity-40"
                               />
                               <p className="relative z-10 pb-2 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                                 Marco Bruno is a multidisciplinary storyteller
