@@ -529,18 +529,20 @@ export default function Home() {
               live debut at{" "}
               <span className="font-alte-haas-bold">Kantine am Berghain</span>{" "}
               alongside the release of its{" "}
-              <span className="font-alte-haas-bold">first full-length album</span>
+              <span className="font-alte-haas-bold">
+                first full-length album
+              </span>
               . Conceived by Berlin-based artists{" "}
               <span className="font-alte-haas-bold">Marco Bruno</span> and{" "}
               <span className="font-alte-haas-bold">Velvet May</span>, the
               project emerges from a shared inquiry into sound and aesthetics.
               <br />
               <br />
-              Approaching electronic music as a cinematic field, Flowgeist
-              moves through dense atmospheres, fractured rhythms and sculptural
-              sound design. Its language develops through detail: genre remains
-              peripheral, meaning is tethered to sensation, drawing the
-              listener into a world shaped by an unfolding narrative.
+              Approaching electronic music as a cinematic field, Flowgeist moves
+              through dense atmospheres, fractured rhythms and sculptural sound
+              design. Its language develops through detail: genre remains
+              peripheral, meaning is tethered to sensation, drawing the listener
+              into a world shaped by an unfolding narrative.
             </p>
             <Image
               src="/artists/flowhite.png"
@@ -648,7 +650,13 @@ export default function Home() {
                 className="absolute right-3 top-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
                 aria-label="Close links"
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  aria-hidden
+                >
                   <path
                     d="M4.5 4.5l9 9M13.5 4.5l-9 9"
                     stroke="currentColor"
@@ -758,7 +766,7 @@ export default function Home() {
                   className={`grid min-h-[60vh] grid-cols-1 ${headerGridCols}`}
                 >
                   <div className="flex h-full flex-col gap-8 lg:col-start-1 lg:col-end-2">
-                    <div className="lg:space-y-6 ">
+                    <div className="relative lg:space-y-6 ">
                       <p className="font-pt-mono text-[10px] lg:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
                         A PROJECT CURATED BY /
                         <br />
@@ -766,7 +774,7 @@ export default function Home() {
                           Marco Bruno and Velvet May.
                         </span>
                       </p>
-                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
+                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative z-20 lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
                         <img
                           src="/artists.jpeg"
                           style={{
@@ -780,7 +788,7 @@ export default function Home() {
                           ref={aboutColorBlockRef}
                           className="w-full h-full lg:bg-[#ffffff] lg:mr-2 lg:pr-4"
                         >
-                          <div className="bg-[#BABABA] h-full overflow-x-hidden lg:mr-2 lg:pr-4">
+                          <div className="bg-[#BABABA] h-full lg:mr-2 lg:pr-4">
                             <p className="pb-5 md:pb-0 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist makes its live debut at Kantine am
                               Berghain alongside the release of its first
@@ -792,8 +800,8 @@ export default function Home() {
                               atmospheres, fractured rhythms and sculptural
                               sound design. Its language develops through
                               detail: genre remains peripheral, meaning is
-                              tethered to sensation, drawing the listener into
-                              a world shaped by an unfolding narrative.
+                              tethered to sensation, drawing the listener into a
+                              world shaped by an unfolding narrative.
                             </p>
                             <div className="md:hidden w-full">
                               <LinksList className="py-4" />
@@ -817,86 +825,88 @@ export default function Home() {
                                 className="h-auto w-full min-w-0 object-contain"
                               />
                             </div>
-                            <div className="relative overflow-hidden md:hidden">
+                            <div className="relative z-20 md:hidden">
                               <Image
                                 src="/logo-grey.png"
                                 alt=""
                                 width={600}
                                 height={600}
                                 aria-hidden
-                                className="pointer-events-none absolute right-0 top-[58%] z-0 h-[75vh] w-[75vw] max-w-none -translate-y-1/2 translate-x-[18%] object-contain opacity-40"
+                                className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[75vh] w-[75vw] max-w-none -translate-x-[13%] -translate-y-[45.5%] object-contain opacity-40"
                               />
                               <p className="relative z-10 pb-2 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                                 Marco Bruno is a multidisciplinary storyteller
-                                whose releases span Helena Hauff&apos;s Return to
-                                Disorder, James Ruskin&apos;s Blueprint and Ben
-                                Sims&apos; labels. His work has been presented on
-                                stages and platforms including TEDx and Tresor,
-                                and he is the founder of Evighet Records, a
-                                platform dedicated to identity, transformation and
-                                sonic evolution.
+                                whose releases span Helena Hauff&apos;s Return
+                                to Disorder, James Ruskin&apos;s Blueprint and
+                                Ben Sims&apos; labels. His work has been
+                                presented on stages and platforms including TEDx
+                                and Tresor, and he is the founder of Evighet
+                                Records, a platform dedicated to identity,
+                                transformation and sonic evolution.
                                 <br />
                                 <br />
                                 Velvet May is a live performer, singer and music
                                 producer whose practice moves through industrial
                                 textures, body-driven tension and rock-inflected
                                 intensity. Blending experimentation with
-                                meticulous sound design, his work is raw, detailed
-                                and sharply controlled. He has released music on
-                                labels including Veyl, Tears on Waves and She
-                                Lost Kontrol.
+                                meticulous sound design, his work is raw,
+                                detailed and sharply controlled. He has released
+                                music on labels including Veyl, Tears on Waves
+                                and She Lost Kontrol.
                               </p>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <Image
-                        src="/logo-grey.png"
-                        alt="Flowgeist symbol"
-                        width={150}
-                        height={150}
-                        className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
-                      />
-                      <p className="text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
-                        [contacts]
-                      </p>
-                      <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] sm:text-[13px] lg:text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-3 md:pb-0 ">
-                        <div className="flex flex-col bg-[#BABABA] gap-6 ml-8 p-4 h-full">
-                          <a
-                            href="https://instagram.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
-                          >
-                            MAIL_ <br />
-                            <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
-                              flowgeistmusic@gmail.com
-                            </span>
-                          </a>{" "}
-                          <a
-                            href="https://instagram.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
-                          >
-                            _INSTAGRAM <br />
-                            <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
-                              @flowgeistx
-                            </span>
-                          </a>
-                          <a
-                            href="https://instagram.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
-                          >
-                            SOUNDCLOUD --
-                            <br />
-                            <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
-                              @flowgeistx{" "}
-                            </span>
-                          </a>
+                      <div className="relative z-[1]">
+                        <Image
+                          src="/logo-grey.png"
+                          alt="Flowgeist symbol"
+                          width={150}
+                          height={150}
+                          className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
+                        />
+                        <p className="text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
+                          [contacts]
+                        </p>
+                        <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] sm:text-[13px] lg:text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-3 md:pb-0 ">
+                          <div className="flex flex-col bg-[#BABABA] gap-6 ml-8 p-4 h-full">
+                            <a
+                              href="https://instagram.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
+                            >
+                              MAIL_ <br />
+                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
+                                flowgeistmusic@gmail.com
+                              </span>
+                            </a>{" "}
+                            <a
+                              href="https://instagram.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
+                            >
+                              _INSTAGRAM <br />
+                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                                @flowgeistx
+                              </span>
+                            </a>
+                            <a
+                              href="https://instagram.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
+                            >
+                              SOUNDCLOUD --
+                              <br />
+                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                                @flowgeistx{" "}
+                              </span>
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
