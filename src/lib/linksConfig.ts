@@ -68,16 +68,4 @@ export const LINK_SECTIONS: LinkSection[] = [
       },
     ],
   },
-  {
-    id: "connect",
-    title: "Connect with us!",
-    links: [
-      {
-        id: "website-booking",
-        label: "Website / Booking",
-        href: "https://flowgeist.net",
-        icon: "https://ugc.production.linktr.ee/4d042f5c-205c-4ebb-8555-4c7d786b4932_Flowgeist-Logo-Square.png",
-      },
-    ],
-  },
 ];
