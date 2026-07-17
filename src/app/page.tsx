@@ -6,13 +6,13 @@ import LinksList from "@/components/LinksList";
 import { useTracking } from "@/lib/useTracking";
 
 export default function Home() {
-  const headerGridCols = "lg:grid-cols-[0.997fr_0.548fr_0.80fr]";
+  const headerGridCols = "md:grid-cols-[0.997fr_0.548fr_0.80fr]";
   const [showAbout, setShowAbout] = useState(false);
   const [showDesktopIntro, setShowDesktopIntro] = useState(false);
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [linksModalMounted, setLinksModalMounted] = useState(false);
   const [linksModalClosing, setLinksModalClosing] = useState(false);
-  const [isDesktopLg, setIsDesktopLg] = useState(false);
+  const [isDesktopLayout, setIsDesktopLayout] = useState(false);
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
   const aboutColorBlockRef = useRef<HTMLDivElement | null>(null);
@@ -29,19 +29,19 @@ export default function Home() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
     const onViewportChange = (event: MediaQueryListEvent) =>
-      setIsDesktopLg(event.matches);
-    setIsDesktopLg(mediaQuery.matches);
+      setIsDesktopLayout(event.matches);
+    setIsDesktopLayout(mediaQuery.matches);
     mediaQuery.addEventListener("change", onViewportChange);
     return () => mediaQuery.removeEventListener("change", onViewportChange);
   }, []);
 
   useEffect(() => {
-    if (!isDesktopLg && showDesktopIntro) {
+    if (!isDesktopLayout && showDesktopIntro) {
       setShowDesktopIntro(false);
     }
-  }, [isDesktopLg, showDesktopIntro]);
+  }, [isDesktopLayout, showDesktopIntro]);
 
   useEffect(() => {
     if (showLinksModal) {
@@ -74,7 +74,7 @@ export default function Home() {
   }, [showLinksModal]);
 
   useEffect(() => {
-    if (showAbout || isDesktopLg || showDesktopIntro) return;
+    if (showAbout || isDesktopLayout || showDesktopIntro) return;
 
     const SCROLL_THRESHOLD = 48;
     let touchStartY: number | null = null;
@@ -116,10 +116,10 @@ export default function Home() {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [showAbout, isDesktopLg, showDesktopIntro]);
+  }, [showAbout, isDesktopLayout, showDesktopIntro]);
 
   useEffect(() => {
-    if (!showAbout || isDesktopLg) return;
+    if (!showAbout || isDesktopLayout) return;
 
     const SCROLL_THRESHOLD = 35;
     const OPEN_GRACE_MS = 450;
@@ -210,7 +210,7 @@ export default function Home() {
       window.removeEventListener("touchend", onTouchEnd, { capture: true });
       window.removeEventListener("touchcancel", onTouchEnd, { capture: true });
     };
-  }, [showAbout, isDesktopLg]);
+  }, [showAbout, isDesktopLayout]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("home-page", !showAbout);
@@ -468,7 +468,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden px-2 pt-1">
+    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden">
       <div
         className="fixed inset-0 w-full h-full z-0"
         style={{
@@ -480,7 +480,7 @@ export default function Home() {
 
       <div className="relative z-10 mx-auto h-full w-full max-h-[100vh]">
         <div
-          className={`absolute inset-0 hidden transition-opacity duration-700 lg:block ${
+          className={`absolute inset-0 hidden transition-opacity duration-700 md:block ${
             showAbout || showDesktopIntro ? "opacity-0" : "opacity-100"
           }`}
         >
@@ -496,7 +496,7 @@ export default function Home() {
         </div>
 
         <section
-          className={`absolute inset-0 z-30 hidden cursor-auto transition-opacity duration-700 lg:flex ${
+          className={`absolute inset-0 z-30 hidden cursor-auto transition-opacity duration-700 md:flex ${
             showDesktopIntro
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -517,7 +517,7 @@ export default function Home() {
             style={{ backgroundColor: "#272727f6", mixBlendMode: "multiply" }}
           />
           <div
-            className={`relative z-[3] mx-auto flex h-full w-full max-w-[920px] cursor-auto flex-col items-center justify-center px-12 text-left transition-all duration-700 lg:px-16 ${
+            className={`relative z-[3] mx-auto flex h-full w-full max-w-[920px] cursor-auto flex-col items-center justify-center px-12 text-left transition-all duration-700 md:px-16 ${
               showDesktopIntro
                 ? "translate-y-0 scale-100 opacity-100"
                 : "translate-y-2 scale-[0.985] opacity-0"
@@ -622,7 +622,7 @@ export default function Home() {
 
         {linksModalMounted ? (
           <div
-            className="absolute inset-0 z-40 hidden items-center justify-center px-6 lg:flex"
+            className="absolute inset-0 z-40 hidden items-center justify-center px-6 md:flex"
             onClick={closeLinksModal}
             role="dialog"
             aria-modal="true"
@@ -671,7 +671,7 @@ export default function Home() {
         ) : null}
 
         <div
-          className={`absolute inset-0 flex items-center justify-center px-6 sm:px-12 lg:px-20 transition-all duration-500 ${
+          className={`absolute inset-0 flex items-center justify-center px-6 sm:px-12 md:px-20 transition-all duration-500 ${
             showAbout || showDesktopIntro
               ? "opacity-0 scale-95 pointer-events-none"
               : "opacity-100 scale-100"
@@ -681,7 +681,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => {
-              if (isDesktopLg) {
+              if (isDesktopLayout) {
                 setShowDesktopIntro(true);
                 return;
               }
@@ -722,7 +722,7 @@ export default function Home() {
                 }`}
               >
                 <div
-                  className={`flex lg:grid w-full grid-cols-1 ${headerGridCols}`}
+                  className={`flex md:grid w-full grid-cols-1 ${headerGridCols}`}
                 >
                   <button
                     type="button"
@@ -735,18 +735,18 @@ export default function Home() {
                       alt="Flowgeist"
                       width={200}
                       height={56}
-                      className="h-auto w-full max-w-[320px] sm:max-w-[550px] lg:max-w-[700px] object-contain"
+                      className="h-auto w-full max-w-[320px] sm:max-w-[550px] md:max-w-[700px] object-contain"
                     />
                   </button>
-                  <div className="hidden h-full w-full items-end border-b-20 lg:flex lg:border-black/45">
+                  <div className="hidden h-full w-full items-end border-b-20 md:flex md:border-black/45">
                     <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px] " />
                     <div className="flex h-full items-end justify-end bg-[#BABABA]">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
                     </div>
                   </div>
-                  <div className="flex h-full w-full items-end border-r-20 border-l-5  lg:border-black/45  ">
-                    <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px] lg:block hidden" />
-                    <div className="flex h-full items-end justify-end bg-[#BABABA] lg:block hidden">
+                  <div className="flex h-full w-full items-end border-r-20 border-l-5  md:border-black/45  ">
+                    <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px] md:block hidden" />
+                    <div className="flex h-full items-end justify-end bg-[#BABABA] md:block hidden">
                       <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
                         [Berlin, DE]
                       </p>
@@ -765,16 +765,16 @@ export default function Home() {
                 <section
                   className={`grid min-h-[60vh] grid-cols-1 ${headerGridCols}`}
                 >
-                  <div className="flex h-full flex-col gap-8 lg:col-start-1 lg:col-end-2">
-                    <div className="relative lg:space-y-6 ">
-                      <p className="font-pt-mono text-[10px] lg:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
+                  <div className="flex h-full flex-col gap-8 md:col-start-1 md:col-end-2">
+                    <div className="relative md:space-y-6 ">
+                      <p className="font-pt-mono text-[10px] md:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
                         A PROJECT CURATED BY /
                         <br />
-                        <span className="font-alte-haas-bold normal-case text-xl tracking-[0.03px] pl-10 text-[16px] lg:text-[20px] text-[#5c5c5c]">
+                        <span className="font-alte-haas-bold normal-case text-xl tracking-[0.03px] pl-10 text-[16px] md:text-[20px] text-[#5c5c5c]">
                           Marco Bruno and Velvet May.
                         </span>
                       </p>
-                      <div className="bg-[#5a5a5a] lg:bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative z-20 lg:h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px]  lg:border-t-0 block lg:hidden">
+                      <div className="bg-[#5a5a5a] md:bg-[#ffffff] md:translate-x-2 hover-webgl-card relative z-20 md:h-[320px] md:col-start-2 md:col-end-4 md:h-[570px]  md:border-t-0 block md:hidden">
                         <img
                           src="/artists.jpeg"
                           style={{
@@ -786,9 +786,9 @@ export default function Home() {
                         />
                         <div
                           ref={aboutColorBlockRef}
-                          className="w-full h-full lg:bg-[#ffffff] lg:mr-2 lg:pr-4"
+                          className="w-full h-full md:bg-[#ffffff] md:mr-2 md:pr-4"
                         >
-                          <div className="bg-[#BABABA] h-full lg:mr-2 lg:pr-4">
+                          <div className="bg-[#BABABA] h-full md:mr-2 md:pr-4">
                             <p className="pb-5 md:pb-0 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist makes its live debut at Kantine am
                               Berghain alongside the release of its first
@@ -865,12 +865,12 @@ export default function Home() {
                           alt="Flowgeist symbol"
                           width={150}
                           height={150}
-                          className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden lg:block"
+                          className="h-auto w-[144px] sm:w-[190px] object-contain mt-0 pb-5 p-5 sm:p-8 mb-20 hidden md:block"
                         />
-                        <p className="text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-10 lg:pt-10 md:pt-4">
+                        <p className="text-[12px] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px] font-semibold tracking-[0.10px] text-black/65 ml-10 pt-4 md:pt-10">
                           [contacts]
                         </p>
-                        <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] sm:text-[13px] lg:text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full lg:h-full pb-3 md:pb-0 ">
+                        <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] sm:text-[13px] md:text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full md:h-full pb-3 md:pb-0 ">
                           <div className="flex flex-col bg-[#BABABA] gap-6 ml-8 p-4 h-full">
                             <a
                               href="https://instagram.com"
@@ -879,7 +879,7 @@ export default function Home() {
                               className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
                             >
                               MAIL_ <br />
-                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
+                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c] font-alte-haas-bold">
                                 flowgeistmusic@gmail.com
                               </span>
                             </a>{" "}
@@ -890,7 +890,7 @@ export default function Home() {
                               className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
                             >
                               _INSTAGRAM <br />
-                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
                                 @flowgeistx
                               </span>
                             </a>
@@ -902,7 +902,7 @@ export default function Home() {
                             >
                               SOUNDCLOUD --
                               <br />
-                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] lg:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
+                              <span className="font-alte-haas-bold text-[12px] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px] pl-10 normal-case tracking-normal text-[#5c5c5c]">
                                 @flowgeistx{" "}
                               </span>
                             </a>
@@ -912,7 +912,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bg-[#ffffff] lg:translate-x-2 hover-webgl-card relative h-[320px] lg:col-start-2 lg:col-end-4 lg:h-[570px] lg:border-t-0 hidden lg:block">
+                  <div className="bg-[#ffffff] md:translate-x-2 hover-webgl-card relative h-[320px] md:col-start-2 md:col-end-4 md:h-[570px] md:border-t-0 hidden md:block">
                     <img
                       src="/artists.jpeg"
                       style={{
@@ -949,7 +949,7 @@ export default function Home() {
                   </div>
                 </section>
 
-                <section className=" border-black/15 px-5 py-0 lg:py-6 sm:px-1 hidden lg:block">
+                <section className=" border-black/15 px-5 py-0 md:py-6 sm:px-1 hidden md:block">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="relative h-[450px] overflow-hidden">
                       <Image
