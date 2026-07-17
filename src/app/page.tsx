@@ -468,7 +468,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden">
+    <main className="fixed inset-0 h-[100vh] max-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden px-2 pt-1">
       <div
         className="fixed inset-0 w-full h-full z-0"
         style={{
