@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { LinkItem, LinkSection } from "@/lib/linksConfig";
 import { LINK_SECTIONS } from "@/lib/linksConfig";
+import SoundCloudEmbed from "@/components/SoundCloudEmbed";
 
 interface LinksListProps {
   sections?: LinkSection[];
@@ -165,6 +166,13 @@ export default function LinksList({
               >
                 {section.title}
               </h2>
+            ) : null}
+
+            {section.embed?.type === "soundcloud" ? (
+              <SoundCloudEmbed
+                url={section.embed.url}
+                visual={section.embed.visual}
+              />
             ) : null}
 
             {section.links.map((item) =>

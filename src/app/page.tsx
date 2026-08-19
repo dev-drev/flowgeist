@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import LinksList from "@/components/LinksList";
+import { LINK_SECTIONS } from "@/lib/linksConfig";
 import { useTracking } from "@/lib/useTracking";
+
+const albumLinkSection = LINK_SECTIONS.find((section) => section.id === "album");
 
 export default function Home() {
   const headerGridCols = "md:grid-cols-[0.997fr_0.548fr_0.80fr]";
@@ -12,6 +15,9 @@ export default function Home() {
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [linksModalMounted, setLinksModalMounted] = useState(false);
   const [linksModalClosing, setLinksModalClosing] = useState(false);
+  const [showAlbumModal, setShowAlbumModal] = useState(false);
+  const [albumModalMounted, setAlbumModalMounted] = useState(false);
+  const [albumModalClosing, setAlbumModalClosing] = useState(false);
   const [isDesktopLayout, setIsDesktopLayout] = useState(false);
   const { trackPageView } = useTracking();
   const aboutHeroEffectRef = useRef<HTMLDivElement | null>(null);
@@ -63,6 +69,35 @@ export default function Home() {
   }, [showLinksModal]);
 
   const closeLinksModal = () => setShowLinksModal(false);
+
+  useEffect(() => {
+    if (showAlbumModal) {
+      setAlbumModalClosing(false);
+      setAlbumModalMounted(true);
+      return;
+    }
+
+    if (!albumModalMounted) return;
+
+    setAlbumModalClosing(true);
+    const timeout = window.setTimeout(() => {
+      setAlbumModalMounted(false);
+      setAlbumModalClosing(false);
+    }, 400);
+    return () => window.clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAlbumModal]);
+
+  const closeAlbumModal = () => setShowAlbumModal(false);
+
+  useEffect(() => {
+    if (!showAlbumModal) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setShowAlbumModal(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showAlbumModal]);
 
   useEffect(() => {
     if (!showLinksModal) return;
@@ -571,7 +606,7 @@ export default function Home() {
                 </svg>
               </a>
               <a
-                href="https://instagram.com/flowgeistx"
+                href="https://www.instagram.com/flowgeistx/"
                 target="_blank"
                 rel="noreferrer"
                 className="flex h-7 w-7 cursor-pointer items-center justify-center text-white/85 transition-opacity hover:opacity-70"
@@ -616,6 +651,13 @@ export default function Home() {
               className="mt-12 cursor-pointer font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:opacity-100 hover:text-white"
             >
               Tickets &amp; links →
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAlbumModal(true)}
+              className="mt-6 cursor-pointer font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:opacity-100 hover:text-white"
+            >
+              Album preview →
             </button>
           </div>
         </section>
@@ -666,6 +708,56 @@ export default function Home() {
                 </svg>
               </button>
               <LinksList className="py-8" />
+            </div>
+          </div>
+        ) : null}
+
+        {albumModalMounted && albumLinkSection ? (
+          <div
+            className="absolute inset-0 z-40 hidden items-center justify-center px-6 md:flex"
+            onClick={closeAlbumModal}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Album preview"
+          >
+            <div
+              className={`absolute inset-0 bg-black/50 ${
+                albumModalClosing
+                  ? "links-modal-backdrop-exit"
+                  : "links-modal-backdrop-enter"
+              }`}
+              aria-hidden
+            />
+            <div
+              className={`relative z-10 max-h-[85vh] w-full max-w-[440px] overflow-y-auto bg-[#f3f3f1] shadow-2xl ${
+                albumModalClosing
+                  ? "links-modal-panel-exit"
+                  : "links-modal-panel-enter"
+              }`}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={closeAlbumModal}
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
+                aria-label="Close album preview"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M4.5 4.5l9 9M13.5 4.5l-9 9"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+              <LinksList sections={[albumLinkSection]} className="py-8" />
             </div>
           </div>
         ) : null}
@@ -873,9 +965,7 @@ export default function Home() {
                         <div className="font-pt-mono b-6 flex flex-col flex-wrap text-[12px] sm:text-[13px] md:text-[12px] font-semibold tracking-[0.2em] text-black/65 bg-[#515151] w-full md:h-full pb-3 md:pb-0 ">
                           <div className="flex flex-col bg-[#BABABA] gap-6 ml-8 p-4 h-full">
                             <a
-                              href="https://instagram.com"
-                              target="_blank"
-                              rel="noreferrer"
+                              href="mailto:flowgeistmusic@gmail.com"
                               className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
                             >
                               MAIL_ <br />
@@ -884,7 +974,7 @@ export default function Home() {
                               </span>
                             </a>{" "}
                             <a
-                              href="https://instagram.com"
+                              href="https://www.instagram.com/flowgeistx/"
                               target="_blank"
                               rel="noreferrer"
                               className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"
@@ -895,7 +985,7 @@ export default function Home() {
                               </span>
                             </a>
                             <a
-                              href="https://instagram.com"
+                              href="https://soundcloud.com/flowgeistx"
                               target="_blank"
                               rel="noreferrer"
                               className="cursor-pointer transition-opacity hover:opacity-70 text-black/90"

@@ -10,10 +10,18 @@ export interface LinkItem {
   variant?: "default" | "featured";
 }
 
+export interface LinkSectionEmbed {
+  type: "soundcloud";
+  url: string;
+  visual?: boolean;
+}
+
 export interface LinkSection {
   id: string;
   /** Optional centered section title (e.g. "Album") */
   title?: string;
+  /** Optional embed shown above section links */
+  embed?: LinkSectionEmbed;
   links: LinkItem[];
 }
 
@@ -53,6 +61,11 @@ export const LINK_SECTIONS: LinkSection[] = [
   {
     id: "album",
     title: "Album",
+    embed: {
+      type: "soundcloud",
+      url: "https://soundcloud.com/flowgeist/flowgeist-evighet007",
+      visual: true,
+    },
     links: [
       {
         id: "bandcamp",
