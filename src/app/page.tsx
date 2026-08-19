@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import LinksList from "@/components/LinksList";
+import MobileFadeIn from "@/components/MobileFadeIn";
 import { LINK_SECTIONS } from "@/lib/linksConfig";
 import { useTracking } from "@/lib/useTracking";
 
@@ -788,7 +789,7 @@ export default function Home() {
               width={500}
               height={700}
               quality={100}
-              className="mx-auto h-auto w-full max-w-[280px] 2xl:max-w-[360px] object-contain object-center transition-opacity hover:opacity-90"
+              className="mx-auto h-auto w-full max-w-[280px] 2xl:max-w-[360px] object-contain object-center transition-opacity hover:opacity-90 max-md:landing-fade-in"
               priority
               style={{ objectFit: "contain", objectPosition: "center" }}
             />
@@ -807,51 +808,53 @@ export default function Home() {
               className="mx-auto flex h-full w-full flex-col overflow-y-auto overflow-x-hidden about-scroll"
             >
               <header
-                className={`w-full   bg-[#BABABA] pl-4  text-black/80 sm:px-l transition-all duration-500 ${
+                className={`w-full bg-[#BABABA] pl-4 text-black/80 sm:px-l md:transition-all md:duration-500 ${
                   showAbout
-                    ? "opacity-100 translate-y-0 scale-100"
-                    : "opacity-0 -translate-y-3 scale-95"
+                    ? "md:opacity-100 md:translate-y-0 md:scale-100"
+                    : "md:opacity-0 md:-translate-y-3 md:scale-95"
                 }`}
               >
-                <div
-                  className={`flex md:grid w-full grid-cols-1 ${headerGridCols}`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setShowAbout(false)}
-                    className="inline-flex cursor-pointer items-center rounded-md pt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
-                    aria-label="Torna al logo iniziale"
+                <MobileFadeIn active={showAbout} className="w-full md:contents">
+                  <div
+                    className={`flex md:grid w-full grid-cols-1 ${headerGridCols}`}
                   >
-                    <Image
-                      src="/flowgeist.png"
-                      alt="Flowgeist"
-                      width={200}
-                      height={56}
-                      className="h-auto w-full max-w-[320px] sm:max-w-[550px] md:max-w-[700px] object-contain"
-                    />
-                  </button>
-                  <div className="hidden h-full w-full items-end border-b-20 md:flex md:border-black/45">
-                    <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px] " />
-                    <div className="flex h-full items-end justify-end bg-[#BABABA]">
-                      <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
+                    <button
+                      type="button"
+                      onClick={() => setShowAbout(false)}
+                      className="inline-flex cursor-pointer items-center rounded-md pt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                      aria-label="Torna al logo iniziale"
+                    >
+                      <Image
+                        src="/flowgeist.png"
+                        alt="Flowgeist"
+                        width={200}
+                        height={56}
+                        className="h-auto w-full max-w-[320px] sm:max-w-[550px] md:max-w-[700px] object-contain"
+                      />
+                    </button>
+                    <div className="hidden h-full w-full items-end border-b-20 md:flex md:border-black/45">
+                      <div className="mx-4 h-[56px] flex-1 border-black/40 sm:mx-8 sm:h-[72px] " />
+                      <div className="flex h-full items-end justify-end bg-[#BABABA]">
+                        <p className="px-5 py-4 text-[23px] font-semibold text-black/65"></p>
+                      </div>
+                    </div>
+                    <div className="flex h-full w-full items-end border-r-20 border-l-5  md:border-black/45  ">
+                      <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px] md:block hidden" />
+                      <div className="flex h-full items-end justify-end bg-[#BABABA] md:block hidden">
+                        <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
+                          [Berlin, DE]
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex h-full w-full items-end border-r-20 border-l-5  md:border-black/45  ">
-                    <div className="mx-4 h-[56px] flex-1  border-black/40 sm:mx-8 sm:h-[72px] md:block hidden" />
-                    <div className="flex h-full items-end justify-end bg-[#BABABA] md:block hidden">
-                      <p className="px-5 py-4 text-[23px] font-semibold text-black/65">
-                        [Berlin, DE]
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                </MobileFadeIn>
               </header>
 
               <div
-                className={`bg-[#BABABA] text-black/85 transition-all duration-500 delay-100 ${
+                className={`bg-[#BABABA] text-black/85 md:transition-all md:duration-500 md:delay-100 ${
                   showAbout
-                    ? "opacity-100 translate-y-0 scale-100"
-                    : "opacity-0 translate-y-4 scale-95"
+                    ? "md:opacity-100 md:translate-y-0 md:scale-100"
+                    : "md:opacity-0 md:translate-y-4 md:scale-95"
                 }`}
               >
                 <section
@@ -859,13 +862,20 @@ export default function Home() {
                 >
                   <div className="flex h-full flex-col gap-8 md:col-start-1 md:col-end-2">
                     <div className="relative md:space-y-6 ">
-                      <p className="font-pt-mono text-[10px] md:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
-                        A PROJECT CURATED BY /
-                        <br />
-                        <span className="font-alte-haas-bold normal-case text-xl tracking-[0.03px] pl-10 text-[16px] md:text-[20px] text-[#5c5c5c]">
-                          Marco Bruno and Velvet May.
-                        </span>
-                      </p>
+                      <MobileFadeIn active={showAbout} className="w-full md:contents">
+                        <p className="font-pt-mono text-[10px] md:text-[12px] font-semibold uppercase  text-black/65 p-5 sm:p-8">
+                          A PROJECT CURATED BY /
+                          <br />
+                          <span className="font-alte-haas-bold normal-case text-xl tracking-[0.03px] pl-10 text-[16px] md:text-[20px] text-[#5c5c5c]">
+                            Marco Bruno and Velvet May.
+                          </span>
+                        </p>
+                      </MobileFadeIn>
+                      <MobileFadeIn
+                        active={showAbout}
+                        delay={30}
+                        className="block w-full md:contents"
+                      >
                       <div className="bg-[#5a5a5a] md:bg-[#ffffff] md:translate-x-2 hover-webgl-card relative z-20 md:h-[320px] md:col-start-2 md:col-end-4 md:h-[570px]  md:border-t-0 block md:hidden">
                         <img
                           src="/artists.jpeg"
@@ -881,6 +891,7 @@ export default function Home() {
                           className="w-full h-full md:bg-[#ffffff] md:mr-2 md:pr-4"
                         >
                           <div className="bg-[#BABABA] h-full md:mr-2 md:pr-4">
+                            <MobileFadeIn active={showAbout} delay={50} className="w-full md:contents">
                             <p className="pb-5 md:pb-0 pt-6 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold">
                               Flowgeist makes its live debut at Kantine am
                               Berghain alongside the release of its first
@@ -895,9 +906,13 @@ export default function Home() {
                               tethered to sensation, drawing the listener into a
                               world shaped by an unfolding narrative.
                             </p>
+                            </MobileFadeIn>
+                            <MobileFadeIn active={showAbout} delay={70} className="w-full md:contents">
                             <div className="md:hidden w-full">
                               <LinksList className="py-4" />
                             </div>
+                            </MobileFadeIn>
+                            <MobileFadeIn active={showAbout} delay={90} className="w-full md:contents">
                             <p className="pb-5 pt-2 text-[14px] font-semibold leading-[1.16] text-justify px-4 text-[#5c5c5c] font-alte-haas-bold md:hidden">
                               Traces of trip hop, post punk, industrial
                               electronics and breakbeat appear like residues
@@ -908,6 +923,8 @@ export default function Home() {
                               opening its layered studio architecture to the
                               immediacy of the room.
                             </p>
+                            </MobileFadeIn>
+                            <MobileFadeIn active={showAbout} delay={110} className="w-full md:contents">
                             <div className="flex w-full max-w-full items-center justify-between gap-4 overflow-hidden px-4 md:hidden">
                               <Image
                                 src="/artists/pic-negative.jpeg"
@@ -917,6 +934,8 @@ export default function Home() {
                                 className="h-auto w-full min-w-0 object-contain"
                               />
                             </div>
+                            </MobileFadeIn>
+                            <MobileFadeIn active={showAbout} delay={130} className="w-full md:contents">
                             <div className="relative z-20 md:hidden">
                               <Image
                                 src="/logo-grey.png"
@@ -947,9 +966,11 @@ export default function Home() {
                                 and She Lost Kontrol.
                               </p>
                             </div>
+                            </MobileFadeIn>
                           </div>
                         </div>
                       </div>
+                      </MobileFadeIn>
 
                       <div className="relative z-[1]">
                         <Image

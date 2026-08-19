@@ -237,6 +237,30 @@ body.home-page .about-scroll {
   animation: links-modal-panel-out 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+.animate-fade-in {
+  animation: fade-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-in-on-load {
+  opacity: 0;
+  animation: fade-in 1s cubic-bezier(0.22, 1, 0.36, 1) 0.12s forwards;
+}
+
+@media (max-width: 767px) {
+  .mobile-fade-in {
+    opacity: 0;
+  }
+
+  .mobile-fade-in--visible {
+    animation: fade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .landing-fade-in {
+    opacity: 0;
+    animation: fade-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}
+
 .animate-fade-up {
   animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
