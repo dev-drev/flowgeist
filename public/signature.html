@@ -12,41 +12,138 @@
       body {
         margin: 0;
         padding: 40px;
-        background: #ffffff;
         font-family: Helvetica, Arial, sans-serif;
       }
+      .logo-dark,
+      .icon-dark {
+        display: none !important;
+      }
+      .sig-text {
+        color: #3d3d3d;
+      }
+      .sig-line {
+        border-top: 1px solid #e6e6e6;
+      }
       @media (prefers-color-scheme: dark) {
-        body {
-          background: #111111;
+        .logo-light,
+        .icon-light {
+          display: none !important;
         }
+        .logo-dark,
+        .icon-dark {
+          display: block !important;
+        }
+        .sig-text {
+          color: #d0d0d0 !important;
+        }
+        .sig-line {
+          border-top-color: #3a3a3a !important;
+        }
+      }
+      [data-ogsc] .logo-light,
+      [data-ogsb] .logo-light,
+      [data-ogsc] .icon-light,
+      [data-ogsb] .icon-light {
+        display: none !important;
+      }
+      [data-ogsc] .logo-dark,
+      [data-ogsb] .logo-dark,
+      [data-ogsc] .icon-dark,
+      [data-ogsb] .icon-dark {
+        display: block !important;
+      }
+      [data-ogsc] .sig-text,
+      [data-ogsb] .sig-text {
+        color: #d0d0d0 !important;
       }
     </style>
   </head>
   <body>
-    <!-- Flowgeist email signature — copy the table into Outlook -->
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="288" style="width: 288px; border-collapse: collapse">
+    <!-- Copia questa tabella nella firma Outlook -->
+    <table
+      role="presentation"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      width="260"
+      style="width: 260px; border-collapse: collapse; font-family: Helvetica, Arial, sans-serif"
+    >
       <tr>
-        <td align="left" style="padding: 0">
+        <td style="padding: 0 0 14px">
           <a href="https://flowgeist.net" target="_blank" style="text-decoration: none">
-            <picture>
-              <source srcset="https://flowgeist.net/signature-dark.png" media="(prefers-color-scheme: dark)" />
-              <img
-                src="https://flowgeist.net/signature.png"
-                alt="Flowgeist — flowgeistx · flowgeist.net · info@flowgeist.net"
-                width="288"
-                height="209"
-                border="0"
-                usemap="#flowgeist-sig"
-                style="display: block; width: 288px; height: 209px; border: 0; outline: none; text-decoration: none"
-              />
-            </picture>
+            <img
+              class="logo-light"
+              src="https://flowgeist.net/signature-logo.png"
+              alt="Flowgeist"
+              width="240"
+              height="63"
+              border="0"
+              style="display: block; width: 240px; height: 63px; border: 0; outline: none"
+            />
+            <img
+              class="logo-dark"
+              src="https://flowgeist.net/signature-logo-dark.png"
+              alt="Flowgeist"
+              width="240"
+              height="63"
+              border="0"
+              style="display: none; width: 240px; height: 63px; border: 0; outline: none"
+            />
           </a>
-          <map name="flowgeist-sig">
-            <area shape="rect" coords="0,0,288,103" href="https://flowgeist.net" target="_blank" alt="Flowgeist" />
-            <area shape="rect" coords="0,120,288,135" href="https://www.instagram.com/flowgeistx/" target="_blank" alt="Instagram" />
-            <area shape="rect" coords="0,145,288,160" href="https://flowgeist.net" target="_blank" alt="Website" />
-            <area shape="rect" coords="0,170,288,185" href="mailto:info@flowgeist.net" alt="Email" />
-          </map>
+        </td>
+      </tr>
+      <tr>
+        <td class="sig-line" style="padding: 0 0 14px; font-size: 0; line-height: 0; border-top: 1px solid #e6e6e6">&nbsp;</td>
+      </tr>
+      <tr>
+        <td style="padding: 0 0 8px">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse">
+            <tr>
+              <td valign="middle" width="18" style="width: 18px; padding: 0 8px 0 0; vertical-align: middle">
+                <a href="https://www.instagram.com/flowgeistx/" target="_blank" style="text-decoration: none">
+                  <img class="icon-light" src="https://img.icons8.com/ios/32/555555/instagram-new.png" alt="" width="13" height="13" border="0" style="display: block; width: 13px; height: 13px; border: 0" />
+                  <img class="icon-dark" src="https://img.icons8.com/ios/32/c8c8c8/instagram-new.png" alt="" width="13" height="13" border="0" style="display: none; width: 13px; height: 13px; border: 0" />
+                </a>
+              </td>
+              <td valign="middle" style="vertical-align: middle; padding: 0">
+                <a class="sig-text" href="https://www.instagram.com/flowgeistx/" target="_blank" style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18px; color: #3d3d3d; text-decoration: none">flowgeistx</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0 0 8px">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse">
+            <tr>
+              <td valign="middle" width="18" style="width: 18px; padding: 0 8px 0 0; vertical-align: middle">
+                <a href="https://flowgeist.net" target="_blank" style="text-decoration: none">
+                  <img class="icon-light" src="https://img.icons8.com/ios/32/555555/globe.png" alt="" width="13" height="13" border="0" style="display: block; width: 13px; height: 13px; border: 0" />
+                  <img class="icon-dark" src="https://img.icons8.com/ios/32/c8c8c8/globe.png" alt="" width="13" height="13" border="0" style="display: none; width: 13px; height: 13px; border: 0" />
+                </a>
+              </td>
+              <td valign="middle" style="vertical-align: middle; padding: 0">
+                <a class="sig-text" href="https://flowgeist.net" target="_blank" style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18px; color: #3d3d3d; text-decoration: none">flowgeist.net</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse">
+            <tr>
+              <td valign="middle" width="18" style="width: 18px; padding: 0 8px 0 0; vertical-align: middle">
+                <a href="mailto:info@flowgeist.net" style="text-decoration: none">
+                  <img class="icon-light" src="https://img.icons8.com/ios/32/555555/new-post.png" alt="" width="13" height="13" border="0" style="display: block; width: 13px; height: 13px; border: 0" />
+                  <img class="icon-dark" src="https://img.icons8.com/ios/32/c8c8c8/new-post.png" alt="" width="13" height="13" border="0" style="display: none; width: 13px; height: 13px; border: 0" />
+                </a>
+              </td>
+              <td valign="middle" style="vertical-align: middle; padding: 0">
+                <a class="sig-text" href="mailto:info@flowgeist.net" style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 18px; color: #3d3d3d; text-decoration: none">info@flowgeist.net</a>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
     </table>
