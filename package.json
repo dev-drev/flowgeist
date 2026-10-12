@@ -21,6 +21,7 @@
     "react-dom": "^19.0.0",
     "react-p5": "^1.4.1",
     "react-spinners": "^0.17.0",
+    "resend": "^6.32.1",
     "three": "^0.183.2"
   },
   "devDependencies": {
