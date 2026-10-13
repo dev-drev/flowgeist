@@ -4,6 +4,10 @@ import { join } from "path";
 const TOKEN_PATH = join(process.cwd(), ".microsoft-mail-token.json");
 const SCOPES = "offline_access openid email Mail.Send Mail.Read User.Read";
 const FROM = "info@flowgeist.net";
+const TENANT =
+  process.env.MICROSOFT_TENANT_ID && process.env.MICROSOFT_TENANT_ID !== "common"
+    ? process.env.MICROSOFT_TENANT_ID
+    : "798a4e5a-f1e6-40ea-905b-98fa68f28447";
 
 type TokenFile = {
   refresh_token?: string;
@@ -34,8 +38,11 @@ function writeTokens(tokens: TokenFile) {
   writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
 }
 
+export function microsoftAppConfigured() {
+  return Boolean(process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET);
+}
+
 export function microsoftAuthorizeUrl(redirectUri: string) {
-  const tenant = process.env.MICROSOFT_TENANT_ID || "common";
   const params = new URLSearchParams({
     client_id: process.env.MICROSOFT_CLIENT_ID || "",
     response_type: "code",
@@ -44,13 +51,12 @@ export function microsoftAuthorizeUrl(redirectUri: string) {
     scope: SCOPES,
     prompt: "select_account",
   });
-  return `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize?${params.toString()}`;
+  return `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/authorize?${params.toString()}`;
 }
 
 async function tokenRequest(body: Record<string, string>) {
-  const tenant = process.env.MICROSOFT_TENANT_ID || "common";
   const response = await fetch(
-    `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
+    `https://login.microsoftonline.com/${TENANT}/oauth2/v2.0/token`,
     {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -83,6 +89,22 @@ export async function exchangeCode(code: string, redirectUri: string) {
     refresh_token: data.refresh_token,
     expires_at: Date.now() + data.expires_in * 1000,
   });
+}
+
+let appToken: { value: string; expiresAt: number } | null = null;
+
+async function getAppAccessToken() {
+  if (!microsoftAppConfigured()) throw new Error("MAIL_APP_MISSING");
+  if (appToken && appToken.expiresAt > Date.now() + 60_000) return appToken.value;
+  const data = await tokenRequest({
+    grant_type: "client_credentials",
+    scope: "https://graph.microsoft.com/.default",
+  });
+  appToken = {
+    value: data.access_token,
+    expiresAt: Date.now() + data.expires_in * 1000,
+  };
+  return data.access_token;
 }
 
 async function getAccessToken() {
@@ -129,16 +151,23 @@ function mailAddress(value: GraphAddress | undefined) {
   };
 }
 
+function inboxRoot() {
+  return microsoftAppConfigured() ? `/users/${encodeURIComponent(FROM)}` : "/me";
+}
+
 async function graphFetch(path: string) {
-  const token = await getAccessToken();
+  if (!microsoftAppConfigured() && !hasMicrosoftRefreshToken()) {
+    throw new Error("MAIL_APP_MISSING");
+  }
+  const token = microsoftAppConfigured() ? await getAppAccessToken() : await getAccessToken();
   const response = await fetch(`https://graph.microsoft.com/v1.0${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const code = String(data.error?.code || "");
-    if (response.status === 403 || code === "ErrorAccessDenied") {
-      throw new Error("MAIL_READ_DENIED");
+    if (response.status === 403 || code === "ErrorAccessDenied" || code === "Authorization_RequestDenied") {
+      throw new Error(microsoftAppConfigured() ? "MAIL_APP_DENIED" : "MAIL_READ_DENIED");
     }
     throw new Error(data.error?.message || `Microsoft Graph ${response.status}`);
   }
@@ -159,15 +188,13 @@ function asInboxMessage(row: Record<string, unknown>): InboxMessage {
 }
 
 export async function listInbox() {
-  const [profile, folder] = await Promise.all([
-    graphFetch("/me?$select=mail,userPrincipalName"),
-    graphFetch(
-      "/me/mailFolders/inbox/messages?$top=40&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,bodyPreview,isRead"
-    ),
-  ]);
+  const root = inboxRoot();
+  const folder = await graphFetch(
+    `${root}/mailFolders/inbox/messages?$top=40&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,bodyPreview,isRead`
+  );
   const rows = Array.isArray(folder.value) ? (folder.value as Record<string, unknown>[]) : [];
   return {
-    mailbox: String(profile.mail || profile.userPrincipalName || FROM),
+    mailbox: FROM,
     messages: rows.map(asInboxMessage).filter((message) => message.id),
   };
 }
@@ -177,7 +204,7 @@ export async function readInboxMessage(id: string): Promise<InboxMessageDetail> 
     throw new Error("Invalid message");
   }
   const row = await graphFetch(
-    `/me/messages/${encodeURIComponent(id)}?$select=id,subject,from,receivedDateTime,bodyPreview,body,isRead`
+    `${inboxRoot()}/messages/${encodeURIComponent(id)}?$select=id,subject,from,receivedDateTime,bodyPreview,body,isRead`
   );
   const body = row.body as { contentType?: string; content?: string } | undefined;
   const contentType = String(body?.contentType || "text").toLowerCase();

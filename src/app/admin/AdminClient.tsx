@@ -610,36 +610,6 @@ export default function AdminClient() {
             >
               Compose mail
             </button>
-            {section === "promoters" && (
-              <>
-                <input
-                  ref={csvInputRef}
-                  type="file"
-                  accept=".csv,text/csv"
-                  className="hidden"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    event.target.value = "";
-                    if (file) void importPromoters(file);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={downloadPromoterTemplate}
-                  className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
-                >
-                  CSV template
-                </button>
-                <button
-                  type="button"
-                  disabled={importing}
-                  onClick={() => csvInputRef.current?.click()}
-                  className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white disabled:opacity-50"
-                >
-                  {importing ? "Importing" : "Import CSV"}
-                </button>
-              </>
-            )}
             <button
               type="button"
               onClick={openCreate}
@@ -709,9 +679,11 @@ export default function AdminClient() {
                     Loading
                   </p>
                 ) : inbox.length === 0 ? (
-                  <p className="px-5 py-6 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
-                    No messages
-                  </p>
+                  inboxError ? null : (
+                    <p className="px-5 py-6 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                      No messages
+                    </p>
+                  )
                 ) : (
                   <ul>
                     {inbox.map((item) => {
@@ -1104,6 +1076,36 @@ export default function AdminClient() {
                 </button>
               </div>
               <form onSubmit={onSubmit} className="space-y-4">
+                {!editingId && section === "promoters" && (
+                  <div className="flex gap-2">
+                    <input
+                      ref={csvInputRef}
+                      type="file"
+                      accept=".csv,text/csv"
+                      className="hidden"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        event.target.value = "";
+                        if (file) void importPromoters(file);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={downloadPromoterTemplate}
+                      className="flex-1 border border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
+                    >
+                      CSV template
+                    </button>
+                    <button
+                      type="button"
+                      disabled={importing}
+                      onClick={() => csvInputRef.current?.click()}
+                      className="flex-1 border border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white disabled:opacity-50"
+                    >
+                      {importing ? "Importing" : "Import CSV"}
+                    </button>
+                  </div>
+                )}
                 {FIELDS[section].map((field) => (
                   <label key={field.key} className="block">
                     <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
