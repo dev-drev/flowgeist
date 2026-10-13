@@ -553,22 +553,39 @@ export default function AdminClient() {
                             {row.email}
                           </button>
                         )}
-                        {links.map((link, index) => (
-                          <p key={`${row.id}-link-${index}`} className="mt-2 font-[family-name:var(--font-grotesque)] text-sm">
-                            {link.name && <span className="text-white">{link.name}</span>}
-                            {link.name && link.url ? <span className="text-[#666]"> · </span> : null}
-                            {link.url && (
-                              <a
-                                href={hrefFor(link.url)}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-[#bababa] underline-offset-2 hover:text-white hover:underline"
+                        {links.length > 0 && (
+                          <div className="mt-3 border border-[#2e2e2e]">
+                            <div className="grid grid-cols-2 border-b border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#666] uppercase">
+                              <span>Name</span>
+                              <span className="text-right">Link</span>
+                            </div>
+                            {links.map((link, index) => (
+                              <div
+                                key={`${row.id}-link-${index}`}
+                                className="grid grid-cols-2 items-center gap-6 border-b border-[#2e2e2e] px-3 py-2.5 last:border-b-0"
                               >
-                                {link.url}
-                              </a>
-                            )}
-                          </p>
-                        ))}
+                                <span className="truncate font-[family-name:var(--font-grotesque)] text-sm text-white">
+                                  {link.name || "—"}
+                                </span>
+                                {link.url ? (
+                                  <a
+                                    href={hrefFor(link.url)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title={link.url}
+                                    className="truncate text-right font-[family-name:var(--font-grotesque)] text-sm text-[#d0d0d0] underline-offset-2 hover:text-white hover:underline"
+                                  >
+                                    {link.url.replace(/^https?:\/\//, "")}
+                                  </a>
+                                ) : (
+                                  <span className="text-right font-[family-name:var(--font-grotesque)] text-sm text-[#666]">
+                                    —
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                         {"notes" in row && row.notes && (
                           <p className="mt-2 line-clamp-2 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
                             {row.notes}
