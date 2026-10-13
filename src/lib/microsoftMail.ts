@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 const TOKEN_PATH = join(process.cwd(), ".microsoft-mail-token.json");
-const SCOPES = "offline_access openid email Mail.Send User.Read";
+const SCOPES = "offline_access openid email Mail.Send Mail.Read User.Read";
 const FROM = "info@flowgeist.net";
 
 type TokenFile = {
@@ -103,6 +103,89 @@ async function getAccessToken() {
     expires_at: Date.now() + data.expires_in * 1000,
   });
   return data.access_token;
+}
+
+export type InboxMessage = {
+  id: string;
+  subject: string;
+  fromName: string;
+  fromEmail: string;
+  receivedAt: string;
+  preview: string;
+  isRead: boolean;
+};
+
+export type InboxMessageDetail = InboxMessage & {
+  body: string;
+  bodyType: "html" | "text";
+};
+
+type GraphAddress = { emailAddress?: { name?: string; address?: string } };
+
+function mailAddress(value: GraphAddress | undefined) {
+  return {
+    name: value?.emailAddress?.name?.trim() || "",
+    email: value?.emailAddress?.address?.trim() || "",
+  };
+}
+
+async function graphFetch(path: string) {
+  const token = await getAccessToken();
+  const response = await fetch(`https://graph.microsoft.com/v1.0${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const code = String(data.error?.code || "");
+    if (response.status === 403 || code === "ErrorAccessDenied") {
+      throw new Error("MAIL_READ_DENIED");
+    }
+    throw new Error(data.error?.message || `Microsoft Graph ${response.status}`);
+  }
+  return data as Record<string, unknown>;
+}
+
+function asInboxMessage(row: Record<string, unknown>): InboxMessage {
+  const from = mailAddress(row.from as GraphAddress | undefined);
+  return {
+    id: String(row.id || ""),
+    subject: String(row.subject || "(no subject)"),
+    fromName: from.name,
+    fromEmail: from.email,
+    receivedAt: String(row.receivedDateTime || ""),
+    preview: String(row.bodyPreview || ""),
+    isRead: Boolean(row.isRead),
+  };
+}
+
+export async function listInbox() {
+  const [profile, folder] = await Promise.all([
+    graphFetch("/me?$select=mail,userPrincipalName"),
+    graphFetch(
+      "/me/mailFolders/inbox/messages?$top=40&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,bodyPreview,isRead"
+    ),
+  ]);
+  const rows = Array.isArray(folder.value) ? (folder.value as Record<string, unknown>[]) : [];
+  return {
+    mailbox: String(profile.mail || profile.userPrincipalName || FROM),
+    messages: rows.map(asInboxMessage).filter((message) => message.id),
+  };
+}
+
+export async function readInboxMessage(id: string): Promise<InboxMessageDetail> {
+  if (!id || id.length > 1024 || /\s/.test(id) || id.includes("..")) {
+    throw new Error("Invalid message");
+  }
+  const row = await graphFetch(
+    `/me/messages/${encodeURIComponent(id)}?$select=id,subject,from,receivedDateTime,bodyPreview,body,isRead`
+  );
+  const body = row.body as { contentType?: string; content?: string } | undefined;
+  const contentType = String(body?.contentType || "text").toLowerCase();
+  return {
+    ...asInboxMessage(row),
+    body: String(body?.content || row.bodyPreview || ""),
+    bodyType: contentType === "html" ? "html" : "text",
+  };
 }
 
 export async function sendWithMicrosoft(

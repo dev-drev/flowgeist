@@ -7,9 +7,8 @@ export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
 
   if (error || !code) {
-    return NextResponse.redirect(
-      `${origin}/admin?mail=error`
-    );
+    const reason = encodeURIComponent(error || "Could not connect Outlook");
+    return NextResponse.redirect(`${origin}/admin?mail=error&reason=${reason}`);
   }
 
   try {
@@ -17,6 +16,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/admin?mail=connected`);
   } catch (err) {
     console.error(err);
-    return NextResponse.redirect(`${origin}/admin?mail=error`);
+    const reason = encodeURIComponent(err instanceof Error ? err.message : "Could not connect Outlook");
+    return NextResponse.redirect(`${origin}/admin?mail=error&reason=${reason}`);
   }
 }

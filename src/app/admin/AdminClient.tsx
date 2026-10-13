@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,6 +16,7 @@ import {
   createRecord,
   createRecords,
   emptyDraft,
+  isSupabaseConfigured,
   listRecords,
   parseAssetLinks,
   parsePromoterCsv,
@@ -146,6 +147,32 @@ function promoterMatches(promoters: Promoter[], query: string) {
     .slice(0, 12);
 }
 
+type InboxItem = {
+  id: string;
+  subject: string;
+  fromName: string;
+  fromEmail: string;
+  receivedAt: string;
+  preview: string;
+  isRead: boolean;
+};
+
+type InboxDetail = InboxItem & {
+  body: string;
+  bodyType: "html" | "text";
+};
+
+function mailDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function namedLinks(row: AdminRecord): AssetLink[] {
   if (!("url" in row)) return [];
   return parseAssetLinks(row.url).filter((link) => link.name || link.url);
@@ -169,6 +196,15 @@ export default function AdminClient() {
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const [inboxLoading, setInboxLoading] = useState(false);
+  const [inboxError, setInboxError] = useState<string | null>(null);
+  const [inboxReconnect, setInboxReconnect] = useState(false);
+  const [mailbox, setMailbox] = useState("info@flowgeist.net");
+  const [inbox, setInbox] = useState<InboxItem[]>([]);
+  const [openMessageId, setOpenMessageId] = useState<string | null>(null);
+  const [openMessage, setOpenMessage] = useState<InboxDetail | null>(null);
+  const [messageLoading, setMessageLoading] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -280,6 +316,75 @@ export default function AdminClient() {
     setMessage(text);
     window.setTimeout(() => setMessage(null), 2800);
   };
+
+  const loadInbox = useCallback(async () => {
+    setInboxOpen(true);
+    setInboxLoading(true);
+    setInboxError(null);
+    setInboxReconnect(false);
+    try {
+      const response = await fetch("/api/admin/email/inbox");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setInbox([]);
+        setInboxError(data.error || "Could not read mail");
+        setInboxReconnect(Boolean(data.reconnect));
+        return;
+      }
+      setMailbox(data.mailbox || "info@flowgeist.net");
+      setInbox(Array.isArray(data.messages) ? data.messages : []);
+    } catch {
+      setInboxError("Could not read mail");
+    } finally {
+      setInboxLoading(false);
+    }
+  }, []);
+
+  const openInboxMessage = async (id: string) => {
+    setOpenMessageId(id);
+    setOpenMessage(null);
+    setMessageLoading(true);
+    try {
+      const response = await fetch(`/api/admin/email/inbox?id=${encodeURIComponent(id)}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setInboxError(data.error || "Could not open this mail");
+        setInboxReconnect(Boolean(data.reconnect));
+        return;
+      }
+      setOpenMessage(data as InboxDetail);
+    } catch {
+      setInboxError("Could not open this mail");
+    } finally {
+      setMessageLoading(false);
+    }
+  };
+
+  const replyToInbox = (item: InboxItem) => {
+    const subject = /^re:/i.test(item.subject) ? item.subject : `Re: ${item.subject}`;
+    const next = blankMail(item.fromEmail);
+    next.subject = subject;
+    setFocusMailId(null);
+    setMails((current) => [...current, next]);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mail = params.get("mail");
+    if (!mail) return;
+    if (mail === "connected") {
+      flash("Outlook connected");
+      void loadInbox();
+    } else if (mail === "error") {
+      setInboxOpen(true);
+      setInboxError(params.get("reason") || "Outlook connection failed");
+      setInboxReconnect(true);
+    }
+    params.delete("mail");
+    params.delete("reason");
+    const next = params.toString();
+    window.history.replaceState(null, "", next ? `/admin?${next}` : "/admin");
+  }, [loadInbox]);
 
   const sendMail = async (event: FormEvent, mail: MailDraft) => {
     event.preventDefault();
@@ -438,12 +543,12 @@ export default function AdminClient() {
       <header className="border-b border-[#2e2e2e]">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mb-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.22em] text-[#8a8a8a] uppercase">
-              Flowgeist · Berlin
-            </p>
             <h1 className="font-[family-name:var(--font-alte-haas-bold)] text-3xl tracking-tight text-white md:text-4xl">
               Admin
             </h1>
+            <p className="mt-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+              {isSupabaseConfigured() ? "Supabase connected" : "Saved in this browser"}
+            </p>
           </div>
           <nav className="flex flex-wrap gap-5 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase">
             <Link href="/" className="text-[#8a8a8a] transition hover:text-white">
@@ -491,6 +596,13 @@ export default function AdminClient() {
               placeholder="Search"
               className="min-w-56 border border-[#2e2e2e] bg-[#111] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none placeholder:text-[#666] focus:border-[#bababa]"
             />
+            <button
+              type="button"
+              onClick={() => void loadInbox()}
+              className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
+            >
+              Inbox
+            </button>
             <button
               type="button"
               onClick={() => openMail()}
@@ -546,6 +658,146 @@ export default function AdminClient() {
 
         {loadError && (
           <p className="mb-6 font-[family-name:var(--font-grotesque)] text-sm text-[#c9a0a0]">{loadError}</p>
+        )}
+
+        {inboxOpen && (
+          <section className="mb-8 border border-[#2e2e2e] bg-[#0c0c0c]">
+            <div className="flex items-center justify-between gap-3 border-b border-[#2e2e2e] px-5 py-4">
+              <div>
+                <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-white uppercase">
+                  Inbox
+                </h2>
+                <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[#8a8a8a] uppercase">
+                  {mailbox}
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => void loadInbox()}
+                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#bababa] uppercase hover:text-white"
+                >
+                  Refresh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setInboxOpen(false);
+                    setOpenMessage(null);
+                    setOpenMessageId(null);
+                  }}
+                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase hover:text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            {inboxError && (
+              <p className="border-b border-[#2e2e2e] px-5 py-4 font-[family-name:var(--font-grotesque)] text-sm leading-5 text-[#c4c4c4]">
+                {inboxError}{" "}
+                {inboxReconnect && (
+                  <a href="/api/admin/email/auth" className="text-white underline-offset-4 hover:underline">
+                    Connect Outlook
+                  </a>
+                )}
+              </p>
+            )}
+            <div className="grid lg:grid-cols-[340px_1fr]">
+              <div className="max-h-[32rem] overflow-auto border-b border-[#2e2e2e] lg:border-r lg:border-b-0">
+                {inboxLoading ? (
+                  <p className="px-5 py-6 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                    Loading
+                  </p>
+                ) : inbox.length === 0 ? (
+                  <p className="px-5 py-6 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                    No messages
+                  </p>
+                ) : (
+                  <ul>
+                    {inbox.map((item) => {
+                      const active = item.id === openMessageId;
+                      const from = item.fromName || item.fromEmail || "Unknown";
+                      return (
+                        <li key={item.id} className="border-b border-[#2e2e2e] last:border-b-0">
+                          <button
+                            type="button"
+                            onClick={() => void openInboxMessage(item.id)}
+                            className={`block w-full px-5 py-4 text-left ${active ? "bg-white text-black" : "hover:bg-[#141414]"}`}
+                          >
+                            <span className="flex items-baseline justify-between gap-3">
+                              <span className={`truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "" : item.isRead ? "text-[#b0b0b0]" : "text-white"}`}>
+                                {from}
+                              </span>
+                              <span className={`shrink-0 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.08em] uppercase ${active ? "text-black/60" : "text-[#8a8a8a]"}`}>
+                                {mailDate(item.receivedAt)}
+                              </span>
+                            </span>
+                            <span className={`mt-1 block truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "text-black" : "text-white"}`}>
+                              {item.subject}
+                            </span>
+                            {item.preview && (
+                              <span className={`mt-1 block truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "text-black/70" : "text-[#8a8a8a]"}`}>
+                                {item.preview}
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+              <div className="min-h-64 max-h-[32rem] overflow-auto p-5">
+                {messageLoading ? (
+                  <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                    Loading
+                  </p>
+                ) : openMessage ? (
+                  <article>
+                    <div className="mb-5 flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h3 className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-white">
+                          {openMessage.subject}
+                        </h3>
+                        <p className="mt-2 font-[family-name:var(--font-grotesque)] text-sm text-[#b0b0b0]">
+                          {openMessage.fromName || openMessage.fromEmail}
+                          {openMessage.fromName && openMessage.fromEmail ? ` · ${openMessage.fromEmail}` : ""}
+                        </p>
+                        <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.12em] text-[#8a8a8a] uppercase">
+                          {mailDate(openMessage.receivedAt)}
+                        </p>
+                      </div>
+                      {openMessage.fromEmail && (
+                        <button
+                          type="button"
+                          onClick={() => replyToInbox(openMessage)}
+                          className="shrink-0 border border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#bababa] uppercase hover:border-[#bababa] hover:text-white"
+                        >
+                          Reply
+                        </button>
+                      )}
+                    </div>
+                    {openMessage.bodyType === "html" ? (
+                      <iframe
+                        title={openMessage.subject}
+                        sandbox="allow-popups allow-popups-to-escape-sandbox"
+                        srcDoc={openMessage.body}
+                        className="h-[24rem] w-full bg-white"
+                      />
+                    ) : (
+                      <p className="whitespace-pre-wrap font-[family-name:var(--font-grotesque)] text-sm leading-6 text-[#e8e8e8]">
+                        {openMessage.body}
+                      </p>
+                    )}
+                  </article>
+                ) : (
+                  <p className="font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                    Choose a message.
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
         )}
 
         {mails.length > 0 && (
