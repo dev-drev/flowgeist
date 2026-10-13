@@ -187,15 +187,46 @@ function asInboxMessage(row: Record<string, unknown>): InboxMessage {
   };
 }
 
+function startOfTodayIso() {
+  const timeZone = "Europe/Berlin";
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const utcMidnight = new Date(`${today}T00:00:00Z`);
+  const wall = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(utcMidnight);
+  const part = (type: string) => Number(wall.find((item) => item.type === type)?.value || 0);
+  const wallAsUtc = Date.UTC(part("year"), part("month") - 1, part("day"), part("hour"), part("minute"));
+  return new Date(utcMidnight.getTime() - (wallAsUtc - utcMidnight.getTime())).toISOString();
+}
+
 export async function listInbox() {
   const root = inboxRoot();
-  const folder = await graphFetch(
-    `${root}/mailFolders/inbox/messages?$top=40&$orderby=receivedDateTime desc&$select=id,subject,from,receivedDateTime,bodyPreview,isRead`
-  );
+  const since = startOfTodayIso();
+  const sinceMs = Date.parse(since);
+  const query = new URLSearchParams({
+    $top: "40",
+    $orderby: "receivedDateTime desc",
+    $select: "id,subject,from,receivedDateTime,bodyPreview,isRead",
+    $filter: `receivedDateTime ge ${since}`,
+  });
+  const folder = await graphFetch(`${root}/mailFolders/inbox/messages?${query}`);
   const rows = Array.isArray(folder.value) ? (folder.value as Record<string, unknown>[]) : [];
   return {
     mailbox: FROM,
-    messages: rows.map(asInboxMessage).filter((message) => message.id),
+    messages: rows
+      .map(asInboxMessage)
+      .filter((message) => message.id && Date.parse(message.receivedAt) >= sinceMs),
   };
 }
 
