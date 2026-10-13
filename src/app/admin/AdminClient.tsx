@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -11,11 +11,14 @@ import {
   type AdminRecord,
   type AdminSection,
   type AssetLink,
+  type Promoter,
+  PROMOTER_CSV_COLUMNS,
   createRecord,
+  createRecords,
   emptyDraft,
-  isSupabaseConfigured,
   listRecords,
   parseAssetLinks,
+  parsePromoterCsv,
   recordSubtitle,
   recordTitle,
   removeRecord,
@@ -134,6 +137,15 @@ function blankMail(to = "", name = ""): MailDraft {
   };
 }
 
+function promoterMatches(promoters: Promoter[], query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return promoters
+    .filter((item) => item.email.trim())
+    .filter((item) => item.name.toLowerCase().includes(q) || item.email.toLowerCase().includes(q))
+    .slice(0, 12);
+}
+
 function namedLinks(row: AdminRecord): AssetLink[] {
   if (!("url" in row)) return [];
   return parseAssetLinks(row.url).filter((link) => link.name || link.url);
@@ -148,11 +160,16 @@ export default function AdminClient() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [mails, setMails] = useState<MailDraft[]>([]);
+  const [promoters, setPromoters] = useState<Promoter[]>([]);
+  const [suggestMailId, setSuggestMailId] = useState<string | null>(null);
+  const [suggestIndex, setSuggestIndex] = useState(0);
   const [focusMailId, setFocusMailId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -168,6 +185,24 @@ export default function AdminClient() {
       .finally(() => {
         if (active) setLoading(false);
       });
+    return () => {
+      active = false;
+    };
+  }, [section]);
+
+  useEffect(() => {
+    if (section !== "promoters") return;
+    setPromoters(rows as Promoter[]);
+  }, [section, rows]);
+
+  useEffect(() => {
+    if (section === "promoters") return;
+    let active = true;
+    listRecords<Promoter>("promoters")
+      .then((data) => {
+        if (active) setPromoters(data);
+      })
+      .catch(() => {});
     return () => {
       active = false;
     };
@@ -228,6 +263,15 @@ export default function AdminClient() {
     );
   };
 
+  const pickPromoter = (mail: MailDraft, promoter: Promoter) => {
+    const generated = mail.subject.startsWith("Flowgeist — ");
+    updateMail(mail.id, {
+      to: promoter.email,
+      subject: !mail.subject.trim() || generated ? `Flowgeist — ${promoter.name}` : mail.subject,
+    });
+    setSuggestMailId(null);
+  };
+
   const closeMail = (id: string) => {
     setMails((current) => current.filter((mail) => mail.id !== id));
   };
@@ -286,6 +330,76 @@ export default function AdminClient() {
     }
   };
 
+  const downloadPromoterTemplate = () => {
+    const csv = `${PROMOTER_CSV_COLUMNS.join(",")}\n`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "promoters.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importPromoters = async (file: File) => {
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      flash("Use a .csv file");
+      return;
+    }
+
+    let parsed: Record<string, string>[];
+    try {
+      parsed = parsePromoterCsv(await file.text());
+    } catch {
+      flash("Could not read the CSV");
+      return;
+    }
+
+    if (parsed.length === 0) {
+      flash("No promoters found. Columns: name, city, country, email, phone, instagram, website, notes");
+      return;
+    }
+
+    const existingEmails = new Set(
+      rows.map((row) => ("email" in row ? row.email.trim().toLowerCase() : "")).filter(Boolean)
+    );
+    const seen = new Set<string>();
+    const fresh: Record<string, string>[] = [];
+    let skipped = 0;
+    for (const item of parsed) {
+      const email = item.email.trim().toLowerCase();
+      if (email && (existingEmails.has(email) || seen.has(email))) {
+        skipped += 1;
+        continue;
+      }
+      if (email) seen.add(email);
+      fresh.push(item);
+    }
+
+    if (fresh.length === 0) {
+      flash(skipped === 1 ? "Already saved" : `Already saved (${skipped})`);
+      return;
+    }
+
+    const countLabel = fresh.length === 1 ? "1 promoter" : `${fresh.length} promoters`;
+    const skipNote = skipped ? ` ${skipped} already saved will be skipped.` : "";
+    if (!window.confirm(`Import ${countLabel}?${skipNote}`)) return;
+
+    setImporting(true);
+    try {
+      const created = await createRecords<Promoter>("promoters", fresh);
+      setRows((current) => {
+        const ids = new Set(created.map((row) => row.id));
+        return [...created, ...current.filter((row) => !ids.has(row.id))];
+      });
+      flash(skipped ? `Added ${created.length}, skipped ${skipped}` : `Added ${created.length}`);
+    } catch (error) {
+      flash(errorText(error));
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const onDelete = async (id: string) => {
     if (!window.confirm("Delete this entry?")) return;
     try {
@@ -330,9 +444,6 @@ export default function AdminClient() {
             <h1 className="font-[family-name:var(--font-alte-haas-bold)] text-3xl tracking-tight text-white md:text-4xl">
               Admin
             </h1>
-            <p className="mt-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
-              {isSupabaseConfigured() ? "Supabase connected" : "Saved in this browser"}
-            </p>
           </div>
           <nav className="flex flex-wrap gap-5 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase">
             <Link href="/" className="text-[#8a8a8a] transition hover:text-white">
@@ -387,6 +498,36 @@ export default function AdminClient() {
             >
               Compose mail
             </button>
+            {section === "promoters" && (
+              <>
+                <input
+                  ref={csvInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) void importPromoters(file);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={downloadPromoterTemplate}
+                  className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
+                >
+                  CSV template
+                </button>
+                <button
+                  type="button"
+                  disabled={importing}
+                  onClick={() => csvInputRef.current?.click()}
+                  className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white disabled:opacity-50"
+                >
+                  {importing ? "Importing" : "Import CSV"}
+                </button>
+              </>
+            )}
             <button
               type="button"
               onClick={openCreate}
@@ -443,22 +584,88 @@ export default function AdminClient() {
                   </p>
                 )}
                 <form onSubmit={(event) => sendMail(event, mail)} className="space-y-4">
-                  <label className="block">
+                  <div className="block">
                     <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
                       To
                     </span>
-                    <input
-                      value={mail.to}
-                      autoFocus={mail.id === focusMailId}
-                      onFocus={(event) => {
-                        if (mail.id !== focusMailId) return;
-                        event.currentTarget.select();
-                        setFocusMailId(null);
-                      }}
-                      onChange={(event) => updateMail(mail.id, { to: event.target.value })}
-                      className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
-                    />
-                  </label>
+                    <div className="relative">
+                      <input
+                        value={mail.to}
+                        autoComplete="off"
+                        autoFocus={mail.id === focusMailId}
+                        onFocus={(event) => {
+                          if (mail.to.trim()) {
+                            setSuggestMailId(mail.id);
+                            setSuggestIndex(0);
+                          }
+                          if (mail.id !== focusMailId) return;
+                          event.currentTarget.select();
+                          setFocusMailId(null);
+                        }}
+                        onBlur={() => {
+                          setSuggestMailId((current) => (current === mail.id ? null : current));
+                        }}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          updateMail(mail.id, { to: value });
+                          setSuggestMailId(value.trim() ? mail.id : null);
+                          setSuggestIndex(0);
+                        }}
+                        onKeyDown={(event) => {
+                          const matches = promoterMatches(promoters, mail.to);
+                          if (suggestMailId !== mail.id || matches.length === 0) return;
+                          if (event.key === "ArrowDown") {
+                            event.preventDefault();
+                            setSuggestIndex((index) => (index + 1) % matches.length);
+                          } else if (event.key === "ArrowUp") {
+                            event.preventDefault();
+                            setSuggestIndex((index) => (index - 1 + matches.length) % matches.length);
+                          } else if (event.key === "Enter") {
+                            event.preventDefault();
+                            const pick = matches[Math.min(suggestIndex, matches.length - 1)];
+                            if (pick) pickPromoter(mail, pick);
+                          } else if (event.key === "Escape") {
+                            setSuggestMailId(null);
+                          }
+                        }}
+                        className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
+                      />
+                      {suggestMailId === mail.id &&
+                        promoterMatches(promoters, mail.to).length > 0 && (
+                          <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto border border-[#2e2e2e] bg-[#111]">
+                            {promoterMatches(promoters, mail.to).map((promoter, index) => {
+                              const active = index === Math.min(suggestIndex, promoterMatches(promoters, mail.to).length - 1);
+                              return (
+                                <li key={promoter.id}>
+                                  <button
+                                    type="button"
+                                    onMouseDown={(event) => {
+                                      event.preventDefault();
+                                      pickPromoter(mail, promoter);
+                                    }}
+                                    onMouseEnter={() => setSuggestIndex(index)}
+                                    className={`flex w-full min-w-0 items-baseline justify-between gap-3 px-3 py-2 text-left ${
+                                      active ? "bg-white text-black" : "text-white hover:bg-[#1c1c1c]"
+                                    }`}
+                                  >
+                                    <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesque)] text-sm">
+                                      {promoter.name}
+                                    </span>
+                                    <span
+                                      className={`min-w-0 max-w-[58%] truncate text-right font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.04em] ${
+                                        active ? "text-black/70" : "text-[#8a8a8a]"
+                                      }`}
+                                    >
+                                      {promoter.email}
+                                    </span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                    </div>
+                  </div>
                   <label className="block">
                     <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
                       Subject

@@ -239,6 +239,145 @@ export function emptyDraft(section: AdminSection): Record<string, string> {
   return { ...emptyAsset() };
 }
 
+export const PROMOTER_CSV_COLUMNS = [
+  "name",
+  "city",
+  "country",
+  "email",
+  "phone",
+  "instagram",
+  "website",
+  "notes",
+] as const;
+
+const PROMOTER_HEADER_ALIASES: Record<string, (typeof PROMOTER_CSV_COLUMNS)[number]> = {
+  name: "name",
+  nome: "name",
+  promoter: "name",
+  city: "city",
+  citta: "city",
+  country: "country",
+  paese: "country",
+  nazione: "country",
+  email: "email",
+  mail: "email",
+  phone: "phone",
+  telefono: "phone",
+  tel: "phone",
+  instagram: "instagram",
+  ig: "instagram",
+  insta: "instagram",
+  website: "website",
+  sito: "website",
+  web: "website",
+  url: "website",
+  notes: "notes",
+  note: "notes",
+};
+
+function promoterHeaderKey(raw: string) {
+  const normalized = raw
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const compact = normalized.replace(/[^a-z0-9]+/g, "");
+  if (PROMOTER_HEADER_ALIASES[compact]) return PROMOTER_HEADER_ALIASES[compact];
+  const tokens = normalized.split(/[^a-z0-9]+/).filter(Boolean);
+  for (const token of tokens) {
+    const key = PROMOTER_HEADER_ALIASES[token];
+    if (key) return key;
+  }
+  return null;
+}
+
+function csvDelimiter(line: string) {
+  const commas = line.split(",").length - 1;
+  const semis = line.split(";").length - 1;
+  const tabs = line.split("\t").length - 1;
+  if (tabs >= commas && tabs >= semis && tabs > 0) return "\t";
+  if (semis > commas) return ";";
+  return ",";
+}
+
+function parseCsvTable(text: string) {
+  const cleaned = text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const firstLine = cleaned.split("\n").find((line) => line.trim()) ?? "";
+  const delimiter = csvDelimiter(firstLine);
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let index = 0; index < cleaned.length; index += 1) {
+    const char = cleaned[index];
+    if (quoted) {
+      if (char === '"') {
+        if (cleaned[index + 1] === '"') {
+          cell += '"';
+          index += 1;
+        } else {
+          quoted = false;
+        }
+      } else {
+        cell += char;
+      }
+      continue;
+    }
+    if (char === '"') {
+      quoted = true;
+      continue;
+    }
+    if (char === delimiter) {
+      row.push(cell.trim());
+      cell = "";
+      continue;
+    }
+    if (char === "\n") {
+      row.push(cell.trim());
+      if (row.some((value) => value)) rows.push(row);
+      row = [];
+      cell = "";
+      continue;
+    }
+    cell += char;
+  }
+
+  row.push(cell.trim());
+  if (row.some((value) => value)) rows.push(row);
+  return rows;
+}
+
+export function parsePromoterCsv(text: string): Record<string, string>[] {
+  const table = parseCsvTable(text);
+  if (table.length === 0) return [];
+
+  const headerKeys = table[0].map((cell) => promoterHeaderKey(cell));
+  const hasHeader = headerKeys.some(Boolean) && !table[0].some((cell) => cell.includes("@"));
+  const start = hasHeader ? 1 : 0;
+  const promoters: Record<string, string>[] = [];
+
+  for (let index = start; index < table.length; index += 1) {
+    const cells = table[index];
+    const draft = emptyDraft("promoters");
+    if (hasHeader) {
+      headerKeys.forEach((key, cellIndex) => {
+        if (key) draft[key] = cells[cellIndex] ?? "";
+      });
+    } else {
+      PROMOTER_CSV_COLUMNS.forEach((key, cellIndex) => {
+        draft[key] = cells[cellIndex] ?? "";
+      });
+    }
+    if (!Object.values(draft).some((value) => value.trim())) continue;
+    if (!draft.name.trim() && draft.email.trim()) draft.name = draft.email.trim();
+    if (!draft.name.trim()) continue;
+    promoters.push(draft);
+  }
+
+  return promoters;
+}
+
 function readLocal<T extends AdminRecord>(section: AdminSection): T[] {
   if (typeof window === "undefined") return [];
   try {
@@ -325,6 +464,46 @@ export async function createRecord<T extends AdminRecord>(
   const row = { id: `local-${now}`, ...fields, createdAt: now, updatedAt: now } as T;
   writeLocal(section, [row, ...readLocal<T>(section)]);
   return row;
+}
+
+export async function createRecords<T extends AdminRecord>(
+  section: AdminSection,
+  items: Record<string, string>[]
+): Promise<T[]> {
+  if (items.length === 0) return [];
+  const now = Date.now();
+
+  if (isSupabaseConfigured()) {
+    const payloads = items.map((data, index) => {
+      const at = new Date(now + (items.length - index)).toISOString();
+      return {
+        ...toDbFields(section, data),
+        created_at: at,
+        updated_at: at,
+      };
+    });
+    const { data, error } = await getSupabase().from(TABLES[section]).insert(payloads).select("*");
+    if (error) throw error;
+    const created = sortByUpdated((data ?? []).map((item) => fromRow<T>(item)));
+    const ids = new Set(created.map((row) => row.id));
+    writeLocal(section, [
+      ...created,
+      ...readLocal<T>(section).filter((item) => !ids.has(item.id)),
+    ]);
+    return created;
+  }
+
+  const created = items.map((data, index) => {
+    const at = now + (items.length - index);
+    return {
+      id: `local-${at}-${index}`,
+      ...toDbFields(section, data),
+      createdAt: at,
+      updatedAt: at,
+    } as T;
+  });
+  writeLocal(section, [...created, ...readLocal<T>(section)]);
+  return created;
 }
 
 export async function updateRecord<T extends AdminRecord>(
