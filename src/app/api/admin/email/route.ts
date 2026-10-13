@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
+import {
+  hasMicrosoftRefreshToken,
+  microsoftOAuthConfigured,
+  sendWithMicrosoft,
+} from "@/lib/microsoftMail";
 
 const FROM = process.env.MAIL_FROM || "Flowgeist <info@flowgeist.net>";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,20 +25,74 @@ function parseRecipients(raw: string) {
     .filter(Boolean);
 }
 
+function smtpConfigured() {
+  return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
+}
+
+function mailProvider() {
+  if (hasMicrosoftRefreshToken()) return "microsoft";
+  if (smtpConfigured()) return "smtp";
+  if (process.env.RESEND_API_KEY) return "resend";
+  return null;
+}
+
 export async function GET() {
+  const provider = mailProvider();
   return NextResponse.json({
-    configured: Boolean(process.env.RESEND_API_KEY),
+    configured: Boolean(provider),
+    provider,
     from: FROM,
+    oauthReady: microsoftOAuthConfigured(),
+    microsoftConnected: hasMicrosoftRefreshToken(),
   });
 }
 
+async function sendWithSmtp(recipients: string[], subject: string, text: string, html: string) {
+  const port = Number(process.env.SMTP_PORT || 587);
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp-mail.outlook.com",
+    port,
+    secure: port === 465,
+    requireTLS: port === 587,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const info = await transporter.sendMail({
+    from: FROM,
+    to: recipients.join(", "),
+    replyTo: "info@flowgeist.net",
+    subject,
+    text,
+    html,
+  });
+
+  return info.messageId;
+}
+
+async function sendWithResend(recipients: string[], subject: string, text: string, html: string) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: recipients,
+    replyTo: "info@flowgeist.net",
+    subject,
+    text,
+    html,
+  });
+  if (error) throw new Error(error.message);
+  return data?.id;
+}
+
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
+  const provider = mailProvider();
+  if (!provider) {
     return NextResponse.json(
       {
         error:
-          "RESEND_API_KEY missing. Add it in .env.local and Vercel, then verify flowgeist.net on Resend.",
+          "Mail not connected. Add SMTP_USER and SMTP_PASS in .env (Gmail app password) to send for free.",
       },
       { status: 503 }
     );
@@ -55,25 +115,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Subject and body are required." }, { status: 400 });
     }
 
-    const resend = new Resend(apiKey);
-    const html = escapeHtml(text).replace(/\n/g, "<br />");
-    const { data, error } = await resend.emails.send({
-      from: FROM,
-      to: recipients,
-      replyTo: "info@flowgeist.net",
-      subject,
-      text,
-      html: `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#111">${html}</div>`,
-    });
+    const html = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#111">${escapeHtml(text).replace(/\n/g, "<br />")}</div>`;
+    const id =
+      provider === "microsoft"
+        ? await sendWithMicrosoft(recipients, subject, html, text)
+        : provider === "smtp"
+          ? await sendWithSmtp(recipients, subject, text, html)
+          : await sendWithResend(recipients, subject, text, html);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 502 });
-    }
-
-    return NextResponse.json({ success: true, id: data?.id });
+    return NextResponse.json({ success: true, id, provider });
   } catch (error) {
+    const raw = error instanceof Error ? error.message : "Failed to send";
+    const smtpAuthDisabled = /smtpclientauthentication is disabled/i.test(raw);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to send" },
+      {
+        error: smtpAuthDisabled
+          ? "GoDaddy Email Essentials tiene SMTP spento a livello organizzazione. Il tasto sulla casella non basta: GoDaddy deve sbloccare SMTP AUTH sul tenant."
+          : raw,
+      },
       { status: 500 }
     );
   }

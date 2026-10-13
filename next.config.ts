@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    SUPA_URL: process.env.SUPA_URL,
+    ANON_KEY: process.env.ANON_KEY,
+  },
   images: {
     domains: ["picsum.photos"],
   },

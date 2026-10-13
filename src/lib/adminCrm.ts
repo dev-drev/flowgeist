@@ -1,19 +1,19 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 
-export type AdminSection = "promoters" | "clubs" | "notes" | "assets";
+export type AdminSection =
+  | "promoters"
+  | "clubs"
+  | "events"
+  | "notes"
+  | "links"
+  | "assets";
 
 export const ADMIN_SECTIONS: { id: AdminSection; label: string }[] = [
   { id: "promoters", label: "Promoters" },
   { id: "clubs", label: "Clubs" },
+  { id: "events", label: "Events" },
   { id: "notes", label: "Info" },
+  { id: "links", label: "Links" },
   { id: "assets", label: "Assets" },
 ];
 
@@ -28,6 +28,22 @@ export const ASSET_KINDS = [
 ] as const;
 
 export type AssetKind = (typeof ASSET_KINDS)[number];
+
+export const EVENT_STATUSES = ["upcoming", "confirmed", "past", "cancelled"] as const;
+
+export type EventStatus = (typeof EVENT_STATUSES)[number];
+
+export const LINK_CATEGORIES = [
+  "useful",
+  "ticket",
+  "press",
+  "social",
+  "booking",
+  "tool",
+  "other",
+] as const;
+
+export type LinkCategory = (typeof LINK_CATEGORIES)[number];
 
 interface BaseRecord {
   id: string;
@@ -59,10 +75,35 @@ export interface Club extends BaseRecord {
   notes: string;
 }
 
+export interface AdminEvent extends BaseRecord {
+  title: string;
+  event_date: string;
+  city: string;
+  country: string;
+  venue: string;
+  promoter: string;
+  status: EventStatus;
+  ticket_url: string;
+  website: string;
+  notes: string;
+}
+
 export interface Note extends BaseRecord {
   title: string;
   body: string;
   category: string;
+}
+
+export interface AdminLink extends BaseRecord {
+  title: string;
+  url: string;
+  category: LinkCategory;
+  notes: string;
+}
+
+export interface AssetLink {
+  name: string;
+  url: string;
 }
 
 export interface Asset extends BaseRecord {
@@ -72,12 +113,14 @@ export interface Asset extends BaseRecord {
   notes: string;
 }
 
-export type AdminRecord = Promoter | Club | Note | Asset;
+export type AdminRecord = Promoter | Club | AdminEvent | Note | AdminLink | Asset;
 
-const COLLECTIONS: Record<AdminSection, string> = {
+const TABLES: Record<AdminSection, string> = {
   promoters: "admin_promoters",
   clubs: "admin_clubs",
+  events: "admin_events",
   notes: "admin_notes",
+  links: "admin_links",
   assets: "admin_assets",
 };
 
@@ -111,18 +154,88 @@ function emptyClub(): Omit<Club, "id" | "createdAt" | "updatedAt"> {
   };
 }
 
+function emptyEvent(): Omit<AdminEvent, "id" | "createdAt" | "updatedAt"> {
+  return {
+    title: "",
+    event_date: "",
+    city: "",
+    country: "",
+    venue: "",
+    promoter: "",
+    status: "upcoming",
+    ticket_url: "",
+    website: "",
+    notes: "",
+  };
+}
+
 function emptyNote(): Omit<Note, "id" | "createdAt" | "updatedAt"> {
   return { title: "", body: "", category: "" };
 }
 
-function emptyAsset(): Omit<Asset, "id" | "createdAt" | "updatedAt"> {
-  return { title: "", url: "", kind: "other", notes: "" };
+function emptyLink(): Omit<AdminLink, "id" | "createdAt" | "updatedAt"> {
+  return { title: "", url: "", category: "useful", notes: "" };
+}
+
+function emptyAsset(): Omit<Asset, "id" | "createdAt" | "updatedAt"> & { links: string } {
+  return {
+    title: "",
+    url: "",
+    kind: "other",
+    notes: "",
+    links: JSON.stringify([{ name: "", url: "" }]),
+  };
+}
+
+export function parseAssetLinks(value: unknown): AssetLink[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      const link = item as Partial<AssetLink> | null;
+      return {
+        name: String(link?.name ?? "").trim(),
+        url: String(link?.url ?? "").trim(),
+      };
+    });
+  }
+
+  const raw = String(value ?? "").trim();
+  if (!raw) return [];
+  if (raw.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (Array.isArray(parsed)) return parseAssetLinks(parsed);
+    } catch {
+      return [{ name: "", url: raw }];
+    }
+  }
+  return [{ name: "", url: raw }];
+}
+
+export function packAssetLinks(links: AssetLink[]) {
+  const cleaned = links
+    .map((link) => ({ name: link.name.trim(), url: link.url.trim() }))
+    .filter((link) => link.name || link.url);
+  if (cleaned.length === 0) return "";
+  if (cleaned.length === 1 && !cleaned[0].name) return cleaned[0].url;
+  return JSON.stringify(cleaned);
+}
+
+function toDbFields(section: AdminSection, data: Record<string, string>) {
+  const fields = { ...data };
+  delete fields.links;
+  if (section === "assets") {
+    const source = data.links !== undefined ? data.links : data.url;
+    fields.url = packAssetLinks(parseAssetLinks(source));
+  }
+  return fields;
 }
 
 export function emptyDraft(section: AdminSection): Record<string, string> {
   if (section === "promoters") return { ...emptyPromoter() };
   if (section === "clubs") return { ...emptyClub() };
+  if (section === "events") return { ...emptyEvent() };
   if (section === "notes") return { ...emptyNote() };
+  if (section === "links") return { ...emptyLink() };
   return { ...emptyAsset() };
 }
 
@@ -145,22 +258,35 @@ function sortByUpdated<T extends AdminRecord>(rows: T[]) {
   return [...rows].sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
+function stamp(value: unknown) {
+  if (typeof value === "number") return value;
+  const parsed = Date.parse(String(value || ""));
+  return Number.isNaN(parsed) ? Date.now() : parsed;
+}
+
+function fromRow<T extends AdminRecord>(row: Record<string, unknown>): T {
+  const { created_at, updated_at, ...rest } = row;
+  return {
+    ...rest,
+    createdAt: stamp(created_at),
+    updatedAt: stamp(updated_at),
+  } as T;
+}
+
 export async function listRecords<T extends AdminRecord>(
   section: AdminSection
 ): Promise<T[]> {
   const local = readLocal<T>(section);
+  if (!isSupabaseConfigured()) return sortByUpdated(local);
+
   try {
-    const snap = await Promise.race([
-      getDocs(collection(db, COLLECTIONS[section])),
-      new Promise<never>((_, reject) => {
-        window.setTimeout(() => reject(new Error("Firestore timeout")), 4000);
-      }),
-    ]);
-    const remote = snap.docs.map((item) => ({
-      id: item.id,
-      ...item.data(),
-    })) as T[];
-    const rows = sortByUpdated(remote);
+    const { data, error } = await getSupabase()
+      .from(TABLES[section])
+      .select("*")
+      .order("updated_at", { ascending: false });
+
+    if (error) throw error;
+    const rows = sortByUpdated((data ?? []).map((item) => fromRow<T>(item)));
     writeLocal(section, rows);
     return rows;
   } catch (error) {
@@ -174,23 +300,31 @@ export async function createRecord<T extends AdminRecord>(
   data: Record<string, string>
 ): Promise<T> {
   const now = Date.now();
-  const payload = { ...data, createdAt: now, updatedAt: now };
-  try {
-    const ref = await Promise.race([
-      addDoc(collection(db, COLLECTIONS[section]), payload),
-      new Promise<never>((_, reject) => {
-        window.setTimeout(() => reject(new Error("Firestore timeout")), 4000);
-      }),
+  const fields = toDbFields(section, data);
+  const payload = {
+    ...fields,
+    created_at: new Date(now).toISOString(),
+    updated_at: new Date(now).toISOString(),
+  };
+
+  if (isSupabaseConfigured()) {
+    const { data: row, error } = await getSupabase()
+      .from(TABLES[section])
+      .insert(payload)
+      .select("*")
+      .single();
+    if (error) throw error;
+    const created = fromRow<T>(row);
+    writeLocal(section, [
+      created,
+      ...readLocal<T>(section).filter((item) => item.id !== created.id),
     ]);
-    const row = { id: ref.id, ...payload } as T;
-    writeLocal(section, [row, ...readLocal<T>(section).filter((item) => item.id !== row.id)]);
-    return row;
-  } catch (error) {
-    console.warn(`Admin create fallback (${section})`, error);
-    const row = { id: `local-${now}`, ...payload } as T;
-    writeLocal(section, [row, ...readLocal<T>(section)]);
-    return row;
+    return created;
   }
+
+  const row = { id: `local-${now}`, ...fields, createdAt: now, updatedAt: now } as T;
+  writeLocal(section, [row, ...readLocal<T>(section)]);
+  return row;
 }
 
 export async function updateRecord<T extends AdminRecord>(
@@ -198,20 +332,22 @@ export async function updateRecord<T extends AdminRecord>(
   id: string,
   data: Record<string, string>
 ): Promise<T> {
-  const payload = { ...data, updatedAt: Date.now() };
+  const now = Date.now();
+  const fields = toDbFields(section, data);
   const current = readLocal<T>(section).find((item) => item.id === id);
   const row = {
-    ...(current ?? { id, createdAt: Date.now() }),
-    ...payload,
+    ...(current ?? { id, createdAt: now }),
+    ...fields,
     id,
+    updatedAt: now,
   } as T;
 
-  if (!id.startsWith("local-")) {
-    try {
-      await updateDoc(doc(db, COLLECTIONS[section], id), payload);
-    } catch (error) {
-      console.warn(`Admin update fallback (${section})`, error);
-    }
+  if (isSupabaseConfigured() && !id.startsWith("local-")) {
+    const { error } = await getSupabase()
+      .from(TABLES[section])
+      .update({ ...fields, updated_at: new Date(now).toISOString() })
+      .eq("id", id);
+    if (error) throw error;
   }
 
   writeLocal(
@@ -222,12 +358,9 @@ export async function updateRecord<T extends AdminRecord>(
 }
 
 export async function removeRecord(section: AdminSection, id: string) {
-  if (!id.startsWith("local-")) {
-    try {
-      await deleteDoc(doc(db, COLLECTIONS[section], id));
-    } catch (error) {
-      console.warn(`Admin delete fallback (${section})`, error);
-    }
+  if (isSupabaseConfigured() && !id.startsWith("local-")) {
+    const { error } = await getSupabase().from(TABLES[section]).delete().eq("id", id);
+    if (error) throw error;
   }
   writeLocal(
     section,
@@ -246,6 +379,24 @@ export function recordSubtitle(section: AdminSection, row: AdminRecord) {
     const item = row as Promoter | Club;
     return [item.city, item.country].filter(Boolean).join(", ");
   }
+  if (section === "events") {
+    const item = row as AdminEvent;
+    return [item.city, item.event_date, item.status].filter(Boolean).join(" · ");
+  }
   if (section === "notes") return (row as Note).category;
+  if (section === "links") return (row as AdminLink).category;
   return (row as Asset).kind;
 }
+
+export function recordLink(row: AdminRecord) {
+  if ("url" in row && row.url) {
+    const link = parseAssetLinks(row.url).find((item) => item.url);
+    if (link) return link.url;
+    if (!String(row.url).trim().startsWith("[")) return row.url;
+  }
+  if ("ticket_url" in row && row.ticket_url) return row.ticket_url;
+  if ("website" in row && row.website) return row.website;
+  return "";
+}
+
+export { isSupabaseConfigured };
