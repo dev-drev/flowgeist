@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Mail not connected. Add SMTP_USER and SMTP_PASS in .env (Gmail app password) to send for free.",
+          "Mail is not sent from the site. Open the draft in Outlook as info@flowgeist.net.",
       },
       { status: 503 }
     );

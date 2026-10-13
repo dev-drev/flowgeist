@@ -149,18 +149,10 @@ export default function AdminClient() {
   const [formOpen, setFormOpen] = useState(false);
   const [mails, setMails] = useState<MailDraft[]>([]);
   const [focusMailId, setFocusMailId] = useState<string | null>(null);
-  const [mailConfigured, setMailConfigured] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/email")
-      .then((response) => response.json())
-      .then((data) => setMailConfigured(Boolean(data.configured)))
-      .catch(() => setMailConfigured(false));
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -245,32 +237,18 @@ export default function AdminClient() {
     window.setTimeout(() => setMessage(null), 2800);
   };
 
-  const sendMail = async (event: FormEvent, mail: MailDraft) => {
+  const sendMail = (event: FormEvent, mail: MailDraft) => {
     event.preventDefault();
-    updateMail(mail.id, { sending: true, error: null });
-    try {
-      const response = await fetch("/api/admin/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: mail.to,
-          subject: mail.subject,
-          body: mail.body,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        updateMail(mail.id, {
-          sending: false,
-          error: data.error || "Send failed",
-        });
-        return;
-      }
-      flash("Mail sent from info@flowgeist.net");
-      closeMail(mail.id);
-    } catch {
-      updateMail(mail.id, { sending: false, error: "Send failed" });
+    const to = mail.to.trim();
+    if (!to) {
+      updateMail(mail.id, { error: "Add a recipient." });
+      return;
     }
+    const params = new URLSearchParams();
+    if (mail.subject.trim()) params.set("subject", mail.subject.trim());
+    if (mail.body.trim()) params.set("body", mail.body.trim());
+    const query = params.toString();
+    window.location.href = `mailto:${to}${query ? `?${query}` : ""}`;
   };
 
   const onSubmit = async (event: FormEvent) => {
@@ -411,12 +389,6 @@ export default function AdminClient() {
           </p>
         )}
 
-        {mailConfigured === false && (
-          <p className="mb-6 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
-            Mail is not connected yet. Add SMTP or Microsoft mail settings to send from info@flowgeist.net.
-          </p>
-        )}
-
         {loadError && (
           <p className="mb-6 font-[family-name:var(--font-grotesque)] text-sm text-[#c9a0a0]">{loadError}</p>
         )}
@@ -499,7 +471,7 @@ export default function AdminClient() {
                     disabled={mail.sending}
                     className="w-full border border-white bg-white px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-black uppercase disabled:opacity-50"
                   >
-                    {mail.sending ? "Sending" : "Send"}
+                    Open Outlook
                   </button>
                 </form>
               </aside>
