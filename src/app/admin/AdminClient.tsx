@@ -237,18 +237,32 @@ export default function AdminClient() {
     window.setTimeout(() => setMessage(null), 2800);
   };
 
-  const sendMail = (event: FormEvent, mail: MailDraft) => {
+  const sendMail = async (event: FormEvent, mail: MailDraft) => {
     event.preventDefault();
-    const to = mail.to.trim();
-    if (!to) {
-      updateMail(mail.id, { error: "Add a recipient." });
-      return;
+    updateMail(mail.id, { sending: true, error: null });
+    try {
+      const response = await fetch("/api/admin/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: mail.to,
+          subject: mail.subject,
+          body: mail.body,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        updateMail(mail.id, {
+          sending: false,
+          error: data.error || "Send failed",
+        });
+        return;
+      }
+      flash("Mail sent from info@flowgeist.net");
+      closeMail(mail.id);
+    } catch {
+      updateMail(mail.id, { sending: false, error: "Send failed" });
     }
-    const params = new URLSearchParams();
-    if (mail.subject.trim()) params.set("subject", mail.subject.trim());
-    if (mail.body.trim()) params.set("body", mail.body.trim());
-    const query = params.toString();
-    window.location.href = `mailto:${to}${query ? `?${query}` : ""}`;
   };
 
   const onSubmit = async (event: FormEvent) => {
@@ -471,7 +485,7 @@ export default function AdminClient() {
                     disabled={mail.sending}
                     className="w-full border border-white bg-white px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-black uppercase disabled:opacity-50"
                   >
-                    Open Outlook
+                    {mail.sending ? "Sending" : "Send"}
                   </button>
                 </form>
               </aside>
