@@ -34,7 +34,11 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-5 text-[#e8e8e8]">
+    <div
+      className="admin-shell flex min-h-screen items-center justify-center bg-black px-5 text-[#e8e8e8]"
+      // Same step as one Cmd+: 110%.
+      style={{ zoom: 1.1 }}
+    >
       <form
         onSubmit={onSubmit}
         className="w-full max-w-sm border border-[#2e2e2e] p-8"

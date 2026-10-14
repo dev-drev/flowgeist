@@ -184,7 +184,7 @@ function SocialMark({ id }: { id: (typeof FLOWGEIST_SOCIALS)[number]["id"] }) {
   const common = {
     viewBox: "0 0 24 24",
     "aria-hidden": true as const,
-    className: "h-5 w-5",
+    className: "h-6 w-6",
     fill: "none",
     stroke: "currentColor",
     strokeWidth: 1.6,
@@ -214,7 +214,7 @@ function SocialMark({ id }: { id: (typeof FLOWGEIST_SOCIALS)[number]["id"] }) {
     );
   }
   return (
-    <span className="flex h-5 w-5 items-center justify-center font-[family-name:var(--font-pt-mono)] text-[9px] leading-none tracking-tight">
+    <span className="flex h-6 w-6 items-center justify-center font-[family-name:var(--font-pt-mono)] text-[10px] leading-none tracking-tight">
       RA
     </span>
   );
@@ -253,11 +253,30 @@ export default function AdminClient() {
   const [openMessage, setOpenMessage] = useState<InboxDetail | null>(null);
   const [messageLoading, setMessageLoading] = useState(false);
   const [light, setLight] = useState(false);
+  const [socialMenu, setSocialMenu] = useState<string | null>(null);
+  const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const socialBarRef = useRef<HTMLDivElement>(null);
 
   const toggleTheme = () => {
     setLight((current) => !current);
   };
+
+  useEffect(() => {
+    if (!socialMenu) return;
+    const close = (event: MouseEvent) => {
+      if (!socialBarRef.current?.contains(event.target as Node)) setSocialMenu(null);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSocialMenu(null);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [socialMenu]);
 
   useEffect(() => {
     let active = true;
@@ -594,8 +613,10 @@ export default function AdminClient() {
     <div
       className="admin-shell min-h-screen bg-[var(--admin-bg)] text-[var(--admin-text)]"
       data-theme={light ? "light" : "dark"}
+      // Same step as one Cmd+: 110%.
+      style={{ zoom: 1.1 }}
     >
-      <div className="mx-auto w-full max-w-[1440px] px-5">
+      <div className="mx-auto w-full max-w-[1440px] px-5 lg:px-8">
       <header className="border-b border-[var(--admin-border)]">
         <div className="flex flex-col gap-6 py-6 md:flex-row md:items-center md:justify-between">
           <Link href="/" className="inline-flex shrink-0 items-center">
@@ -1274,35 +1295,82 @@ export default function AdminClient() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--admin-border)] bg-[var(--admin-bg)]">
-        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-5">
-            {FLOWGEIST_SOCIALS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => copyText(item.href, `Copied ${item.label}`)}
-                aria-label={`Copy ${item.label}`}
-                title={item.href}
-                className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]"
-              >
-                <SocialMark id={item.id} />
-              </button>
-            ))}
+      <div className="fixed inset-x-0 bottom-0 z-30 overflow-visible border-t border-[var(--admin-border)] bg-[var(--admin-bg)]">
+        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-4 lg:px-8">
+          <div ref={socialBarRef} className="flex items-center gap-5">
+            {FLOWGEIST_SOCIALS.map((item) => {
+              const open = socialMenu === item.id;
+              return (
+                <div key={item.id} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCopiedSocial(null);
+                      setSocialMenu(open ? null : item.id);
+                    }}
+                    aria-label={item.label}
+                    aria-expanded={open}
+                    aria-haspopup="menu"
+                    title={item.label}
+                    className={`${
+                      open ? "text-[var(--admin-strong)]" : "text-[var(--admin-soft)]"
+                    } transition hover:text-[var(--admin-strong)]`}
+                  >
+                    <SocialMark id={item.id} />
+                  </button>
+                  {open && (
+                    <div
+                      role="menu"
+                      className="absolute bottom-full left-0 z-40 mb-2 min-w-[7.25rem] border border-[var(--admin-border)] bg-[var(--admin-surface)] py-1"
+                    >
+                      <a
+                        role="menuitem"
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => setSocialMenu(null)}
+                        className="block px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:bg-[var(--admin-hover)] hover:text-[var(--admin-strong)]"
+                      >
+                        Open link
+                      </a>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(item.href).then(
+                            () => {
+                              setCopiedSocial(item.id);
+                              window.setTimeout(() => {
+                                setCopiedSocial((current) => (current === item.id ? null : current));
+                                setSocialMenu((current) => (current === item.id ? null : current));
+                              }, 900);
+                            },
+                            () => flash("Copy failed"),
+                          );
+                        }}
+                        className="block w-full px-3 py-2 text-left font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:bg-[var(--admin-hover)] hover:text-[var(--admin-strong)]"
+                      >
+                        {copiedSocial === item.id ? "Copied" : "Copy"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
           <button
             type="button"
             onClick={toggleTheme}
             aria-label={light ? "Dark mode" : "Light mode"}
             title={light ? "Dark mode" : "Light mode"}
-            className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]"
+            className="text-[var(--admin-soft)] transition hover:text-[var(--admin-strong)]"
           >
             {light ? (
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M16.5 14.2A6.2 6.2 0 0 1 9.8 7.5 6.4 6.4 0 1 0 16.5 14.2z" />
               </svg>
             ) : (
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <circle cx="12" cy="12" r="3.4" />
                 <path d="M12 3.6v2.1M12 18.3v2.1M3.6 12h2.1M18.3 12h2.1M6.1 6.1l1.5 1.5M16.4 16.4l1.5 1.5M17.9 6.1l-1.5 1.5M7.6 16.4l-1.5 1.5" />
               </svg>
