@@ -323,6 +323,52 @@ body.home-page .about-scroll {
   display: block;
 }
 
+.admin-shell {
+  --admin-bg: #000000;
+  --admin-text: #e8e8e8;
+  --admin-strong: #ffffff;
+  --admin-soft: #b0b0b0;
+  --admin-muted: #8a8a8a;
+  --admin-faint: #666666;
+  --admin-border: #2e2e2e;
+  --admin-line: #bababa;
+  --admin-surface: #0c0c0c;
+  --admin-input: #000000;
+  --admin-field: #111111;
+  --admin-hover: #141414;
+  --admin-invert: #ffffff;
+  --admin-invert-hover: #bababa;
+  --admin-invert-text: #000000;
+  --admin-invert-muted: rgb(0 0 0 / 0.7);
+  --admin-invert-soft: rgb(0 0 0 / 0.6);
+  --admin-danger: #c9a0a0;
+  --admin-note: #c4c4c4;
+  --admin-link: #d0d0d0;
+}
+
+.admin-shell[data-theme="light"] {
+  --admin-bg: #bababa;
+  --admin-text: #1a1a1a;
+  --admin-strong: #111111;
+  --admin-soft: #3f3f3f;
+  --admin-muted: #5c5c5c;
+  --admin-faint: #6b6b6b;
+  --admin-border: rgb(0 0 0 / 0.16);
+  --admin-line: #1a1a1a;
+  --admin-surface: #f4f4f4;
+  --admin-input: #ffffff;
+  --admin-field: #ffffff;
+  --admin-hover: rgb(0 0 0 / 0.06);
+  --admin-invert: #111111;
+  --admin-invert-hover: #333333;
+  --admin-invert-text: #f4f4f4;
+  --admin-invert-muted: rgb(244 244 244 / 0.72);
+  --admin-invert-soft: rgb(244 244 244 / 0.62);
+  --admin-danger: #8a3d3d;
+  --admin-note: #3a3a3a;
+  --admin-link: #2a2a2a;
+}
+
 /* Custom utilities */
 @layer utilities {
   .line-clamp-2 {

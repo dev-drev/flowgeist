@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,7 +17,6 @@ import {
   createRecord,
   createRecords,
   emptyDraft,
-  isSupabaseConfigured,
   listRecords,
   parseAssetLinks,
   parsePromoterCsv,
@@ -173,6 +173,53 @@ function mailDate(value: string) {
   });
 }
 
+const FLOWGEIST_SOCIALS = [
+  { id: "instagram", label: "Instagram", href: "https://www.instagram.com/flowgeistx/" },
+  { id: "soundcloud", label: "SoundCloud", href: "https://soundcloud.com/flowgeistx" },
+  { id: "facebook", label: "Facebook", href: "https://www.facebook.com/flowgeistx" },
+  { id: "ra", label: "Resident Advisor", href: "https://ra.co/dj/flowgeist" },
+] as const;
+
+function SocialMark({ id }: { id: (typeof FLOWGEIST_SOCIALS)[number]["id"] }) {
+  const common = {
+    viewBox: "0 0 24 24",
+    "aria-hidden": true as const,
+    className: "h-5 w-5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.6,
+  };
+  if (id === "instagram") {
+    return (
+      <svg {...common}>
+        <rect x="4" y="4" width="16" height="16" rx="4.5" />
+        <circle cx="12" cy="12" r="3.8" />
+        <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+  if (id === "soundcloud") {
+    return (
+      <svg {...common}>
+        <path d="M4 16h12a3.5 3.5 0 1 0-.6-6.95A5 5 0 0 0 6.6 10" />
+        <path d="M5 16V11.8M7 16V10.8M9 16V10.2M11 16v-.6M13 16v-.5M15 16v-.2" />
+      </svg>
+    );
+  }
+  if (id === "facebook") {
+    return (
+      <svg {...common}>
+        <path d="M14 8.2V6.7c0-.6.3-.9.9-.9H16V4h-1.6C12.4 4 11.2 5.2 11.2 7v1.2H9.5V11h1.7v7h2.6v-7h2l.3-2.8H13.8" />
+      </svg>
+    );
+  }
+  return (
+    <span className="flex h-5 w-5 items-center justify-center font-[family-name:var(--font-pt-mono)] text-[9px] leading-none tracking-tight">
+      RA
+    </span>
+  );
+}
+
 function namedLinks(row: AdminRecord): AssetLink[] {
   if (!("url" in row)) return [];
   return parseAssetLinks(row.url).filter((link) => link.name || link.url);
@@ -205,7 +252,12 @@ export default function AdminClient() {
   const [openMessageId, setOpenMessageId] = useState<string | null>(null);
   const [openMessage, setOpenMessage] = useState<InboxDetail | null>(null);
   const [messageLoading, setMessageLoading] = useState(false);
+  const [light, setLight] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleTheme = () => {
+    setLight((current) => !current);
+  };
 
   useEffect(() => {
     let active = true;
@@ -517,10 +569,10 @@ export default function AdminClient() {
     }
   };
 
-  const copyText = async (value: string) => {
+  const copyText = async (value: string, label = "Copied") => {
     try {
       await navigator.clipboard.writeText(value);
-      flash("Copied");
+      flash(label);
     } catch {
       flash("Copy failed");
     }
@@ -539,34 +591,40 @@ export default function AdminClient() {
   const sectionLabel = ADMIN_SECTIONS.find((item) => item.id === section)?.label ?? "Entry";
 
   return (
-    <div className="min-h-screen bg-black text-[#e8e8e8]">
+    <div
+      className="admin-shell min-h-screen bg-[var(--admin-bg)] text-[var(--admin-text)]"
+      data-theme={light ? "light" : "dark"}
+    >
       <div className="mx-auto w-full max-w-[1440px] px-5">
-      <header className="border-b border-[#2e2e2e]">
-        <div className="flex flex-col gap-6 py-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-[family-name:var(--font-alte-haas-bold)] text-3xl tracking-tight text-white md:text-4xl">
-              Admin
-            </h1>
-            <p className="mt-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
-              {isSupabaseConfigured() ? "Supabase connected" : "Saved in this browser"}
-            </p>
-          </div>
-          <nav className="flex flex-wrap gap-5 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase">
-            <Link href="/" className="text-[#8a8a8a] transition hover:text-white">
+      <header className="border-b border-[var(--admin-border)]">
+        <div className="flex flex-col gap-6 py-6 md:flex-row md:items-center md:justify-between">
+          <Link href="/" className="inline-flex shrink-0 items-center">
+            <Image
+              src={light ? "/signature-logo.png" : "/signature-logo-dark.png"}
+              alt="Flowgeist"
+              width={280}
+              height={64}
+              quality={100}
+              priority
+              className="h-[30px] w-auto md:h-9"
+            />
+          </Link>
+          <nav className="flex flex-wrap items-center gap-5 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase">
+            <Link href="/" className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]">
               Site
             </Link>
-            <Link href="/flowgeist-panel" className="text-[#8a8a8a] transition hover:text-white">
+            <Link href="/flowgeist-panel" className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]">
               Panel
             </Link>
-            <button type="button" onClick={logout} className="text-[#8a8a8a] transition hover:text-white">
+            <button type="button" onClick={logout} className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]">
               Log out
             </button>
           </nav>
         </div>
       </header>
 
-      <div className="py-8">
-        <div className="mb-8 flex flex-col gap-4 border-b border-[#2e2e2e] pb-6 md:flex-row md:items-center md:justify-between">
+      <div className="pt-8 pb-24">
+        <div className="mb-8 flex flex-col gap-4 border-b border-[var(--admin-border)] pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-2">
             {ADMIN_SECTIONS.map((item) => {
               const active = section === item.id;
@@ -581,8 +639,8 @@ export default function AdminClient() {
                   }}
                   className={`border px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase transition ${
                     active
-                      ? "border-white bg-white text-black"
-                      : "border-[#2e2e2e] text-[#b0b0b0] hover:border-[#bababa] hover:text-white"
+                      ? "border-[var(--admin-invert)] bg-[var(--admin-invert)] text-[var(--admin-invert-text)]"
+                      : "border-[var(--admin-border)] text-[var(--admin-soft)] hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
                   }`}
                 >
                   {item.label}
@@ -595,26 +653,26 @@ export default function AdminClient() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search"
-              className="min-w-56 border border-[#2e2e2e] bg-[#111] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none placeholder:text-[#666] focus:border-[#bababa]"
+              className="min-w-56 border border-[var(--admin-border)] bg-[var(--admin-field)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none placeholder:text-[var(--admin-faint)] focus:border-[var(--admin-line)]"
             />
             <button
               type="button"
               onClick={() => void loadInbox()}
-              className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
+              className="border border-[var(--admin-border)] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
             >
               Inbox
             </button>
             <button
               type="button"
               onClick={() => openMail()}
-              className="border border-[#2e2e2e] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
+              className="border border-[var(--admin-border)] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
             >
               Compose mail
             </button>
             <button
               type="button"
               onClick={openCreate}
-              className="border border-white bg-white px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-black uppercase transition hover:bg-[#bababa]"
+              className="border border-[var(--admin-invert)] bg-[var(--admin-invert)] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-invert-text)] uppercase transition hover:bg-[var(--admin-invert-hover)]"
             >
               Add {sectionLabel}
             </button>
@@ -622,23 +680,23 @@ export default function AdminClient() {
         </div>
 
         {message && (
-          <p className="mb-6 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#bababa] uppercase">
+          <p className="mb-6 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-soft)] uppercase">
             {message}
           </p>
         )}
 
         {loadError && (
-          <p className="mb-6 font-[family-name:var(--font-grotesque)] text-sm text-[#c9a0a0]">{loadError}</p>
+          <p className="mb-6 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-danger)]">{loadError}</p>
         )}
 
         {inboxOpen && (
-          <section className="mb-8 border border-[#2e2e2e] bg-[#0c0c0c]">
-            <div className="flex items-center justify-between gap-3 border-b border-[#2e2e2e] px-5 py-4">
+          <section className="mb-8 border border-[var(--admin-border)] bg-[var(--admin-surface)]">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--admin-border)] px-5 py-4">
               <div>
-                <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-white uppercase">
+                <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-[var(--admin-strong)] uppercase">
                   Inbox
                 </h2>
-                <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[#8a8a8a] uppercase">
+                <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[var(--admin-muted)] uppercase">
                   {mailbox}
                 </p>
               </div>
@@ -646,7 +704,7 @@ export default function AdminClient() {
                 <button
                   type="button"
                   onClick={() => void loadInbox()}
-                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#bababa] uppercase hover:text-white"
+                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:text-[var(--admin-strong)]"
                 >
                   Refresh
                 </button>
@@ -657,31 +715,31 @@ export default function AdminClient() {
                     setOpenMessage(null);
                     setOpenMessageId(null);
                   }}
-                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase hover:text-white"
+                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
                 >
                   Close
                 </button>
               </div>
             </div>
             {inboxError && (
-              <p className="border-b border-[#2e2e2e] px-5 py-4 font-[family-name:var(--font-grotesque)] text-sm leading-5 text-[#c4c4c4]">
+              <p className="border-b border-[var(--admin-border)] px-5 py-4 font-[family-name:var(--font-grotesque)] text-sm leading-5 text-[var(--admin-note)]">
                 {inboxError}{" "}
                 {inboxReconnect && (
-                  <a href="/api/admin/email/auth" className="text-white underline-offset-4 hover:underline">
+                  <a href="/api/admin/email/auth" className="text-[var(--admin-strong)] underline-offset-4 hover:underline">
                     Connect Outlook
                   </a>
                 )}
               </p>
             )}
             <div className="grid lg:grid-cols-[340px_1fr]">
-              <div className="max-h-[32rem] overflow-auto border-b border-[#2e2e2e] lg:border-r lg:border-b-0">
+              <div className="max-h-[32rem] overflow-auto border-b border-[var(--admin-border)] lg:border-r lg:border-b-0">
                 {inboxLoading ? (
-                  <p className="px-5 py-6 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                  <p className="px-5 py-6 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                     Loading
                   </p>
                 ) : inbox.length === 0 ? (
                   inboxError ? null : (
-                    <p className="px-5 py-6 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                    <p className="px-5 py-6 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
                       No messages
                     </p>
                   )
@@ -691,25 +749,25 @@ export default function AdminClient() {
                       const active = item.id === openMessageId;
                       const from = item.fromName || item.fromEmail || "Unknown";
                       return (
-                        <li key={item.id} className="border-b border-[#2e2e2e] last:border-b-0">
+                        <li key={item.id} className="border-b border-[var(--admin-border)] last:border-b-0">
                           <button
                             type="button"
                             onClick={() => void openInboxMessage(item.id)}
-                            className={`block w-full px-5 py-4 text-left ${active ? "bg-white text-black" : "hover:bg-[#141414]"}`}
+                            className={`block w-full px-5 py-4 text-left ${active ? "bg-[var(--admin-invert)] text-[var(--admin-invert-text)]" : "hover:bg-[var(--admin-hover)]"}`}
                           >
                             <span className="flex items-baseline justify-between gap-3">
-                              <span className={`truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "" : item.isRead ? "text-[#b0b0b0]" : "text-white"}`}>
+                              <span className={`truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "" : item.isRead ? "text-[var(--admin-soft)]" : "text-[var(--admin-strong)]"}`}>
                                 {from}
                               </span>
-                              <span className={`shrink-0 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.08em] uppercase ${active ? "text-black/60" : "text-[#8a8a8a]"}`}>
+                              <span className={`shrink-0 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.08em] uppercase ${active ? "text-[var(--admin-invert-soft)]" : "text-[var(--admin-muted)]"}`}>
                                 {mailDate(item.receivedAt)}
                               </span>
                             </span>
-                            <span className={`mt-1 block truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "text-black" : "text-white"}`}>
+                            <span className={`mt-1 block truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "text-[var(--admin-invert-text)]" : "text-[var(--admin-strong)]"}`}>
                               {item.subject}
                             </span>
                             {item.preview && (
-                              <span className={`mt-1 block truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "text-black/70" : "text-[#8a8a8a]"}`}>
+                              <span className={`mt-1 block truncate font-[family-name:var(--font-grotesque)] text-sm ${active ? "text-[var(--admin-invert-muted)]" : "text-[var(--admin-muted)]"}`}>
                                 {item.preview}
                               </span>
                             )}
@@ -722,21 +780,21 @@ export default function AdminClient() {
               </div>
               <div className="min-h-64 max-h-[32rem] overflow-auto p-5">
                 {messageLoading ? (
-                  <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                  <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                     Loading
                   </p>
                 ) : openMessage ? (
                   <article>
                     <div className="mb-5 flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <h3 className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-white">
+                        <h3 className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-[var(--admin-strong)]">
                           {openMessage.subject}
                         </h3>
-                        <p className="mt-2 font-[family-name:var(--font-grotesque)] text-sm text-[#b0b0b0]">
+                        <p className="mt-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-soft)]">
                           {openMessage.fromName || openMessage.fromEmail}
                           {openMessage.fromName && openMessage.fromEmail ? ` · ${openMessage.fromEmail}` : ""}
                         </p>
-                        <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.12em] text-[#8a8a8a] uppercase">
+                        <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.12em] text-[var(--admin-muted)] uppercase">
                           {mailDate(openMessage.receivedAt)}
                         </p>
                       </div>
@@ -744,7 +802,7 @@ export default function AdminClient() {
                         <button
                           type="button"
                           onClick={() => replyToInbox(openMessage)}
-                          className="shrink-0 border border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#bababa] uppercase hover:border-[#bababa] hover:text-white"
+                          className="shrink-0 border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
                         >
                           Reply
                         </button>
@@ -755,16 +813,16 @@ export default function AdminClient() {
                         title={openMessage.subject}
                         sandbox="allow-popups allow-popups-to-escape-sandbox"
                         srcDoc={openMessage.body}
-                        className="h-[24rem] w-full bg-white"
+                        className="email-sheet h-[24rem] w-full bg-[#ffffff]"
                       />
                     ) : (
-                      <p className="whitespace-pre-wrap font-[family-name:var(--font-grotesque)] text-sm leading-6 text-[#e8e8e8]">
+                      <p className="whitespace-pre-wrap font-[family-name:var(--font-grotesque)] text-sm leading-6 text-[var(--admin-text)]">
                         {openMessage.body}
                       </p>
                     )}
                   </article>
                 ) : (
-                  <p className="font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                  <p className="font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
                     Choose a message.
                   </p>
                 )}
@@ -778,39 +836,39 @@ export default function AdminClient() {
             className={`mb-8 grid gap-4 ${mails.length > 1 ? "md:grid-cols-2" : "md:max-w-[380px]"}`}
           >
             {mails.map((mail) => (
-              <aside key={mail.id} className="h-fit border border-[#2e2e2e] bg-[#0c0c0c] p-5">
+              <aside key={mail.id} className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5">
                 <div className="mb-5 flex items-center justify-between gap-3">
-                  <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-white uppercase">
+                  <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-[var(--admin-strong)] uppercase">
                     Send mail
                   </h2>
                   <div className="flex gap-4">
                     <button
                       type="button"
                       onClick={() => duplicateMail(mail)}
-                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#bababa] uppercase hover:text-white"
+                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:text-[var(--admin-strong)]"
                     >
                       Duplicate
                     </button>
                     <button
                       type="button"
                       onClick={() => closeMail(mail.id)}
-                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase hover:text-white"
+                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
                     >
                       Close
                     </button>
                   </div>
                 </div>
-                <p className="mb-4 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[#8a8a8a] uppercase">
+                <p className="mb-4 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[var(--admin-muted)] uppercase">
                   From info@flowgeist.net
                 </p>
                 {mail.error && (
-                  <p className="mb-4 font-[family-name:var(--font-grotesque)] text-sm leading-5 text-[#c4c4c4]">
+                  <p className="mb-4 font-[family-name:var(--font-grotesque)] text-sm leading-5 text-[var(--admin-note)]">
                     {mail.error}
                   </p>
                 )}
                 <form onSubmit={(event) => sendMail(event, mail)} className="space-y-4">
                   <div className="block">
-                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                       To
                     </span>
                     <div className="relative">
@@ -853,11 +911,11 @@ export default function AdminClient() {
                             setSuggestMailId(null);
                           }
                         }}
-                        className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
+                        className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                       />
                       {suggestMailId === mail.id &&
                         promoterMatches(promoters, mail.to).length > 0 && (
-                          <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto border border-[#2e2e2e] bg-[#111]">
+                          <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto border border-[var(--admin-border)] bg-[var(--admin-field)]">
                             {promoterMatches(promoters, mail.to).map((promoter, index) => {
                               const active = index === Math.min(suggestIndex, promoterMatches(promoters, mail.to).length - 1);
                               return (
@@ -870,7 +928,7 @@ export default function AdminClient() {
                                     }}
                                     onMouseEnter={() => setSuggestIndex(index)}
                                     className={`flex w-full min-w-0 items-baseline justify-between gap-3 px-3 py-2 text-left ${
-                                      active ? "bg-white text-black" : "text-white hover:bg-[#1c1c1c]"
+                                      active ? "bg-[var(--admin-invert)] text-[var(--admin-invert-text)]" : "text-[var(--admin-strong)] hover:bg-[var(--admin-hover)]"
                                     }`}
                                   >
                                     <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesque)] text-sm">
@@ -878,7 +936,7 @@ export default function AdminClient() {
                                     </span>
                                     <span
                                       className={`min-w-0 max-w-[58%] truncate text-right font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.04em] ${
-                                        active ? "text-black/70" : "text-[#8a8a8a]"
+                                        active ? "text-[var(--admin-invert-muted)]" : "text-[var(--admin-muted)]"
                                       }`}
                                     >
                                       {promoter.email}
@@ -892,30 +950,30 @@ export default function AdminClient() {
                     </div>
                   </div>
                   <label className="block">
-                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                       Subject
                     </span>
                     <input
                       value={mail.subject}
                       onChange={(event) => updateMail(mail.id, { subject: event.target.value })}
-                      className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
+                      className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                       Message
                     </span>
                     <textarea
                       value={mail.body}
                       onChange={(event) => updateMail(mail.id, { body: event.target.value })}
                       rows={8}
-                      className="w-full resize-y border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
+                      className="w-full resize-y border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                     />
                   </label>
                   <button
                     type="submit"
                     disabled={mail.sending}
-                    className="w-full border border-white bg-white px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-black uppercase disabled:opacity-50"
+                    className="w-full border border-[var(--admin-invert)] bg-[var(--admin-invert)] px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-invert-text)] uppercase disabled:opacity-50"
                   >
                     {mail.sending ? "Sending" : "Send"}
                   </button>
@@ -928,18 +986,18 @@ export default function AdminClient() {
         <div className={`grid gap-8 ${formOpen ? "lg:grid-cols-[1fr_360px]" : ""}`}>
           <section>
             {loading ? (
-              <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+              <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                 Loading
               </p>
             ) : filtered.length === 0 ? (
-              <div className="border border-[#2e2e2e] px-6 py-16 text-center">
-                <p className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-white">Nothing saved yet</p>
-                <p className="mt-3 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+              <div className="border border-[var(--admin-border)] px-6 py-16 text-center">
+                <p className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-[var(--admin-strong)]">Nothing saved yet</p>
+                <p className="mt-3 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
                   Add promoters, clubs, events, notes, links, or assets. Each asset link can have a name and a URL.
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-[#2e2e2e] border border-[#2e2e2e]">
+              <ul className="divide-y divide-[var(--admin-border)] border border-[var(--admin-border)]">
                 {filtered.map((row) => {
                   const title = recordTitle(section, row);
                   const subtitle = recordSubtitle(section, row);
@@ -950,7 +1008,7 @@ export default function AdminClient() {
                       className="flex flex-col gap-4 px-5 py-5 md:flex-row md:items-start md:justify-between"
                     >
                       <div className="min-w-0 flex-1">
-                        <h2 className="font-[family-name:var(--font-alte-haas-bold)] text-lg text-white">
+                        <h2 className="font-[family-name:var(--font-alte-haas-bold)] text-lg text-[var(--admin-strong)]">
                           {"email" in row && row.email ? (
                             <button
                               type="button"
@@ -970,7 +1028,7 @@ export default function AdminClient() {
                           <button
                             type="button"
                             onClick={() => openEdit(row)}
-                            className="mt-1 block text-left font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.14em] text-[#8a8a8a] uppercase"
+                            className="mt-1 block text-left font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.14em] text-[var(--admin-muted)] uppercase"
                           >
                             {subtitle}
                           </button>
@@ -980,23 +1038,23 @@ export default function AdminClient() {
                             type="button"
                             onClick={() => openMail(row.email, title)}
                             title="Send mail"
-                            className="mt-2 block text-left font-[family-name:var(--font-grotesque)] text-sm text-[#b0b0b0] underline-offset-4 hover:text-white hover:underline"
+                            className="mt-2 block text-left font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-soft)] underline-offset-4 hover:text-[var(--admin-strong)] hover:underline"
                           >
                             {row.email}
                           </button>
                         )}
                         {links.length > 0 && (
-                          <div className="mt-3 border border-[#2e2e2e]">
-                            <div className="grid grid-cols-2 border-b border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#666] uppercase">
+                          <div className="mt-3 border border-[var(--admin-border)]">
+                            <div className="grid grid-cols-2 border-b border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-faint)] uppercase">
                               <span>Name</span>
                               <span className="text-right">Link</span>
                             </div>
                             {links.map((link, index) => (
                               <div
                                 key={`${row.id}-link-${index}`}
-                                className="grid grid-cols-2 items-center gap-6 border-b border-[#2e2e2e] px-3 py-2.5 last:border-b-0"
+                                className="grid grid-cols-2 items-center gap-6 border-b border-[var(--admin-border)] px-3 py-2.5 last:border-b-0"
                               >
-                                <span className="truncate font-[family-name:var(--font-grotesque)] text-sm text-white">
+                                <span className="truncate font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)]">
                                   {link.name || "—"}
                                 </span>
                                 {link.url ? (
@@ -1005,12 +1063,12 @@ export default function AdminClient() {
                                     target="_blank"
                                     rel="noreferrer"
                                     title={link.url}
-                                    className="truncate text-right font-[family-name:var(--font-grotesque)] text-sm text-[#d0d0d0] underline-offset-2 hover:text-white hover:underline"
+                                    className="truncate text-right font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-link)] underline-offset-2 hover:text-[var(--admin-strong)] hover:underline"
                                   >
                                     {link.url.replace(/^https?:\/\//, "")}
                                   </a>
                                 ) : (
-                                  <span className="text-right font-[family-name:var(--font-grotesque)] text-sm text-[#666]">
+                                  <span className="text-right font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-faint)]">
                                     —
                                   </span>
                                 )}
@@ -1019,12 +1077,12 @@ export default function AdminClient() {
                           </div>
                         )}
                         {"notes" in row && row.notes && (
-                          <p className="mt-2 line-clamp-2 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                          <p className="mt-2 line-clamp-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
                             {row.notes}
                           </p>
                         )}
                         {"body" in row && row.body && (
-                          <p className="mt-2 line-clamp-3 font-[family-name:var(--font-grotesque)] text-sm text-[#8a8a8a]">
+                          <p className="mt-2 line-clamp-3 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
                             {row.body}
                           </p>
                         )}
@@ -1035,23 +1093,23 @@ export default function AdminClient() {
                             <button
                               type="button"
                               onClick={() => openMail(row.email, recordTitle(section, row))}
-                              className="text-[#bababa] hover:text-white"
+                              className="text-[var(--admin-soft)] hover:text-[var(--admin-strong)]"
                             >
                               Send
                             </button>
                             <button
                               type="button"
                               onClick={() => copyText(row.email)}
-                              className="text-[#8a8a8a] hover:text-white"
+                              className="text-[var(--admin-muted)] hover:text-[var(--admin-strong)]"
                             >
                               Copy mail
                             </button>
                           </>
                         )}
-                        <button type="button" onClick={() => openEdit(row)} className="text-[#bababa] hover:text-white">
+                        <button type="button" onClick={() => openEdit(row)} className="text-[var(--admin-soft)] hover:text-[var(--admin-strong)]">
                           Edit
                         </button>
-                        <button type="button" onClick={() => onDelete(row.id)} className="text-[#666] hover:text-white">
+                        <button type="button" onClick={() => onDelete(row.id)} className="text-[var(--admin-faint)] hover:text-[var(--admin-strong)]">
                           Delete
                         </button>
                       </div>
@@ -1063,15 +1121,15 @@ export default function AdminClient() {
           </section>
 
           {formOpen && (
-            <aside className="h-fit border border-[#2e2e2e] bg-[#0c0c0c] p-5">
+            <aside className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5">
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-white uppercase">
+                <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-[var(--admin-strong)] uppercase">
                   {editingId ? "Edit entry" : "New entry"}
                 </h2>
                 <button
                   type="button"
                   onClick={() => setFormOpen(false)}
-                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase hover:text-white"
+                  className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
                 >
                   Close
                 </button>
@@ -1093,7 +1151,7 @@ export default function AdminClient() {
                     <button
                       type="button"
                       onClick={downloadPromoterTemplate}
-                      className="flex-1 border border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white"
+                      className="flex-1 border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
                     >
                       CSV template
                     </button>
@@ -1101,7 +1159,7 @@ export default function AdminClient() {
                       type="button"
                       disabled={importing}
                       onClick={() => csvInputRef.current?.click()}
-                      className="flex-1 border border-[#2e2e2e] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#b0b0b0] uppercase transition hover:border-[#bababa] hover:text-white disabled:opacity-50"
+                      className="flex-1 border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)] disabled:opacity-50"
                     >
                       {importing ? "Importing" : "Import CSV"}
                     </button>
@@ -1109,7 +1167,7 @@ export default function AdminClient() {
                 )}
                 {FIELDS[section].map((field) => (
                   <label key={field.key} className="block">
-                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                       {field.label}
                     </span>
                     {field.type === "textarea" ? (
@@ -1119,7 +1177,7 @@ export default function AdminClient() {
                           setDraft((current) => ({ ...current, [field.key]: event.target.value }))
                         }
                         rows={5}
-                        className="w-full resize-y border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
+                        className="w-full resize-y border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                       />
                     ) : field.type === "select" ? (
                       <select
@@ -1127,7 +1185,7 @@ export default function AdminClient() {
                         onChange={(event) =>
                           setDraft((current) => ({ ...current, [field.key]: event.target.value }))
                         }
-                        className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none focus:border-[#bababa]"
+                        className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                       >
                         {(field.options ?? []).map((option) => (
                           <option key={option} value={option}>
@@ -1143,7 +1201,7 @@ export default function AdminClient() {
                           setDraft((current) => ({ ...current, [field.key]: event.target.value }))
                         }
                         placeholder={field.type === "url" ? "https://" : ""}
-                        className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none placeholder:text-[#555] focus:border-[#bababa]"
+                        className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none placeholder:text-[var(--admin-faint)] focus:border-[var(--admin-line)]"
                       />
                     )}
                   </label>
@@ -1152,19 +1210,19 @@ export default function AdminClient() {
                 {section === "assets" && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#8a8a8a] uppercase">
+                      <span className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                         Links
                       </span>
                       <button
                         type="button"
                         onClick={() => setAssetLinks([...assetDraftLinks, { name: "", url: "" }])}
-                        className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#bababa] uppercase hover:text-white"
+                        className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:text-[var(--admin-strong)]"
                       >
                         Add link
                       </button>
                     </div>
                     {assetDraftLinks.map((link, index) => (
-                      <div key={`asset-link-${index}`} className="space-y-2 border border-[#2e2e2e] p-3">
+                      <div key={`asset-link-${index}`} className="space-y-2 border border-[var(--admin-border)] p-3">
                         <input
                           type="text"
                           value={link.name}
@@ -1175,7 +1233,7 @@ export default function AdminClient() {
                             );
                             setAssetLinks(next);
                           }}
-                          className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none placeholder:text-[#555] focus:border-[#bababa]"
+                          className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none placeholder:text-[var(--admin-faint)] focus:border-[var(--admin-line)]"
                         />
                         <input
                           type="text"
@@ -1187,13 +1245,13 @@ export default function AdminClient() {
                             );
                             setAssetLinks(next);
                           }}
-                          className="w-full border border-[#2e2e2e] bg-black px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-white outline-none placeholder:text-[#555] focus:border-[#bababa]"
+                          className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none placeholder:text-[var(--admin-faint)] focus:border-[var(--admin-line)]"
                         />
                         {assetDraftLinks.length > 1 && (
                           <button
                             type="button"
                             onClick={() => setAssetLinks(assetDraftLinks.filter((_, itemIndex) => itemIndex !== index))}
-                            className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[#666] uppercase hover:text-white"
+                            className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-faint)] uppercase hover:text-[var(--admin-strong)]"
                           >
                             Remove
                           </button>
@@ -1206,13 +1264,50 @@ export default function AdminClient() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="w-full border border-white bg-white px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-black uppercase disabled:opacity-50"
+                  className="w-full border border-[var(--admin-invert)] bg-[var(--admin-invert)] px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-invert-text)] uppercase disabled:opacity-50"
                 >
                   {saving ? "Saving" : "Save"}
                 </button>
               </form>
             </aside>
           )}
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--admin-border)] bg-[var(--admin-bg)]">
+        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-4">
+          <div className="flex items-center gap-5">
+            {FLOWGEIST_SOCIALS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => copyText(item.href, `Copied ${item.label}`)}
+                aria-label={`Copy ${item.label}`}
+                title={item.href}
+                className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]"
+              >
+                <SocialMark id={item.id} />
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={light ? "Dark mode" : "Light mode"}
+            title={light ? "Dark mode" : "Light mode"}
+            className="text-[var(--admin-muted)] transition hover:text-[var(--admin-strong)]"
+          >
+            {light ? (
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M16.5 14.2A6.2 6.2 0 0 1 9.8 7.5 6.4 6.4 0 1 0 16.5 14.2z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <circle cx="12" cy="12" r="3.4" />
+                <path d="M12 3.6v2.1M12 18.3v2.1M3.6 12h2.1M18.3 12h2.1M6.1 6.1l1.5 1.5M16.4 16.4l1.5 1.5M17.9 6.1l-1.5 1.5M7.6 16.4l-1.5 1.5" />
+              </svg>
+            )}
+          </button>
         </div>
       </div>
       </div>
