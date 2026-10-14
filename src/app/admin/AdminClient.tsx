@@ -540,8 +540,9 @@ export default function AdminClient() {
 
   return (
     <div className="min-h-screen bg-black text-[#e8e8e8]">
+      <div className="mx-auto w-full max-w-[1440px] px-5">
       <header className="border-b border-[#2e2e2e]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-6 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-6 py-6 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="font-[family-name:var(--font-alte-haas-bold)] text-3xl tracking-tight text-white md:text-4xl">
               Admin
@@ -564,7 +565,7 @@ export default function AdminClient() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-5 py-8">
+      <div className="py-8">
         <div className="mb-8 flex flex-col gap-4 border-b border-[#2e2e2e] pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-2">
             {ADMIN_SECTIONS.map((item) => {
@@ -1213,6 +1214,7 @@ export default function AdminClient() {
             </aside>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
