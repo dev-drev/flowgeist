@@ -69,6 +69,10 @@ export function sessionCookieOptions() {
 
 const ADMIN_USER = "admin";
 
+export function isLocalDev() {
+  return process.env.NODE_ENV === "development";
+}
+
 export function isAdminConfigured() {
   return Boolean(process.env.ADMIN_PASS);
 }

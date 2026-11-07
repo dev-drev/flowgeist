@@ -50,7 +50,7 @@ export default function MobileFadeIn({
   return (
     <div
       ref={ref}
-      className={`mobile-fade-in md:opacity-100 md:[animation:none] ${
+      className={`mobile-fade-in ${
         visible ? "mobile-fade-in--visible" : ""
       } ${className}`}
       style={

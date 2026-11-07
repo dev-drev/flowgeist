@@ -10,6 +10,8 @@ interface LinksListProps {
   className?: string;
   /** Use light section titles on dark backgrounds */
   dark?: boolean;
+  /** Center the column, or sit it on the start edge of its parent. */
+  align?: "center" | "start";
 }
 
 function CopyButton({
@@ -152,9 +154,14 @@ export default function LinksList({
   sections = LINK_SECTIONS,
   className = "",
   dark = false,
+  align = "center",
 }: LinksListProps) {
   return (
-    <div className={`mx-auto w-full max-w-md py-2 px-4 ${className}`}>
+    <div
+      className={`w-full max-w-md py-2 ${
+        align === "center" ? "mx-auto px-4" : ""
+      } ${className}`}
+    >
       <div className="flex flex-col gap-3">
         {sections.map((section, sectionIndex) => (
           <div key={section.id} className="flex flex-col gap-3">

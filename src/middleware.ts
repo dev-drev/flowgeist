@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminCookieName, readAdminSession } from "@/lib/adminAuth";
+import { adminCookieName, isLocalDev, readAdminSession } from "@/lib/adminAuth";
 
 function isPublicAdminPath(pathname: string) {
   return pathname === "/admin/login" || pathname === "/api/admin/login";
@@ -11,6 +11,17 @@ function isProtectedAdminPath(pathname: string) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isLocalDev()) {
+    if (pathname === "/admin/login") {
+      const adminUrl = request.nextUrl.clone();
+      adminUrl.pathname = "/admin";
+      adminUrl.search = "";
+      return NextResponse.redirect(adminUrl);
+    }
+    return NextResponse.next();
+  }
+
   if (!isProtectedAdminPath(pathname) || isPublicAdminPath(pathname)) {
     return NextResponse.next();
   }
@@ -31,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/((?!login$).*)", "/api/admin/((?!login$).*)"],
+  matcher: ["/admin", "/admin/:path*", "/api/admin/:path*"],
 };
