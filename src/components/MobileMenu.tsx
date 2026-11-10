@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Squash } from "hamburger-react";
 import Link from "next/link";
 
 type MobileMenuProps = {
@@ -38,9 +39,15 @@ export default function MobileMenu({
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
@@ -80,25 +87,21 @@ export default function MobileMenu({
 
   return createPortal(
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={`fixed right-[max(0.85rem,env(safe-area-inset-right))] top-[max(1.15rem,env(safe-area-inset-top))] z-[60] flex h-11 w-11 items-center justify-center md:right-10 md:top-7 ${className} ${
-          tone === "light" ? "text-white" : "text-black/80"
-        }`}
-        aria-label="Open menu"
-        aria-expanded={open}
-        aria-controls="mobile-menu"
+      <div
+        className={`fixed right-[max(0.85rem,env(safe-area-inset-right))] top-[max(1.15rem,env(safe-area-inset-top))] z-[80] md:right-10 md:top-7 ${className}`}
       >
-        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" aria-hidden>
-          <path
-            d="M1 1.5h20M1 8h20M1 14.5h14"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
+        <Squash
+          toggled={open}
+          toggle={setOpen}
+          size={22}
+          distance="sm"
+          rounded
+          duration={reduceMotion ? 0 : 0.45}
+          easing="cubic-bezier(0.22, 1, 0.36, 1)"
+          color={open || tone === "light" ? "#ffffff" : "rgba(0,0,0,0.8)"}
+          label={open ? "Close menu" : "Open menu"}
+        />
+      </div>
 
       {open ? (
         <div
@@ -109,25 +112,12 @@ export default function MobileMenu({
           aria-modal="true"
           aria-label="Menu"
         >
-          <div className="flex items-center justify-between px-6 pt-[max(1.15rem,env(safe-area-inset-top))]">
-            <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
-              [menu]
-            </p>
-            <button
-              type="button"
-              onClick={close}
-              className="flex h-11 w-11 items-center justify-center text-white/80 transition hover:text-white"
-              aria-label="Close menu"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                <path
-                  d="M4.5 4.5l9 9M13.5 4.5l-9 9"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
+          <div className="pt-[max(1.15rem,env(safe-area-inset-top))]">
+            <div className="flex h-12 items-center pl-6 pr-16">
+              <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                [menu]
+              </p>
+            </div>
           </div>
 
           <nav className="flex flex-1 flex-col justify-center gap-7 px-8">

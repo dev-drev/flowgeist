@@ -8,6 +8,7 @@ import LandingVideo from "@/components/LandingVideo";
 import LinksList from "@/components/LinksList";
 import MobileFadeIn from "@/components/MobileFadeIn";
 import MobileMenu from "@/components/MobileMenu";
+import NewsSection from "@/components/NewsSection";
 import SiteFooter, { DesktopContact, SocialLogos } from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SiteNav from "@/components/SiteNav";
@@ -95,7 +96,7 @@ function DesktopAbout({ liveHref }: { liveHref?: string }) {
         </figure>
         <nav
           aria-label="Contents"
-          className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t border-black/15 pt-3 lg:col-span-3"
+          className="mt-8 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t border-black/15 pt-3 lg:col-span-3"
         >
           <div className="flex flex-wrap gap-x-7 gap-y-2">
             {ABOUT_SECTIONS.map((section) => (
@@ -306,7 +307,7 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search);
     const fromQuery = params.get("view");
     const id =
-      fromQuery === "about" || fromQuery === "gallery" || fromQuery === "music"
+      fromQuery === "about" || fromQuery === "gallery" || fromQuery === "music" || fromQuery === "news"
         ? fromQuery
         : window.location.hash.replace("#", "");
     if (!id) return;
@@ -356,32 +357,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="about" aria-label="About" className="scroll-mt-6 bg-[#BABABA]">
-        <header className="w-full bg-[#BABABA] pl-4 pr-16 text-black/80 md:border-b md:border-black/25 md:px-10">
-          <MobileFadeIn className="w-full md:contents">
-            <div className={`flex w-full grid-cols-1 items-end md:grid ${desktopGrid}`}>
-              <a
-                href="#top"
-                className="inline-flex min-w-0 max-w-[calc(100%-3.25rem)] items-center rounded-md pt-6 md:max-w-none md:py-8"
-                aria-label="Back to landing"
-              >
-                <Image
-                  src="/flowgeist.png"
-                  alt="Flowgeist"
-                  width={200}
-                  height={56}
-                  className="h-auto w-full max-w-[320px] object-contain sm:max-w-[550px] md:max-w-[440px]"
-                />
-              </a>
-              <div className="hidden h-full items-end justify-end pb-5 pr-16 md:flex">
-                <p className="text-[23px] font-semibold text-black/65">
-                  [Berlin, DE]
-                </p>
-              </div>
-            </div>
-          </MobileFadeIn>
-        </header>
-
+      <section id="about" aria-label="About" className="scroll-mt-0 bg-[#BABABA]">
         <div className="bg-[#BABABA] text-black/85">
           <section className={`grid grid-cols-1 items-start md:gap-x-12 md:px-10 md:pt-10 ${desktopGrid}`}>
             <div className="flex h-full flex-col gap-8 md:col-start-1 md:col-end-2">
@@ -414,17 +390,7 @@ export default function Home() {
                           </p>
                         </MobileFadeIn>
                         <MobileFadeIn delay={70} className="w-full">
-                          <div className="w-full md:hidden">
-                            <LinksList sections={ticketSections} className="py-4" />
-                          </div>
-                        </MobileFadeIn>
-                        <MobileFadeIn delay={90} className="w-full">
-                          <p className="px-4 pb-5 pt-2 text-justify font-alte-haas-bold text-[14px] font-semibold leading-[1.16] text-[#5c5c5c] md:hidden">
-                            {tracesCopy}
-                          </p>
-                        </MobileFadeIn>
-                        <MobileFadeIn delay={110} className="w-full">
-                          <div className="flex w-full max-w-full items-center justify-between gap-4 overflow-hidden px-4 md:hidden">
+                          <div className="flex w-full max-w-full items-center justify-between gap-4 overflow-hidden px-4 pt-2 md:hidden">
                             <Image
                               src="/artists/pic-negative.jpeg"
                               alt="Flowgeist"
@@ -433,6 +399,29 @@ export default function Home() {
                               className="h-auto w-full min-w-0 object-contain"
                             />
                           </div>
+                        </MobileFadeIn>
+                        <MobileFadeIn delay={90} className="w-full">
+                          <div className="md:hidden">
+                            <GallerySection
+                              active
+                              limit={GALLERY_PREVIEW}
+                              labelClassName="ml-10 pt-4 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px]"
+                              gridClassName="mt-4"
+                            />
+                            <div className="mt-8 flex justify-center px-4">
+                              <Link
+                                href="/gallery"
+                                className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-black/70 transition hover:text-black"
+                              >
+                                See full gallery →
+                              </Link>
+                            </div>
+                          </div>
+                        </MobileFadeIn>
+                        <MobileFadeIn delay={110} className="w-full">
+                          <p className="px-4 pt-4 text-justify font-alte-haas-bold text-[14px] font-semibold leading-[1.16] text-[#5c5c5c] md:hidden">
+                            {tracesCopy}
+                          </p>
                         </MobileFadeIn>
                         <MobileFadeIn delay={130} className="w-full">
                           <div className="relative z-20 md:hidden">
@@ -444,7 +433,7 @@ export default function Home() {
                               aria-hidden
                               className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[75vh] w-[75vw] max-w-none -translate-x-[13%] -translate-y-[45.5%] object-contain opacity-40"
                             />
-                            <p className="relative z-10 px-4 pb-2 pt-6 text-justify font-alte-haas-bold text-[14px] font-semibold leading-[1.16] text-[#5c5c5c]">
+                            <p className="relative z-10 px-4 pb-2 pt-4 text-justify font-alte-haas-bold text-[14px] font-semibold leading-[1.16] text-[#5c5c5c]">
                               Marco Bruno is a multidisciplinary storyteller
                               whose releases span Helena Hauff&apos;s Return
                               to Disorder, James Ruskin&apos;s Blueprint and
@@ -537,26 +526,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="gallery" aria-label="Gallery" className="scroll-mt-6 bg-[#BABABA]">
-        <GallerySection active limit={GALLERY_PREVIEW} />
-        <div className="flex justify-center px-4 pb-14 md:justify-start md:px-10 md:pb-16 md:pt-2">
-          <Link
-            href="/gallery"
-            className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-black/70 transition hover:text-black"
-          >
-            See full gallery →
-          </Link>
-        </div>
-      </section>
-
-      <section id="music" aria-label="Music" className="scroll-mt-6 bg-[#BABABA] pb-10 md:pb-16">
+      <section id="news" aria-label="News" className="scroll-mt-6 bg-[#BABABA] md:pb-16">
         <div className="md:hidden">
-          <p className="ml-10 pt-4 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px]">
-            [music]
-          </p>
-          {musicSection ? (
-            <LinksList sections={[musicSection]} className="mt-4 py-2" />
-          ) : null}
+          <NewsSection
+            labelClassName="ml-10 pt-8 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px]"
+            listClassName="mt-8 px-4"
+          />
         </div>
 
         <div className="hidden md:grid md:grid-cols-2 md:items-start md:gap-x-12 md:px-10 md:pt-4">

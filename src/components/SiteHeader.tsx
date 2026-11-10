@@ -19,7 +19,7 @@ export default function SiteHeader({
       height={230}
       priority
       quality={100}
-      className="h-auto w-full max-w-[300px] object-contain sm:max-w-[440px] md:max-w-[420px]"
+      className="h-12 w-auto object-contain md:h-auto md:w-full md:max-w-[420px]"
     />
   );
 
@@ -28,7 +28,7 @@ export default function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 bg-[#BABABA] pl-4 pr-16 md:px-10">
-      <div className="flex items-center justify-between gap-6 border-b border-black/10 py-5 md:gap-10 md:py-6">
+      <div className="flex items-center justify-between gap-6 border-b border-black/10 py-[max(1.15rem,env(safe-area-inset-top))] md:gap-10 md:py-6">
         {onHome ? (
           <button
             type="button"

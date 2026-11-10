@@ -77,9 +77,13 @@ function sizesFor(frame: string) {
 export default function GallerySection({
   active,
   limit,
+  labelClassName = "ml-10 pt-8 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px] md:ml-0 md:px-10 md:pt-10 md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]",
+  gridClassName = "mt-8 md:mt-6",
 }: {
   active: boolean;
   limit?: number;
+  labelClassName?: string;
+  gridClassName?: string;
 }) {
   const files = limit ? KANTINE_FILES.slice(0, limit) : KANTINE_FILES;
   const frames = layoutFor(files.length);
@@ -136,16 +140,14 @@ export default function GallerySection({
   const openItem = openIndex === null ? null : items[openIndex];
 
   return (
-    <section id="gallery" aria-label="Gallery" className="pb-8">
+    <section id="gallery" aria-label="Gallery" className="md:pb-8">
       <MobileFadeIn active={active} className="w-full">
-        <p className="ml-10 pt-8 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px] md:ml-0 md:px-10 md:pt-10 md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]">
-          [gallery]
-        </p>
+        <p className={labelClassName}>[gallery]</p>
       </MobileFadeIn>
       <MobileFadeIn active={active} delay={40} className="w-full">
         <div className="@container px-4 sm:px-8 md:px-10">
           <div
-            className={`mt-4 grid grid-cols-2 gap-3 md:mt-6 md:grid-cols-12 md:gap-4 ${
+            className={`${gridClassName} grid grid-cols-2 gap-3 md:grid-cols-12 md:gap-4 ${
               files.length === 1
                 ? "auto-rows-[calc(100cqw_/_3)] md:auto-rows-[calc((100cqw_-_11rem)_/_12)]"
                 : ""

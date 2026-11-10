@@ -31,11 +31,11 @@ const linkClass =
   "font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/70 transition hover:text-black";
 
 const splitGrid =
-  "mt-6 grid items-start gap-8 md:mt-8 md:grid-cols-2 md:gap-x-12 lg:gap-x-14";
+  "mt-8 grid items-start gap-8 md:grid-cols-2 md:gap-x-12 lg:gap-x-14";
 
 export default function MusicPage() {
   return (
-    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pt-1 text-black/80 md:px-0">
+    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 text-black/80 md:px-0">
       <MobileMenu tone="dark" current="music" className="md:hidden" />
       <SiteHeader current="music" />
 
@@ -89,7 +89,7 @@ export default function MusicPage() {
 
         <section
           aria-label="Short film"
-          className="mt-16 border-t border-black/15 px-4 pb-24 pt-8 md:mt-20 md:px-10 md:pb-36 md:pt-12"
+          className="mt-8 border-t border-black/15 px-4 pt-8 md:mt-20 md:px-10 md:pb-36 md:pt-12"
         >
           <p className={labelClass}>[short film]</p>
           <div className={splitGrid}>

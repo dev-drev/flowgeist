@@ -111,17 +111,17 @@ export function SocialLogos({
 export function DesktopContact({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`mt-16 grid grid-cols-1 gap-y-6 border-t border-black/15 pt-8 lg:mt-20 lg:grid-cols-[9rem_minmax(0,66rem)] lg:justify-start lg:gap-x-10 ${className}`}
+      className={`mt-8 grid grid-cols-1 gap-y-6 border-t border-black/15 pt-8 md:mt-16 lg:mt-20 lg:grid-cols-[9rem_minmax(0,66rem)] lg:justify-start lg:gap-x-10 ${className}`}
     >
       <p className={aboutMargin}>Contact</p>
-      <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex w-full flex-wrap items-center justify-between gap-x-6 gap-y-10">
         <a
           href="mailto:info@flowgeist.net"
-          className="font-alte-haas-bold text-[22px] leading-tight text-black/85 transition-colors hover:text-black xl:text-[26px]"
+          className="font-alte-haas-bold text-[18px] leading-tight text-black/85 transition-colors hover:text-black sm:text-[22px] xl:text-[26px]"
         >
           info [at] flowgeist.net
         </a>
-        <ul className="flex items-center gap-5 sm:ml-auto">
+        <ul className="ml-auto flex items-center gap-4 sm:gap-5">
           {LINKS.map((item) => (
             <li key={item.label}>
               <a
@@ -146,53 +146,10 @@ export function DesktopContact({ className = "" }: { className?: string }) {
 
 export default function SiteFooter({ className = "" }: { className?: string }) {
   return (
-    <>
-      <footer
-        className={`border-black/20 bg-[#BABABA] pb-[max(2rem,env(safe-area-inset-bottom))] md:hidden ${className}`}
-      >
-        <p className="ml-10 pt-4 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px]">
-          [contacts]
-        </p>
-        <div className="b-6 font-pt-mono flex w-full flex-col flex-wrap bg-[#515151] pb-3 text-[12px] font-semibold tracking-[0.2em] text-black/65 sm:text-[13px]">
-          <div className="ml-8 flex h-full flex-col gap-6 bg-[#BABABA] p-4">
-            <a
-              href="mailto:info@flowgeist.net"
-              className="cursor-pointer text-black/90 transition-opacity hover:opacity-70"
-            >
-              MAIL_ <br />
-              <span className="pl-10 font-alte-haas-bold text-[12px] font-semibold normal-case tracking-normal text-[#5c5c5c] sm:text-[13px]">
-                info [at] flowgeist.net
-              </span>
-            </a>
-            <a
-              href="https://www.instagram.com/flowgeistx/"
-              target="_blank"
-              rel="noreferrer"
-              className="cursor-pointer text-black/90 transition-opacity hover:opacity-70"
-            >
-              _INSTAGRAM <br />
-              <span className="pl-10 font-alte-haas-bold text-[12px] normal-case tracking-normal text-[#5c5c5c] sm:text-[13px]">
-                @flowgeistx
-              </span>
-            </a>
-            <a
-              href="https://soundcloud.com/flowgeist"
-              target="_blank"
-              rel="noreferrer"
-              className="cursor-pointer text-black/90 transition-opacity hover:opacity-70"
-            >
-              SOUNDCLOUD --
-              <br />
-              <span className="pl-10 font-alte-haas-bold text-[12px] normal-case tracking-normal text-[#5c5c5c] sm:text-[13px]">
-                @flowgeist
-              </span>
-            </a>
-          </div>
-        </div>
-      </footer>
-      <footer className={`hidden bg-[#BABABA] px-6 pb-12 md:block md:px-10 md:pb-14 ${className}`}>
-        <DesktopContact />
-      </footer>
-    </>
+    <footer
+      className={`bg-[#BABABA] px-6 pb-[max(3rem,env(safe-area-inset-bottom))] md:px-10 md:pb-14 ${className}`}
+    >
+      <DesktopContact />
+    </footer>
   );
 }

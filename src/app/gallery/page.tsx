@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function GalleryPage() {
   return (
-    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pt-1 text-black/80 md:px-0">
+    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 text-black/80 md:px-0">
       <MobileMenu tone="dark" current="gallery" className="md:hidden" />
       <SiteHeader current="gallery" />
       <GallerySection active />
