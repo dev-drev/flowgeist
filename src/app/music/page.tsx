@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import AlbumPlayer from "@/components/AlbumPlayer";
 import MobileMenu from "@/components/MobileMenu";
+import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
@@ -28,25 +30,26 @@ const proseClass =
 const linkClass =
   "font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/70 transition hover:text-black";
 
-const mediaGrid =
-  "mt-6 grid items-start gap-8 md:mt-8 md:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] md:gap-x-14 lg:gap-x-20";
+const splitGrid =
+  "mt-6 grid items-start gap-8 md:mt-8 md:grid-cols-2 md:gap-x-12 lg:gap-x-14";
 
 export default function MusicPage() {
   return (
-    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pb-16 pt-1 text-black/80 md:px-0 md:pb-20">
+    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pt-1 text-black/80 md:px-0">
       <MobileMenu tone="dark" current="music" className="md:hidden" />
       <SiteHeader current="music" />
 
         <section aria-label="Music" className="px-4 pt-8 md:px-10 md:pt-12">
           <p className={labelClass}>[music]</p>
 
-          <div className={mediaGrid}>
-            <div className="md:sticky md:top-52">
+          <div className={splitGrid}>
+            <div className="md:sticky md:top-40">
               <Image
                 src="/news/evighet007.jpg"
                 alt="Flowgeist [EVIGHET007] album cover"
                 width={1200}
                 height={1200}
+                sizes="(min-width: 768px) 46vw, 100vw"
                 className="h-auto w-full"
                 priority
               />
@@ -56,7 +59,7 @@ export default function MusicPage() {
               <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">
                 Evighet Records · 06.11.2026
               </p>
-              <h1 className="mt-3 font-alte-haas-bold text-[28px] leading-none text-black/85 md:text-[40px] xl:text-[48px]">
+              <h1 className="mt-3 font-alte-haas-bold text-[28px] leading-none text-black/85 md:text-[32px] xl:text-[36px]">
                 Flowgeist [EVIGHET007]
               </h1>
               <p className={`mt-5 max-w-xl ${proseClass}`}>
@@ -79,21 +82,17 @@ export default function MusicPage() {
                 ))}
               </div>
 
-              <iframe
-                title="Play Flowgeist [EVIGHET007] on Bandcamp"
-                src="https://bandcamp.com/EmbeddedPlayer/album=928316097/size=large/bgcol=ffffff/linkcol=333333/tracklist=true/artwork=small/transparent=true/"
-                className="mt-8 block h-[520px] w-full bg-white"
-              />
+              <AlbumPlayer />
             </div>
           </div>
         </section>
 
         <section
           aria-label="Short film"
-          className="mt-16 border-t border-black/15 px-4 pt-8 md:mt-20 md:px-10 md:pt-12"
+          className="mt-16 border-t border-black/15 px-4 pb-24 pt-8 md:mt-20 md:px-10 md:pb-36 md:pt-12"
         >
           <p className={labelClass}>[short film]</p>
-          <div className={mediaGrid}>
+          <div className={splitGrid}>
             <div className="overflow-hidden bg-black">
               <iframe
                 title="Flowgeist - A Short Film"
@@ -108,7 +107,7 @@ export default function MusicPage() {
               <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">
                 Film
               </p>
-              <h2 className="mt-3 font-alte-haas-bold text-[28px] leading-none text-black/85 md:text-[40px]">
+              <h2 className="mt-3 font-alte-haas-bold text-[28px] leading-none text-black/85 md:text-[32px] xl:text-[36px]">
                 A Short Film
               </h2>
               <p className={`mt-5 max-w-xl ${proseClass}`}>
@@ -118,6 +117,7 @@ export default function MusicPage() {
             </div>
           </div>
         </section>
+      <SiteFooter className="-mx-2 md:mx-0" />
     </main>
   );
 }

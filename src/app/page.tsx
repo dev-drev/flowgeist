@@ -8,6 +8,7 @@ import LandingVideo from "@/components/LandingVideo";
 import LinksList from "@/components/LinksList";
 import MobileFadeIn from "@/components/MobileFadeIn";
 import MobileMenu from "@/components/MobileMenu";
+import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SiteNav from "@/components/SiteNav";
 import { LINK_SECTIONS } from "@/lib/linksConfig";
@@ -42,59 +43,290 @@ const debutCopy =
 const tracesCopy =
   "Traces of trip hop, post punk, industrial electronics and breakbeat appear like residues within a wider dramaturgy, where rhythm, texture and voice carry the album's internal narrative into physical space. The performance marks the first live incarnation of the record, opening its layered studio architecture to the immediacy of the room.";
 
+const marcoCopy =
+  "Marco Bruno is a multidisciplinary storyteller whose releases span Helena Hauff's Return to Disorder, James Ruskin's Blueprint and Ben Sims' labels. His work has been presented on stages and platforms including TEDx and Tresor, and he is the founder of Evighet Records, a platform dedicated to identity, transformation and sonic evolution.";
+
+const velvetCopy =
+  "Velvet May is a live performer, singer and music producer whose practice moves through industrial textures, body-driven tension and rock-inflected intensity. Blending experimentation with meticulous sound design, his work is raw, detailed and sharply controlled. He has released music on labels including Veyl, Tears on Waves and She Lost Kontrol.";
+
 const desktopProse =
   "text-justify font-alte-haas-bold text-[20px] font-semibold leading-[1.16] text-[#5c5c5c] 2xl:text-[26px] 3xl:text-[32px]";
 
-const desktopAboutProse =
-  "text-justify font-alte-haas-bold text-[22px] font-semibold leading-[1.18] text-[#5c5c5c] xl:text-[26px] 2xl:text-[30px]";
+const aboutEssay =
+  "text-justify font-alte-haas-bold text-[20px] font-semibold leading-[1.2] text-[#5c5c5c] xl:text-[24px] 2xl:text-[26px]";
 
-const GALLERY_PREVIEW = 1;
+const aboutNote =
+  "font-alte-haas-bold text-[16px] font-semibold leading-[1.28] text-[#5c5c5c] xl:text-[18px]";
 
-function ContactsBlock() {
+const aboutMargin =
+  "font-pt-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-black/40";
+
+const ABOUT_SECTIONS = [
+  { id: "about-project", label: "01 Project" },
+  { id: "about-live", label: "02 Live" },
+  { id: "about-artists", label: "03 Artists" },
+] as const;
+
+const ABOUT_LINKS = [
+  {
+    label: "Email",
+    href: "mailto:info@flowgeist.net",
+    value: "info [at] flowgeist.net",
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/flowgeistx/",
+    value: "@flowgeistx",
+    icon: "instagram",
+  },
+  {
+    label: "SoundCloud",
+    href: "https://soundcloud.com/flowgeistx",
+    value: "@flowgeistx",
+    icon: "soundcloud",
+  },
+  {
+    label: "Bandcamp",
+    href: "https://flowgeist.bandcamp.com",
+    value: "flowgeist.bandcamp.com",
+    icon: "bandcamp",
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/flowgeistx",
+    value: "/flowgeistx",
+    icon: "facebook",
+  },
+  {
+    label: "Resident Advisor",
+    href: "https://ra.co/dj/flowgeist",
+    value: "ra.co/dj/flowgeist",
+    icon: "resident",
+  },
+] as const;
+
+function AboutLinkIcon({
+  name,
+  className = "h-4 w-4 shrink-0 text-black/70 transition-colors group-hover:text-black",
+}: {
+  name: "instagram" | "soundcloud" | "bandcamp" | "facebook" | "resident";
+  className?: string;
+}) {
+
+  if (name === "instagram") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="1.7">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.4" cy="6.6" r="0.9" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+
+  if (name === "soundcloud") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
+        <rect x="1" y="13" width="1.35" height="4.2" rx="0.4" />
+        <rect x="3.15" y="10.6" width="1.35" height="6.6" rx="0.4" />
+        <rect x="5.3" y="8.4" width="1.35" height="8.8" rx="0.4" />
+        <circle cx="11.1" cy="13.3" r="2.45" />
+        <circle cx="14.3" cy="12.15" r="3.15" />
+        <circle cx="17.6" cy="13.45" r="2.55" />
+        <rect x="9" y="13.2" width="11.1" height="3.3" rx="1.5" />
+      </svg>
+    );
+  }
+
+  if (name === "bandcamp") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
+        <path d="M1.2 18.6 8.4 5.2H22.8l-7.2 13.4H1.2z" />
+      </svg>
+    );
+  }
+
+  if (name === "facebook") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
+        <path d="M14.2 8.4V6.9c0-.7.4-.9 1.1-.9H17V3.4h-2c-2.5 0-3.6 1.4-3.6 3.4v1.6H9.2v2.7h2.2V20.6h3.3v-9.5h2.2l.4-2.7h-3.1z" />
+      </svg>
+    );
+  }
+
   return (
-    <>
-      <p className="ml-10 pt-4 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px] md:ml-0 md:pt-0 md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]">
-        [contacts]
-      </p>
-      <div className="b-6 font-pt-mono flex w-full flex-col flex-wrap bg-[#515151] pb-3 text-[12px] font-semibold tracking-[0.2em] text-black/65 sm:text-[13px] md:bg-transparent md:pb-0 md:text-[12px]">
-        <div className="ml-8 flex h-full flex-col gap-6 bg-[#BABABA] p-4 md:ml-0 md:flex-row md:flex-wrap md:gap-x-16 md:gap-y-6 md:bg-transparent md:p-0 md:pt-6">
-          <a
-            href="mailto:flowgeistmusic@gmail.com"
-            className="cursor-pointer text-black/90 transition-opacity hover:opacity-70"
-          >
-            MAIL_ <br />
-            <span className="pl-10 font-alte-haas-bold text-[12px] font-semibold normal-case tracking-normal text-[#5c5c5c] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]">
-              flowgeistmusic@gmail.com
-            </span>
-          </a>
-          <a
-            href="https://www.instagram.com/flowgeistx/"
-            target="_blank"
-            rel="noreferrer"
-            className="cursor-pointer text-black/90 transition-opacity hover:opacity-70"
-          >
-            _INSTAGRAM <br />
-            <span className="pl-10 font-alte-haas-bold text-[12px] normal-case tracking-normal text-[#5c5c5c] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]">
-              @flowgeistx
-            </span>
-          </a>
-          <a
-            href="https://soundcloud.com/flowgeistx"
-            target="_blank"
-            rel="noreferrer"
-            className="cursor-pointer text-black/90 transition-opacity hover:opacity-70"
-          >
-            SOUNDCLOUD --
-            <br />
-            <span className="pl-10 font-alte-haas-bold text-[12px] normal-case tracking-normal text-[#5c5c5c] sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]">
-              @flowgeistx
-            </span>
-          </a>
-        </div>
-      </div>
-    </>
+    <svg viewBox="0 0 24 24" aria-hidden className={className}>
+      <circle cx="12" cy="12" r="10.5" fill="currentColor" />
+      <text
+        x="12"
+        y="16"
+        textAnchor="middle"
+        fill="#BABABA"
+        fontSize="9"
+        fontFamily="Arial, Helvetica, sans-serif"
+        fontWeight="700"
+      >
+        RA
+      </text>
+    </svg>
   );
 }
+
+function DesktopAbout({ liveHref }: { liveHref?: string }) {
+  const jump = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <div className="px-6 pb-12 pt-8 md:px-10 md:pt-10">
+      <div className="grid grid-cols-1 items-end gap-x-8 gap-y-8 lg:grid-cols-[9rem_minmax(16rem,20rem)_minmax(0,1fr)] lg:justify-start lg:gap-x-10 xl:grid-cols-[9rem_minmax(16rem,20rem)_minmax(0,40rem)] 2xl:grid-cols-[9rem_minmax(17rem,22rem)_minmax(0,46rem)]">
+        <p className="text-[22px] font-semibold tracking-[0.10px] text-black/65 lg:pb-1">
+          [about]
+        </p>
+        <div className="min-w-0 lg:pb-1">
+          <p className={aboutMargin}>A project curated by</p>
+          <h1 className="mt-3 font-alte-haas-bold text-[clamp(2.15rem,2.7vw,3.15rem)] leading-[0.94] tracking-[-0.02em] text-black/85">
+            Marco Bruno
+            <br />
+            Velvet May
+          </h1>
+        </div>
+        <figure className="min-w-0 lg:col-start-3">
+          <img
+            src="/artists.jpeg"
+            alt="Marco Bruno and Velvet May"
+            className="w-full object-contain"
+          />
+        </figure>
+        <nav
+          aria-label="Contents"
+          className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-t border-black/15 pt-3 lg:col-span-3"
+        >
+          <div className="flex flex-wrap gap-x-7 gap-y-2">
+            {ABOUT_SECTIONS.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => jump(section.id)}
+                className={`${aboutMargin} transition-colors hover:text-black`}
+              >
+                {section.label}
+              </button>
+            ))}
+          </div>
+          <p className={aboutMargin}>Berlin</p>
+        </nav>
+      </div>
+
+      <section className="mt-14 grid grid-cols-1 gap-x-10 gap-y-6 lg:mt-20 lg:grid-cols-[9rem_minmax(0,66rem)] lg:items-start lg:justify-start">
+        <h2 id="about-project" className={`${aboutMargin} scroll-mt-40`}>
+          01 Project
+        </h2>
+        <p className={aboutEssay}>{debutCopy}</p>
+      </section>
+
+      <section className="mt-14 grid grid-cols-1 gap-x-10 gap-y-6 lg:mt-20 lg:grid-cols-[9rem_minmax(0,36rem)_minmax(16rem,28rem)] lg:items-start lg:justify-start">
+        <h2 id="about-live" className={`${aboutMargin} scroll-mt-40`}>
+          02 Live
+        </h2>
+        <div className="min-w-0">
+          <p className={aboutEssay}>{tracesCopy}</p>
+          {liveHref ? (
+            <a
+              href={liveHref}
+              target="_blank"
+              rel="noreferrer"
+              className={`${aboutMargin} mt-8 inline-block text-black/70 transition-colors hover:text-black`}
+            >
+              Kantine am Berghain →
+            </a>
+          ) : null}
+        </div>
+        <figure className="min-w-0">
+          <img
+            src="/artists/pic-negative.jpeg"
+            alt="Marco Bruno and Velvet May"
+            className="w-full object-contain"
+          />
+        </figure>
+      </section>
+
+      <section className="mt-16 grid grid-cols-1 gap-x-10 gap-y-8 lg:mt-24 lg:grid-cols-[9rem_minmax(0,66rem)] lg:items-start lg:justify-start">
+        <h2 id="about-artists" className={`${aboutMargin} scroll-mt-40`}>
+          03 Artists
+        </h2>
+        <div className="min-w-0">
+          <img
+            src="/pics-kantine/DSCF4977.jpg"
+            alt="Flowgeist, Kantine am Berghain"
+            className="w-full object-contain"
+          />
+          <div className="mt-8 grid grid-cols-2 items-start gap-x-10">
+            <article>
+              <h3 className="font-alte-haas-bold text-[22px] leading-tight text-black/85 xl:text-[26px]">
+                Marco Bruno
+              </h3>
+              <p className={`mt-4 ${aboutNote}`}>{marcoCopy}</p>
+              <a
+                href="https://www.marcobruno.net"
+                target="_blank"
+                rel="noreferrer"
+                className={`${aboutMargin} mt-5 inline-block text-black/60 transition-colors hover:text-black`}
+              >
+                marcobruno.net
+              </a>
+            </article>
+            <article>
+              <h3 className="font-alte-haas-bold text-[22px] leading-tight text-black/85 xl:text-[26px]">
+                Velvet May
+              </h3>
+              <p className={`mt-4 ${aboutNote}`}>{velvetCopy}</p>
+              <a
+                href="https://instagram.com/velvetxmay"
+                target="_blank"
+                rel="noreferrer"
+                className={`${aboutMargin} mt-5 inline-block text-black/60 transition-colors hover:text-black`}
+              >
+                Instagram
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-16 grid grid-cols-1 gap-y-6 border-t border-black/15 pt-8 lg:mt-20 lg:grid-cols-[9rem_minmax(0,66rem)] lg:justify-start lg:gap-x-10">
+        <p className={aboutMargin}>Contact</p>
+        <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <a
+            href="mailto:info@flowgeist.net"
+            className="font-alte-haas-bold text-[22px] leading-tight text-black/85 transition-colors hover:text-black xl:text-[26px]"
+          >
+            info [at] flowgeist.net
+          </a>
+          <ul className="flex items-center gap-5 sm:ml-auto">
+            {ABOUT_LINKS.filter((item) => "icon" in item).map((item) => (
+              <li key={item.label}>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={item.label}
+                  className="group inline-flex"
+                >
+                  <AboutLinkIcon
+                    name={item.icon}
+                    className="h-7 w-7 shrink-0 text-black/70 transition-colors group-hover:text-black"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const GALLERY_PREVIEW = 1;
 
 function DesktopLanding() {
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -178,38 +410,7 @@ function DesktopLanding() {
       >
         <div className="flex min-h-full flex-col">
           <SiteHeader current="about" onHome={openHome} onAbout={openAbout} />
-          <div className="px-4 pb-20 pt-10 md:px-10 md:pb-24 md:pt-12">
-            <p className="text-[22px] font-semibold tracking-[0.10px] text-black/65 2xl:text-[28px]">
-              [about]
-            </p>
-            <div className="mt-8 grid items-start gap-x-16 gap-y-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(26rem,40rem)]">
-              <img
-                src="/artists.jpeg"
-                alt="Marco Bruno and Velvet May"
-                className="w-full object-contain"
-              />
-              <div className="min-w-0 xl:pt-1">
-                <p className="font-pt-mono text-[12px] font-semibold uppercase tracking-[0.22em] text-black/45">
-                  A project curated by
-                </p>
-                <p className="mt-3 font-alte-haas-bold text-[18px] leading-tight text-black/85 xl:text-[20px]">
-                  Marco Bruno and Velvet May
-                </p>
-                <p className={`mt-8 ${desktopAboutProse}`}>{debutCopy}</p>
-                <p className={`mt-8 ${desktopAboutProse}`}>{tracesCopy}</p>
-                {eventCardSection?.links[0] ? (
-                  <a
-                    href={eventCardSection.links[0].href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-12 inline-block font-pt-mono text-[12px] font-semibold uppercase tracking-[0.26em] text-black/70 transition hover:text-black"
-                  >
-                    Kantine am Berghain →
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </div>
+          <DesktopAbout liveHref={eventCardSection?.links[0]?.href} />
         </div>
       </div>
 
@@ -527,9 +728,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-black/20 bg-[#BABABA] pb-[max(2rem,env(safe-area-inset-bottom))] md:border-t md:px-10 md:pb-14 md:pt-10">
-        <ContactsBlock />
-      </footer>
+      <SiteFooter />
     </main>
     </>
   );

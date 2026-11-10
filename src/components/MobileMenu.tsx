@@ -15,7 +15,7 @@ type MobileMenuProps = {
 const SOCIAL = [
   {
     label: "Mail",
-    href: "mailto:flowgeistmusic@gmail.com",
+    href: "mailto:info@flowgeist.net",
     external: false,
   },
   {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import MobileMenu from "@/components/MobileMenu";
+import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
@@ -83,7 +84,7 @@ const NEWS = [
 
 export default function NewsPage() {
   return (
-    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pb-16 pt-1 text-black/80 md:px-0">
+    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pt-1 text-black/80 md:px-0">
       <MobileMenu tone="dark" current="news" className="md:hidden" />
       <SiteHeader current="news" />
 
@@ -93,48 +94,37 @@ export default function NewsPage() {
           {NEWS.map((item) => (
             <article
               key={item.title}
-              className="grid gap-3 border-t border-black/15 py-8 md:grid-cols-[9.5rem_minmax(0,1fr)] md:gap-12 md:py-10"
+              className="grid items-start gap-4 border-t border-black/15 py-8 md:grid-cols-[7.5rem_13rem_minmax(0,36rem)] md:gap-x-10 md:py-9"
             >
-              <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">
+              <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45 md:text-right">
                 {item.date}
               </p>
-              <div
-                className={
-                  "image" in item && item.image
-                    ? "md:flex md:items-start md:gap-10"
-                    : undefined
-                }
-              >
-                {"image" in item && item.image ? (
-                  <div className="mb-6 w-full shrink-0 md:mb-0 md:w-64">
-                    {item.image.endsWith(".svg") ? (
-                      <div className="flex aspect-[16/10] w-full items-center justify-center bg-neutral-900 px-12 py-10 md:aspect-auto md:h-40 md:px-8 md:py-6">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-full max-h-28 w-auto object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        width={"width" in item ? item.width : 1600}
-                        height={"height" in item ? item.height : 1066}
-                        className="h-auto w-full"
-                      />
-                    )}
-                  </div>
-                ) : null}
-                <div className="max-w-2xl md:min-w-0 md:flex-1">
+              <div className="relative aspect-[4/3] w-full max-w-sm overflow-hidden bg-[#2a2a2a] md:aspect-square md:w-[13rem] md:max-w-none">
+                {item.image.endsWith(".svg") ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="absolute left-1/2 top-1/2 h-auto w-[68%] -translate-x-1/2 -translate-y-1/2 object-contain"
+                  />
+                ) : (
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="208px"
+                    className="object-cover object-center"
+                  />
+                )}
+              </div>
+              <div className="min-w-0">
                 <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-black/45">
                   {item.kicker}
                 </p>
-                <h2 className="mt-2 font-alte-haas-bold text-[22px] leading-none text-black/85 md:text-[34px]">
+                <h2 className="mt-2 font-alte-haas-bold text-[22px] leading-[1.05] text-black/85 md:text-[30px]">
                   {item.title}
                 </h2>
-                <p className="mt-4 text-justify font-alte-haas-bold text-[14px] font-semibold leading-[1.2] text-[#5c5c5c] md:text-[18px]">
+                <p className="mt-3 font-alte-haas-bold text-[14px] font-semibold leading-[1.25] text-[#5c5c5c] md:text-[17px]">
                   {item.body}
                 </p>
                 <a
@@ -142,11 +132,10 @@ export default function NewsPage() {
                   {...(item.href.startsWith("http")
                     ? { target: "_blank", rel: "noreferrer" }
                     : {})}
-                  className="mt-5 inline-block font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/70 transition hover:text-black"
+                  className="mt-4 inline-block font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/70 transition hover:text-black"
                 >
                   {item.label}
                 </a>
-                </div>
               </div>
             </article>
           ))}
@@ -197,6 +186,7 @@ export default function NewsPage() {
           </div>
         </article>
       </section>
+      <SiteFooter className="-mx-2 md:mx-0" />
     </main>
   );
 }

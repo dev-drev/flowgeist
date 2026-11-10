@@ -10,11 +10,10 @@ type GalleryItem = {
   alt: string;
   frame: string;
   sizes: string;
-  fit?: "cover" | "contain";
-  position?: string;
 };
 
 const KANTINE_FILES = [
+  "full.png",
   "DSCF4977.jpg",
   "DSCF4750.jpg",
   "DSCF4782.jpg",
@@ -38,26 +37,42 @@ const KANTINE_FILES = [
   "DSCF5046.jpg",
 ];
 
-const KANTINE_PORTRAIT = new Set(["DSCF4792.jpg"]);
+const HERO_FRAME =
+  "col-span-2 row-span-2 h-full md:col-span-12 md:row-span-6";
 
-const kantineItems: GalleryItem[] = KANTINE_FILES.map((file, index) => {
-  const portrait = KANTINE_PORTRAIT.has(file);
-  const wide = !portrait && index % 5 === 0;
-  return {
-    src: `/pics-kantine/${file}`,
-    alt: "Flowgeist, Kantine am Berghain",
-    frame: portrait
-      ? "col-span-1 aspect-[2/3] md:col-span-4"
-      : wide
-        ? "col-span-2 aspect-[3/2] md:col-span-8"
-        : "col-span-1 aspect-[3/2] md:col-span-4",
-    sizes: wide
-      ? "(max-width: 768px) 100vw, 66vw"
-      : "(max-width: 768px) 50vw, 34vw",
-  };
-});
+// Tiles match the 3:2 photos so landscape frames don't letterbox.
+// A row of four absorbs a remainder of one so the last line is never a single tile.
+const TILE_FRAME = "col-span-1 aspect-[3/2] md:col-span-4";
+const ROW_OF_FOUR = "col-span-1 aspect-[3/2] md:col-span-3";
 
-const GALLERY: GalleryItem[] = kantineItems;
+function layoutFor(count: number) {
+  if (count <= 0) return [];
+  if (count === 1) return [HERO_FRAME];
+
+  const frames: string[] = [];
+  let remaining = count;
+  if (remaining % 3 === 1) {
+    const row = Math.min(4, remaining);
+    for (let index = 0; index < row; index += 1) frames.push(ROW_OF_FOUR);
+    remaining -= row;
+  }
+  for (let index = 0; index < remaining; index += 1) frames.push(TILE_FRAME);
+  return frames;
+}
+
+function sizesFor(frame: string) {
+  const mobile = frame.startsWith("col-span-2") ? "100vw" : "50vw";
+  const desktop = frame.includes("md:col-span-12")
+    ? "100vw"
+    : frame.includes("md:col-span-8")
+      ? "66vw"
+      : frame.includes("md:col-span-6")
+        ? "50vw"
+        : frame.includes("md:col-span-4")
+          ? "34vw"
+          : "25vw";
+  return `(max-width: 768px) ${mobile}, ${desktop}`;
+}
 
 export default function GallerySection({
   active,
@@ -66,7 +81,14 @@ export default function GallerySection({
   active: boolean;
   limit?: number;
 }) {
-  const items = limit ? GALLERY.slice(0, limit) : GALLERY;
+  const files = limit ? KANTINE_FILES.slice(0, limit) : KANTINE_FILES;
+  const frames = layoutFor(files.length);
+  const items: GalleryItem[] = files.map((file, index) => ({
+    src: `/pics-kantine/${file}`,
+    alt: "Flowgeist, Kantine am Berghain",
+    frame: frames[index],
+    sizes: sizesFor(frames[index]),
+  }));
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const touchX = useRef<number | null>(null);
@@ -121,30 +143,32 @@ export default function GallerySection({
         </p>
       </MobileFadeIn>
       <MobileFadeIn active={active} delay={40} className="w-full">
-        <div className="mt-4 grid grid-cols-2 gap-1.5 px-4 sm:px-8 md:mt-6 md:grid-cols-12 md:gap-3 md:px-10">
-          {items.map((item, index) => (
-            <button
-              key={item.src}
-              type="button"
-              onClick={() => setOpenIndex(index)}
-              className={`group relative cursor-pointer overflow-hidden bg-[#2a2a2a] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40 ${
-                items.length === 1
-                  ? "col-span-2 aspect-[3/2] md:col-span-12"
-                  : item.frame
-              }`}
-              aria-label={`Open ${item.alt}`}
-            >
-              <Image
-                src={item.src}
-                alt={item.alt}
-                fill
-                sizes={item.sizes}
-                className={`transition-opacity duration-500 group-hover:opacity-90 ${
-                  item.fit === "contain" ? "object-contain p-6" : "object-cover"
-                } ${item.position ?? ""}`}
-              />
-            </button>
-          ))}
+        <div className="@container px-4 sm:px-8 md:px-10">
+          <div
+            className={`mt-4 grid grid-cols-2 gap-3 md:mt-6 md:grid-cols-12 md:gap-4 ${
+              files.length === 1
+                ? "auto-rows-[calc(100cqw_/_3)] md:auto-rows-[calc((100cqw_-_11rem)_/_12)]"
+                : ""
+            }`}
+          >
+            {items.map((item, index) => (
+              <button
+                key={item.src}
+                type="button"
+                onClick={() => setOpenIndex(index)}
+                className={`group relative w-full min-w-0 cursor-pointer overflow-hidden bg-[#2a2a2a] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/40 ${item.frame}`}
+                aria-label={`Open ${item.alt}`}
+              >
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  sizes={item.sizes}
+                  className="object-contain transition-opacity duration-500 group-hover:opacity-90"
+                />
+              </button>
+            ))}
+          </div>
         </div>
       </MobileFadeIn>
 
