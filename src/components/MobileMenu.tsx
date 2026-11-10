@@ -25,7 +25,7 @@ const SOCIAL = [
   },
   {
     label: "SoundCloud",
-    href: "https://soundcloud.com/flowgeistx",
+    href: "https://soundcloud.com/flowgeist",
     external: true,
   },
 ];

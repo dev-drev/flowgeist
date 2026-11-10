@@ -8,7 +8,7 @@ import LandingVideo from "@/components/LandingVideo";
 import LinksList from "@/components/LinksList";
 import MobileFadeIn from "@/components/MobileFadeIn";
 import MobileMenu from "@/components/MobileMenu";
-import SiteFooter from "@/components/SiteFooter";
+import SiteFooter, { DesktopContact, SocialLogos } from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import SiteNav from "@/components/SiteNav";
 import { LINK_SECTIONS } from "@/lib/linksConfig";
@@ -66,110 +66,6 @@ const ABOUT_SECTIONS = [
   { id: "about-live", label: "02 Live" },
   { id: "about-artists", label: "03 Artists" },
 ] as const;
-
-const ABOUT_LINKS = [
-  {
-    label: "Email",
-    href: "mailto:info@flowgeist.net",
-    value: "info [at] flowgeist.net",
-  },
-  {
-    label: "Instagram",
-    href: "https://www.instagram.com/flowgeistx/",
-    value: "@flowgeistx",
-    icon: "instagram",
-  },
-  {
-    label: "SoundCloud",
-    href: "https://soundcloud.com/flowgeistx",
-    value: "@flowgeistx",
-    icon: "soundcloud",
-  },
-  {
-    label: "Bandcamp",
-    href: "https://flowgeist.bandcamp.com",
-    value: "flowgeist.bandcamp.com",
-    icon: "bandcamp",
-  },
-  {
-    label: "Facebook",
-    href: "https://www.facebook.com/flowgeistx",
-    value: "/flowgeistx",
-    icon: "facebook",
-  },
-  {
-    label: "Resident Advisor",
-    href: "https://ra.co/dj/flowgeist",
-    value: "ra.co/dj/flowgeist",
-    icon: "resident",
-  },
-] as const;
-
-function AboutLinkIcon({
-  name,
-  className = "h-4 w-4 shrink-0 text-black/70 transition-colors group-hover:text-black",
-}: {
-  name: "instagram" | "soundcloud" | "bandcamp" | "facebook" | "resident";
-  className?: string;
-}) {
-
-  if (name === "instagram") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="none" stroke="currentColor" strokeWidth="1.7">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.4" cy="6.6" r="0.9" fill="currentColor" stroke="none" />
-      </svg>
-    );
-  }
-
-  if (name === "soundcloud") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
-        <rect x="1" y="13" width="1.35" height="4.2" rx="0.4" />
-        <rect x="3.15" y="10.6" width="1.35" height="6.6" rx="0.4" />
-        <rect x="5.3" y="8.4" width="1.35" height="8.8" rx="0.4" />
-        <circle cx="11.1" cy="13.3" r="2.45" />
-        <circle cx="14.3" cy="12.15" r="3.15" />
-        <circle cx="17.6" cy="13.45" r="2.55" />
-        <rect x="9" y="13.2" width="11.1" height="3.3" rx="1.5" />
-      </svg>
-    );
-  }
-
-  if (name === "bandcamp") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
-        <path d="M1.2 18.6 8.4 5.2H22.8l-7.2 13.4H1.2z" />
-      </svg>
-    );
-  }
-
-  if (name === "facebook") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
-        <path d="M14.2 8.4V6.9c0-.7.4-.9 1.1-.9H17V3.4h-2c-2.5 0-3.6 1.4-3.6 3.4v1.6H9.2v2.7h2.2V20.6h3.3v-9.5h2.2l.4-2.7h-3.1z" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className={className}>
-      <circle cx="12" cy="12" r="10.5" fill="currentColor" />
-      <text
-        x="12"
-        y="16"
-        textAnchor="middle"
-        fill="#BABABA"
-        fontSize="9"
-        fontFamily="Arial, Helvetica, sans-serif"
-        fontWeight="700"
-      >
-        RA
-      </text>
-    </svg>
-  );
-}
 
 function DesktopAbout({ liveHref }: { liveHref?: string }) {
   const jump = (id: string) => {
@@ -266,62 +162,28 @@ function DesktopAbout({ liveHref }: { liveHref?: string }) {
                 Marco Bruno
               </h3>
               <p className={`mt-4 ${aboutNote}`}>{marcoCopy}</p>
-              <a
-                href="https://www.marcobruno.net"
-                target="_blank"
-                rel="noreferrer"
-                className={`${aboutMargin} mt-5 inline-block text-black/60 transition-colors hover:text-black`}
-              >
-                marcobruno.net
-              </a>
+              <SocialLogos
+                className="mt-5"
+                instagram="https://www.instagram.com/marcobruno.evighet/"
+                soundcloud="https://soundcloud.com/marcobruno_evighet"
+              />
             </article>
             <article>
               <h3 className="font-alte-haas-bold text-[22px] leading-tight text-black/85 xl:text-[26px]">
                 Velvet May
               </h3>
               <p className={`mt-4 ${aboutNote}`}>{velvetCopy}</p>
-              <a
-                href="https://instagram.com/velvetxmay"
-                target="_blank"
-                rel="noreferrer"
-                className={`${aboutMargin} mt-5 inline-block text-black/60 transition-colors hover:text-black`}
-              >
-                Instagram
-              </a>
+              <SocialLogos
+                className="mt-5"
+                instagram="https://www.instagram.com/velvetxmay"
+                soundcloud="https://soundcloud.com/velvetxmay"
+              />
             </article>
           </div>
         </div>
       </section>
 
-      <div className="mt-16 grid grid-cols-1 gap-y-6 border-t border-black/15 pt-8 lg:mt-20 lg:grid-cols-[9rem_minmax(0,66rem)] lg:justify-start lg:gap-x-10">
-        <p className={aboutMargin}>Contact</p>
-        <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <a
-            href="mailto:info@flowgeist.net"
-            className="font-alte-haas-bold text-[22px] leading-tight text-black/85 transition-colors hover:text-black xl:text-[26px]"
-          >
-            info [at] flowgeist.net
-          </a>
-          <ul className="flex items-center gap-5 sm:ml-auto">
-            {ABOUT_LINKS.filter((item) => "icon" in item).map((item) => (
-              <li key={item.label}>
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={item.label}
-                  className="group inline-flex"
-                >
-                  <AboutLinkIcon
-                    name={item.icon}
-                    className="h-7 w-7 shrink-0 text-black/70 transition-colors group-hover:text-black"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <DesktopContact />
     </div>
   );
 }

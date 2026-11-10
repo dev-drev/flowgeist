@@ -175,7 +175,7 @@ function mailDate(value: string) {
 
 const FLOWGEIST_SOCIALS = [
   { id: "instagram", label: "Instagram", href: "https://www.instagram.com/flowgeistx/" },
-  { id: "soundcloud", label: "SoundCloud", href: "https://soundcloud.com/flowgeistx" },
+  { id: "soundcloud", label: "SoundCloud", href: "https://soundcloud.com/flowgeist" },
   { id: "facebook", label: "Facebook", href: "https://www.facebook.com/flowgeistx" },
   { id: "ra", label: "Resident Advisor", href: "https://ra.co/dj/flowgeist" },
 ] as const;
