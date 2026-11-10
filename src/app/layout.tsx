@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Geist, Geist_Mono, PT_Mono, Space_Grotesk } from "next/font/google";
+import RouteTransition from "@/components/RouteTransition";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -79,7 +80,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${ptMono.variable} ${alteHaasBold.variable} antialiased`}
       >
-        {children}
+        <RouteTransition>{children}</RouteTransition>
       </body>
     </html>
   );

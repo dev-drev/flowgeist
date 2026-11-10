@@ -158,8 +158,8 @@ export default function LinksList({
 }: LinksListProps) {
   return (
     <div
-      className={`w-full max-w-md py-2 ${
-        align === "center" ? "mx-auto px-4" : ""
+      className={`w-full py-2 ${
+        align === "center" ? "mx-auto max-w-md px-4" : ""
       } ${className}`}
     >
       <div className="flex flex-col gap-3">

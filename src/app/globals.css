@@ -260,6 +260,45 @@ body.home-page .about-scroll {
   animation: mobile-menu-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.nav-on-video {
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  animation: none;
+}
+
+::view-transition-new(root),
+.page-enter {
+  animation: route-fade 0.32s ease-out both;
+}
+
+@keyframes route-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  .page-enter,
+  .mobile-menu-in {
+    animation: none;
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

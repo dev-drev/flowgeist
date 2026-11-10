@@ -1,49 +1,123 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import LinksList from "@/components/LinksList";
 import MobileMenu from "@/components/MobileMenu";
-import { LINK_SECTIONS } from "@/lib/linksConfig";
+import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "Music — Flowgeist",
   description: "Flowgeist music.",
 };
 
-const albumSection = LINK_SECTIONS.find((section) => section.id === "album");
-const musicSection = albumSection ? { ...albumSection, title: undefined } : null;
+const LISTEN = [
+  {
+    label: "Bandcamp",
+    href: "https://flowgeist.bandcamp.com/album/flowgeist-evighet007",
+  },
+  {
+    label: "SoundCloud",
+    href: "https://soundcloud.com/flowgeist/flowgeist-evighet007",
+  },
+];
+
+const labelClass =
+  "text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px] md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]";
+
+const proseClass =
+  "text-justify font-alte-haas-bold text-[14px] font-semibold leading-[1.2] text-[#5c5c5c] md:text-[18px]";
+
+const linkClass =
+  "font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/70 transition hover:text-black";
+
+const mediaGrid =
+  "mt-6 grid items-start gap-8 md:mt-8 md:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] md:gap-x-14 lg:gap-x-20";
 
 export default function MusicPage() {
   return (
-    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pb-10 pt-1 text-black/80 md:px-0 md:pb-16">
-      <MobileMenu tone="dark" current="music" />
-      <header className="flex w-full items-start justify-between bg-[#BABABA] pl-4 pr-4 md:px-10 md:pt-2">
-        <Link
-          href="/"
-          className="inline-flex min-w-0 max-w-[calc(100%-3.25rem)] items-center rounded-md pt-6 md:max-w-[440px] md:py-6"
-          aria-label="Back to home"
+    <main className="min-h-[100dvh] w-full bg-[#BABABA] px-2 pb-16 pt-1 text-black/80 md:px-0 md:pb-20">
+      <MobileMenu tone="dark" current="music" className="md:hidden" />
+      <SiteHeader current="music" />
+
+        <section aria-label="Music" className="px-4 pt-8 md:px-10 md:pt-12">
+          <p className={labelClass}>[music]</p>
+
+          <div className={mediaGrid}>
+            <div className="md:sticky md:top-52">
+              <Image
+                src="/news/evighet007.jpg"
+                alt="Flowgeist [EVIGHET007] album cover"
+                width={1200}
+                height={1200}
+                className="h-auto w-full"
+                priority
+              />
+            </div>
+
+            <div className="min-w-0">
+              <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">
+                Evighet Records · 06.11.2026
+              </p>
+              <h1 className="mt-3 font-alte-haas-bold text-[28px] leading-none text-black/85 md:text-[40px] xl:text-[48px]">
+                Flowgeist [EVIGHET007]
+              </h1>
+              <p className={`mt-5 max-w-xl ${proseClass}`}>
+                The debut album. Ten tracks, from Molecules to Meaningful Quest.
+                A marbled heavyweight 12-inch, edition of 300, and digital in
+                24-bit.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 border-b border-black/15 pb-5">
+                {LISTEN.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={linkClass}
+                  >
+                    {item.label} →
+                  </a>
+                ))}
+              </div>
+
+              <iframe
+                title="Play Flowgeist [EVIGHET007] on Bandcamp"
+                src="https://bandcamp.com/EmbeddedPlayer/album=928316097/size=large/bgcol=ffffff/linkcol=333333/tracklist=true/artwork=small/transparent=true/"
+                className="mt-8 block h-[520px] w-full bg-white"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section
+          aria-label="Short film"
+          className="mt-16 border-t border-black/15 px-4 pt-8 md:mt-20 md:px-10 md:pt-12"
         >
-          <Image
-            src="/flowgeist.png"
-            alt="Flowgeist"
-            width={200}
-            height={56}
-            className="h-auto w-full max-w-[320px] object-contain sm:max-w-[550px] md:max-w-[440px]"
-            priority
-          />
-        </Link>
-      </header>
-      <section aria-label="Music" className="pb-8">
-        <p className="ml-10 pt-8 text-[12px] font-semibold tracking-[0.10px] text-black/65 sm:text-[13px] md:ml-0 md:px-10 md:pt-8 md:text-[22px] 2xl:text-[28px] 3xl:text-[34px]">
-          [music]
-        </p>
-        {musicSection ? (
-          <LinksList
-            sections={[musicSection]}
-            className="mt-4 py-2 md:mx-0 md:mt-6 md:max-w-xl md:px-10"
-          />
-        ) : null}
-      </section>
+          <p className={labelClass}>[short film]</p>
+          <div className={mediaGrid}>
+            <div className="overflow-hidden bg-black">
+              <iframe
+                title="Flowgeist - A Short Film"
+                src="https://www.youtube-nocookie.com/embed/U9zLkFAWaa4"
+                className="aspect-video w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            </div>
+            <div>
+              <p className="font-pt-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-black/45">
+                Film
+              </p>
+              <h2 className="mt-3 font-alte-haas-bold text-[28px] leading-none text-black/85 md:text-[40px]">
+                A Short Film
+              </h2>
+              <p className={`mt-5 max-w-xl ${proseClass}`}>
+                Image and sound carry the same narrative: dense atmospheres,
+                fractured rhythm, and a voice that stays in the frame.
+              </p>
+            </div>
+          </div>
+        </section>
     </main>
   );
 }

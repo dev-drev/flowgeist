@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import GallerySection from "@/components/GallerySection";
@@ -8,6 +8,8 @@ import LandingVideo from "@/components/LandingVideo";
 import LinksList from "@/components/LinksList";
 import MobileFadeIn from "@/components/MobileFadeIn";
 import MobileMenu from "@/components/MobileMenu";
+import SiteHeader from "@/components/SiteHeader";
+import SiteNav from "@/components/SiteNav";
 import { LINK_SECTIONS } from "@/lib/linksConfig";
 import { useTracking } from "@/lib/useTracking";
 
@@ -35,13 +37,16 @@ const eventCardSection = ticketsSection
   : null;
 
 const debutCopy =
-  "Flowgeist makes its live debut at Kantine am Berghain alongside the release of its first full-length album. Conceived by Berlin-based artists Marco Bruno and Velvet May, the project emerges from a shared inquiry into sound and aesthetics. Approaching electronic music as a cinematic field, Flowgeist moves through dense atmospheres, fractured rhythms and sculptural sound design. Its language develops through detail: genre remains peripheral, meaning is tethered to sensation, drawing the listener into a world shaped by an unfolding narrative.";
+  "Conceived by Berlin-based artists Marco Bruno and Velvet May, the project emerges from a shared inquiry into sound and aesthetics. Approaching electronic music as a cinematic field, Flowgeist moves through dense atmospheres, fractured rhythms and sculptural sound design. Its language develops through detail: genre remains peripheral, meaning is tethered to sensation, drawing the listener into a world shaped by an unfolding narrative.";
 
 const tracesCopy =
   "Traces of trip hop, post punk, industrial electronics and breakbeat appear like residues within a wider dramaturgy, where rhythm, texture and voice carry the album's internal narrative into physical space. The performance marks the first live incarnation of the record, opening its layered studio architecture to the immediacy of the room.";
 
 const desktopProse =
   "text-justify font-alte-haas-bold text-[20px] font-semibold leading-[1.16] text-[#5c5c5c] 2xl:text-[26px] 3xl:text-[32px]";
+
+const desktopAboutProse =
+  "text-justify font-alte-haas-bold text-[22px] font-semibold leading-[1.18] text-[#5c5c5c] xl:text-[26px] 2xl:text-[30px]";
 
 const GALLERY_PREVIEW = 1;
 
@@ -94,263 +99,120 @@ function ContactsBlock() {
 function DesktopLanding() {
   const aboutRef = useRef<HTMLDivElement>(null);
   const [showAbout, setShowAbout] = useState(false);
-  const [showLinksModal, setShowLinksModal] = useState(false);
-  const [linksModalMounted, setLinksModalMounted] = useState(false);
-  const [linksModalClosing, setLinksModalClosing] = useState(false);
-  const [showAlbumModal, setShowAlbumModal] = useState(false);
-  const [albumModalMounted, setAlbumModalMounted] = useState(false);
-  const [albumModalClosing, setAlbumModalClosing] = useState(false);
 
-  useEffect(() => {
-    if (showLinksModal) {
-      setLinksModalClosing(false);
-      setLinksModalMounted(true);
-      return;
+  useLayoutEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("view") === "about" || window.location.hash === "#about") {
+      setShowAbout(true);
     }
-    if (!linksModalMounted) return;
-    setLinksModalClosing(true);
-    const timeout = window.setTimeout(() => {
-      setLinksModalMounted(false);
-      setLinksModalClosing(false);
-    }, 400);
-    return () => window.clearTimeout(timeout);
-  }, [showLinksModal, linksModalMounted]);
-
-  useEffect(() => {
-    if (showAlbumModal) {
-      setAlbumModalClosing(false);
-      setAlbumModalMounted(true);
-      return;
-    }
-    if (!albumModalMounted) return;
-    setAlbumModalClosing(true);
-    const timeout = window.setTimeout(() => {
-      setAlbumModalMounted(false);
-      setAlbumModalClosing(false);
-    }, 400);
-    return () => window.clearTimeout(timeout);
-  }, [showAlbumModal, albumModalMounted]);
-
-  useEffect(() => {
-    if (!showLinksModal && !showAlbumModal) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setShowLinksModal(false);
-      setShowAlbumModal(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [showLinksModal, showAlbumModal]);
+  }, []);
 
   useEffect(() => {
     if (!showAbout && aboutRef.current) aboutRef.current.scrollTop = 0;
   }, [showAbout]);
 
+  const openHome = () => {
+    setShowAbout(false);
+    if (window.location.search || window.location.hash) {
+      window.history.replaceState(null, "", "/");
+    }
+  };
+
+  const openAbout = () => {
+    setShowAbout(true);
+    window.history.replaceState(null, "", "/?view=about");
+  };
+
   useEffect(() => {
     const onWheel = (event: WheelEvent) => {
-      if (showLinksModal || showAlbumModal) return;
-      if (event.deltaY > 28) {
-        setShowAbout(true);
-        return;
-      }
-      if (event.deltaY < -28 && (aboutRef.current?.scrollTop ?? 0) <= 0) {
-        setShowAbout(false);
-      }
+      if (!showAbout && event.deltaY > 28) setShowAbout(true);
     };
     window.addEventListener("wheel", onWheel, { passive: true });
     return () => window.removeEventListener("wheel", onWheel);
-  }, [showLinksModal, showAlbumModal]);
+  }, [showAbout]);
 
   return (
     <div className="fixed inset-0 z-30 hidden bg-black md:block">
       <LandingVideo active />
       <div className="absolute inset-0 bg-black/50" />
       <div
-        className={`absolute inset-0 z-10 flex items-center justify-center px-8 transition-all duration-700 ${
-          showAbout ? "pointer-events-none scale-95 opacity-0" : "opacity-100"
+        aria-hidden={showAbout}
+        className={`absolute inset-0 z-10 flex items-center justify-center px-8 transition-opacity duration-300 ease-out ${
+          showAbout ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
       >
-        <button
-          type="button"
-          onClick={() => setShowAbout(true)}
-          className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-          aria-label="Open about"
-        >
-          <Image
-            src="/artists/icon.png"
-            alt="Flowgeist"
-            width={500}
-            height={700}
-            priority
-            className="h-auto w-[min(30vw,340px)] object-contain transition-opacity hover:opacity-90"
+        <div className="grid h-full w-full grid-rows-[1fr_auto_1fr] justify-items-center">
+          <div />
+          <button
+            type="button"
+            onClick={openAbout}
+            className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            aria-label="Open about"
+          >
+            <Image
+              src="/artists/icon.png"
+              alt="Flowgeist"
+              width={500}
+              height={700}
+              priority
+              className="h-auto w-[min(30vw,340px)] object-contain transition-opacity hover:opacity-90"
+            />
+          </button>
+          <SiteNav
+            tone="light"
+            current="home"
+            onAbout={openAbout}
+            className="justify-center self-center"
           />
-        </button>
+        </div>
       </div>
       <div
         ref={aboutRef}
-        className={`relative z-10 mx-auto flex h-full w-full max-w-[920px] flex-col items-center justify-center overflow-y-auto px-12 py-16 text-left transition-all duration-700 md:px-16 ${
+        aria-label="About"
+        aria-hidden={!showAbout}
+        className={`absolute inset-0 z-20 bg-[#BABABA] text-black/80 transition-opacity duration-300 ease-out ${
           showAbout
-            ? "pointer-events-auto translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-2 overflow-hidden opacity-0"
+            ? "pointer-events-auto overflow-y-auto opacity-100"
+            : "pointer-events-none overflow-hidden opacity-0"
         }`}
       >
-        <p className="text-justify font-alte-haas-bold text-[18px] font-normal leading-[1.15] text-white/90 3xl:text-[20px]">
-          <span className="font-semibold">Flowgeist</span> makes its live debut
-          at <span className="font-semibold">Kantine am Berghain</span> alongside
-          the release of its{" "}
-          <span className="font-semibold">first full-length album</span>.
-          Conceived by Berlin-based artists{" "}
-          <span className="font-semibold">Marco Bruno</span> and{" "}
-          <span className="font-semibold">Velvet May</span>, the project emerges
-          from a shared inquiry into sound and aesthetics.
-          <br />
-          <br />
-          Approaching electronic music as a cinematic field, Flowgeist moves
-          through dense atmospheres, fractured rhythms and sculptural sound
-          design. Its language develops through detail: genre remains
-          peripheral, meaning is tethered to sensation, drawing the listener
-          into a world shaped by an unfolding narrative.
-        </p>
-        <Image
-          src="/artists/flowhite.png"
-          alt="Flowgeist"
-          width={560}
-          height={346}
-          className="mt-12 h-auto w-[min(48vw,420px)] object-contain"
-          priority
-        />
-        <div className="mt-10 flex items-center gap-5 text-white/85">
-          <a
-            href="mailto:flowgeistmusic@gmail.com"
-            className="flex h-7 w-7 items-center justify-center transition-opacity hover:opacity-70"
-            aria-label="Mail Flowgeist"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <rect x="3.5" y="6.5" width="17" height="11" rx="1.8" />
-              <path d="M4.5 8l7.5 5.6L19.5 8" />
-            </svg>
-          </a>
-          <a
-            href="https://www.instagram.com/flowgeistx/"
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-7 w-7 items-center justify-center transition-opacity hover:opacity-70"
-            aria-label="Instagram Flowgeist"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-              <rect x="4" y="4" width="16" height="16" rx="4.5" />
-              <circle cx="12" cy="12" r="3.8" />
-              <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
-            </svg>
-          </a>
-          <a
-            href="https://soundcloud.com/flowgeistx"
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-7 w-7 items-center justify-center transition-opacity hover:opacity-70"
-            aria-label="SoundCloud Flowgeist"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-              <path d="M4 16h12a3.5 3.5 0 1 0-.6-6.95A5 5 0 0 0 6.6 10" />
-              <path d="M5 16V11.8M7 16V10.8M9 16V10.2M11 16v-.6M13 16v-.5M15 16v-.2" />
-            </svg>
-          </a>
+        <div className="flex min-h-full flex-col">
+          <SiteHeader current="about" onHome={openHome} onAbout={openAbout} />
+          <div className="px-4 pb-20 pt-10 md:px-10 md:pb-24 md:pt-12">
+            <p className="text-[22px] font-semibold tracking-[0.10px] text-black/65 2xl:text-[28px]">
+              [about]
+            </p>
+            <div className="mt-8 grid items-start gap-x-16 gap-y-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(26rem,40rem)]">
+              <img
+                src="/artists.jpeg"
+                alt="Marco Bruno and Velvet May"
+                className="w-full object-contain"
+              />
+              <div className="min-w-0 xl:pt-1">
+                <p className="font-pt-mono text-[12px] font-semibold uppercase tracking-[0.22em] text-black/45">
+                  A project curated by
+                </p>
+                <p className="mt-3 font-alte-haas-bold text-[18px] leading-tight text-black/85 xl:text-[20px]">
+                  Marco Bruno and Velvet May
+                </p>
+                <p className={`mt-8 ${desktopAboutProse}`}>{debutCopy}</p>
+                <p className={`mt-8 ${desktopAboutProse}`}>{tracesCopy}</p>
+                {eventCardSection?.links[0] ? (
+                  <a
+                    href={eventCardSection.links[0].href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-12 inline-block font-pt-mono text-[12px] font-semibold uppercase tracking-[0.26em] text-black/70 transition hover:text-black"
+                  >
+                    Kantine am Berghain →
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowLinksModal(true)}
-          className="mt-12 font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:text-white"
-        >
-          Tickets &amp; links →
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowAlbumModal(true)}
-          className="mt-6 font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:text-white"
-        >
-          Album preview →
-        </button>
-        <Link
-          href="/music"
-          className="mt-6 font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:text-white"
-        >
-          Music →
-        </Link>
-        <Link
-          href="/gallery"
-          className="mt-6 font-pt-mono text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80 transition-opacity hover:text-white"
-        >
-          Gallery →
-        </Link>
       </div>
 
-      {linksModalMounted ? (
-        <div
-          className="absolute inset-0 z-40 flex items-center justify-center px-6"
-          onClick={() => setShowLinksModal(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Tickets and links"
-        >
-          <div
-            className={`absolute inset-0 bg-black/50 ${
-              linksModalClosing ? "links-modal-backdrop-exit" : "links-modal-backdrop-enter"
-            }`}
-          />
-          <div
-            className={`relative z-10 max-h-[85vh] w-full max-w-[440px] overflow-y-auto bg-[#f3f3f1] shadow-2xl ${
-              linksModalClosing ? "links-modal-panel-exit" : "links-modal-panel-enter"
-            }`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setShowLinksModal(false)}
-              className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
-              aria-label="Close links"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                <path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            </button>
-            <LinksList className="py-8" />
-          </div>
-        </div>
-      ) : null}
-
-      {albumModalMounted && albumSection ? (
-        <div
-          className="absolute inset-0 z-40 flex items-center justify-center px-6"
-          onClick={() => setShowAlbumModal(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Album preview"
-        >
-          <div
-            className={`absolute inset-0 bg-black/50 ${
-              albumModalClosing ? "links-modal-backdrop-exit" : "links-modal-backdrop-enter"
-            }`}
-          />
-          <div
-            className={`relative z-10 max-h-[85vh] w-full max-w-[440px] overflow-y-auto bg-[#f3f3f1] shadow-2xl ${
-              albumModalClosing ? "links-modal-panel-exit" : "links-modal-panel-enter"
-            }`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setShowAlbumModal(false)}
-              className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center text-black/50 transition hover:bg-black/5 hover:text-black"
-              aria-label="Close album preview"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-                <path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            </button>
-            <LinksList sections={[albumSection]} className="py-8" />
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 type MobileMenuProps = {
   tone?: "light" | "dark";
-  current?: "home" | "about" | "music" | "gallery";
+  current?: "home" | "about" | "music" | "gallery" | "news";
   onAbout?: () => void;
   onHome?: () => void;
   className?: string;
@@ -34,7 +34,6 @@ export default function MobileMenu({
   tone = "dark",
   current = "home",
   onAbout,
-  onHome,
   className = "",
 }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
@@ -72,14 +71,6 @@ export default function MobileMenu({
     close();
     if (current === "about") return;
     onAbout?.();
-  };
-
-  const handleHome = () => {
-    close();
-    if (current === "home") {
-      onHome?.();
-      return;
-    }
   };
 
   if (!mounted) return null;
@@ -140,16 +131,6 @@ export default function MobileMenu({
           </div>
 
           <nav className="flex flex-1 flex-col justify-center gap-7 px-8">
-            {current === "home" ? (
-              <button type="button" onClick={handleHome} className={itemClass}>
-                [home]
-              </button>
-            ) : (
-              <Link href="/#top" onClick={close} className={itemClass}>
-                Home
-              </Link>
-            )}
-
             {current === "about" || onAbout ? (
               <button type="button" onClick={handleAbout} className={itemClass}>
                 {current === "about" ? "[about]" : "About"}
@@ -177,6 +158,16 @@ export default function MobileMenu({
             ) : (
               <Link href="/gallery" onClick={close} className={itemClass}>
                 Gallery
+              </Link>
+            )}
+
+            {current === "news" ? (
+              <button type="button" onClick={close} className={itemClass}>
+                [news]
+              </button>
+            ) : (
+              <Link href="/news" onClick={close} className={itemClass}>
+                News
               </Link>
             )}
           </nav>
