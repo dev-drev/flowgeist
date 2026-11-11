@@ -142,6 +142,7 @@ type MailDraft = {
   body: string;
   sending: boolean;
   error: string | null;
+  minimized: boolean;
 };
 
 function blankMail(to = "", name = ""): MailDraft {
@@ -154,7 +155,16 @@ function blankMail(to = "", name = ""): MailDraft {
     body: "",
     sending: false,
     error: null,
+    minimized: false,
   };
+}
+
+function mailTabLabel(mail: MailDraft) {
+  return mail.name.trim() || mail.subject.trim() || mail.to.trim() || "New message";
+}
+
+function focusMailDraft(mails: MailDraft[], activeId: string) {
+  return mails.map((mail) => ({ ...mail, minimized: mail.id !== activeId }));
 }
 
 function parseMailTemplate(note: Note) {
@@ -308,12 +318,24 @@ export default function AdminClient() {
   const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
   const socialBarRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [footerHeight, setFooterHeight] = useState(57);
   const loadSeq = useRef(0);
   const messageTimer = useRef<number | null>(null);
 
   const toggleTheme = () => {
     setLight((current) => !current);
   };
+
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+    const update = () => setFooterHeight(el.offsetHeight);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!socialMenu) return;
@@ -437,7 +459,7 @@ export default function AdminClient() {
     if (available.length === 1) Object.assign(next, fillFromTemplate(available[0], name));
     setFormOpen(false);
     setFocusMailId(to ? null : next.id);
-    setMails((current) => [...current, next]);
+    setMails((current) => focusMailDraft([...current, next], next.id));
   };
 
   const duplicateMail = (source: MailDraft) => {
@@ -450,10 +472,19 @@ export default function AdminClient() {
     setFocusMailId(copy.id);
     setMails((current) => {
       const index = current.findIndex((mail) => mail.id === source.id);
-      if (index === -1) return [...current, copy];
       const next = [...current];
-      next.splice(index + 1, 0, copy);
-      return next;
+      if (index === -1) next.push(copy);
+      else next.splice(index + 1, 0, copy);
+      return focusMailDraft(next, copy.id);
+    });
+  };
+
+  const toggleMail = (id: string) => {
+    setMails((current) => {
+      const target = current.find((mail) => mail.id === id);
+      if (!target) return current;
+      if (target.minimized) return focusMailDraft(current, id);
+      return current.map((mail) => (mail.id === id ? { ...mail, minimized: true } : mail));
     });
   };
 
@@ -625,7 +656,7 @@ export default function AdminClient() {
     const next = blankMail(item.fromEmail);
     next.subject = subject;
     setFocusMailId(null);
-    setMails((current) => [...current, next]);
+    setMails((current) => focusMailDraft([...current, next], next.id));
   };
 
   useEffect(() => {
@@ -853,7 +884,7 @@ export default function AdminClient() {
         </div>
       </header>
 
-      <div className="pt-8 pb-24">
+      <div className={`pt-8 ${mails.length > 0 ? "pb-40" : "pb-24"}`}>
         <div className="mb-8 flex flex-col gap-4 border-b border-[var(--admin-border)] pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-2">
             {ADMIN_SECTIONS.map((item) => {
@@ -1083,31 +1114,54 @@ export default function AdminClient() {
 
         {mails.length > 0 && (
           <div
-            className={`mb-8 grid gap-4 ${mails.length > 1 ? "md:grid-cols-2" : "md:max-w-[680px]"}`}
+            className="pointer-events-none fixed inset-x-0 z-40 flex items-end justify-end gap-3 px-4 md:px-8"
+            style={{ bottom: footerHeight }}
           >
             {mails.map((mail) => (
-              <aside key={mail.id} className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5">
-                <div className="mb-5 flex items-center justify-between gap-3">
-                  <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-[var(--admin-strong)] uppercase">
-                    Send mail
-                  </h2>
-                  <div className="flex gap-4">
+              <aside
+                key={mail.id}
+                className={`pointer-events-auto flex flex-col border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-[0_16px_40px_rgba(0,0,0,0.28)] ${
+                  mail.minimized
+                    ? "w-[min(14rem,calc(100vw-2rem))]"
+                    : "w-[min(26rem,calc(100vw-2rem))] max-h-[min(40rem,calc(100vh-8rem))]"
+                }`}
+              >
+                <div className={`flex h-11 shrink-0 items-center gap-2 px-3 ${mail.minimized ? "" : "border-b border-[var(--admin-border)]"}`}>
+                  <button
+                    type="button"
+                    onClick={() => toggleMail(mail.id)}
+                    className="min-w-0 flex-1 truncate text-left font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.14em] text-[var(--admin-strong)] uppercase"
+                  >
+                    {mailTabLabel(mail)}
+                  </button>
+                  {!mail.minimized && (
                     <button
                       type="button"
                       onClick={() => duplicateMail(mail)}
-                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:text-[var(--admin-strong)]"
+                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[var(--admin-soft)] uppercase hover:text-[var(--admin-strong)]"
                     >
-                      Duplicate
+                      Copy
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => closeMail(mail.id)}
-                      className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
-                    >
-                      Close
-                    </button>
-                  </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => toggleMail(mail.id)}
+                    aria-label={mail.minimized ? "Open" : "Minimize"}
+                    className="px-1 font-[family-name:var(--font-pt-mono)] text-sm leading-none text-[var(--admin-muted)] hover:text-[var(--admin-strong)]"
+                  >
+                    {mail.minimized ? "+" : "–"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => closeMail(mail.id)}
+                    aria-label="Close"
+                    className="px-1 font-[family-name:var(--font-pt-mono)] text-sm leading-none text-[var(--admin-muted)] hover:text-[var(--admin-strong)]"
+                  >
+                    ×
+                  </button>
                 </div>
+                {!mail.minimized && (
+                <div className="min-h-0 flex-1 overflow-y-auto p-4">
                 <p className="mb-4 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.14em] text-[var(--admin-muted)] uppercase">
                   From info@flowgeist.net
                 </p>
@@ -1245,7 +1299,7 @@ export default function AdminClient() {
                     <textarea
                       value={mail.body}
                       onChange={(event) => updateMail(mail.id, { body: event.target.value })}
-                      rows={16}
+                      rows={8}
                       className="w-full resize-y border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                     />
                   </label>
@@ -1267,6 +1321,8 @@ export default function AdminClient() {
                     {mail.sending ? "Sending" : "Send"}
                   </button>
                 </form>
+                </div>
+                )}
               </aside>
             ))}
           </div>
@@ -1720,7 +1776,7 @@ export default function AdminClient() {
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 overflow-visible border-t border-[var(--admin-border)] bg-[var(--admin-bg)]">
+      <div ref={footerRef} className="fixed inset-x-0 bottom-0 z-30 overflow-visible border-t border-[var(--admin-border)] bg-[var(--admin-bg)]">
         <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-4 lg:px-8">
           <div ref={socialBarRef} className="flex items-center gap-5">
             {FLOWGEIST_SOCIALS.map((item) => {
