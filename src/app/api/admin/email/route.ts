@@ -10,12 +10,21 @@ import {
 const FROM = process.env.MAIL_FROM || "Flowgeist <info@flowgeist.net>";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const SIGNATURE_LOGO = "https://flowgeist.net/flowgeist.png";
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function withSignature(text: string) {
+  const body = escapeHtml(text).replace(/\n/g, "<br />");
+  const html = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#111">${body}<div style="margin:28px 0 0"><a href="https://flowgeist.net" target="_blank" style="text-decoration:none"><img src="${SIGNATURE_LOGO}" alt="Flowgeist" width="150" height="39" border="0" style="display:block;width:150px;height:auto;border:0;outline:none" /></a></div></div>`;
+  const plain = `${text}\n\nFlowgeist\nhttps://flowgeist.net`;
+  return { html, plain };
 }
 
 function parseRecipients(raw: string) {
@@ -115,13 +124,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Subject and body are required." }, { status: 400 });
     }
 
-    const html = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#111">${escapeHtml(text).replace(/\n/g, "<br />")}</div>`;
+    const { html, plain } = withSignature(text);
     const id =
       provider === "microsoft"
-        ? await sendWithMicrosoft(recipients, subject, html, text)
+        ? await sendWithMicrosoft(recipients, subject, html, plain)
         : provider === "smtp"
-          ? await sendWithSmtp(recipients, subject, text, html)
-          : await sendWithResend(recipients, subject, text, html);
+          ? await sendWithSmtp(recipients, subject, plain, html)
+          : await sendWithResend(recipients, subject, plain, html);
 
     return NextResponse.json({ success: true, id, provider });
   } catch (error) {

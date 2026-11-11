@@ -13,6 +13,9 @@ const nextConfig = {
   experimental: {
     largePageDataBytes: 128 * 1000, // 128KB
   },
+  outputFileTracingIncludes: {
+    "/api/admin/records": ["./supabase/schema.sql"],
+  },
   // Headers for audio files
   async headers() {
     return [

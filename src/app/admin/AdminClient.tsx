@@ -12,6 +12,7 @@ import {
   type AdminRecord,
   type AdminSection,
   type AssetLink,
+  type Note,
   type Promoter,
   PROMOTER_CSV_COLUMNS,
   createRecord,
@@ -118,9 +119,25 @@ function errorText(error: unknown) {
   return "Could not save";
 }
 
+async function readCsvText(file: File) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+    return new TextDecoder("utf-16le").decode(buffer);
+  }
+  if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+    return new TextDecoder("utf-16be").decode(buffer);
+  }
+  return new TextDecoder("utf-8").decode(buffer);
+}
+
+const MAIL_TEMPLATE_CATEGORY = "mail-template";
+
 type MailDraft = {
   id: string;
   to: string;
+  name: string;
+  templateId: string | null;
   subject: string;
   body: string;
   sending: boolean;
@@ -131,11 +148,40 @@ function blankMail(to = "", name = ""): MailDraft {
   return {
     id: crypto.randomUUID(),
     to,
+    name,
+    templateId: null,
     subject: name ? `Flowgeist — ${name}` : "",
     body: "",
     sending: false,
     error: null,
   };
+}
+
+function parseMailTemplate(note: Note) {
+  try {
+    const parsed = JSON.parse(note.body) as { subject?: unknown; body?: unknown };
+    if (typeof parsed.body === "string") {
+      return {
+        subject: typeof parsed.subject === "string" ? parsed.subject : "",
+        body: parsed.body,
+      };
+    }
+  } catch {
+    // Older templates were stored as plain text.
+  }
+  return { subject: "", body: note.body };
+}
+
+function personalize(value: string, name: string) {
+  const person = name.trim();
+  if (!person) return value;
+  return value.split("NAME").join(person);
+}
+
+function asTemplate(value: string, name: string) {
+  const person = name.trim();
+  if (person.length < 2 || person.toUpperCase() === "NAME") return value;
+  return value.split(person).join("NAME");
 }
 
 function promoterMatches(promoters: Promoter[], query: string) {
@@ -235,6 +281,8 @@ export default function AdminClient() {
   const [formOpen, setFormOpen] = useState(false);
   const [mails, setMails] = useState<MailDraft[]>([]);
   const [promoters, setPromoters] = useState<Promoter[]>([]);
+  const [templates, setTemplates] = useState<Note[]>([]);
+  const templatesRef = useRef<Note[]>([]);
   const [suggestMailId, setSuggestMailId] = useState<string | null>(null);
   const [suggestIndex, setSuggestIndex] = useState(0);
   const [focusMailId, setFocusMailId] = useState<string | null>(null);
@@ -257,6 +305,8 @@ export default function AdminClient() {
   const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
   const socialBarRef = useRef<HTMLDivElement>(null);
+  const loadSeq = useRef(0);
+  const messageTimer = useRef<number | null>(null);
 
   const toggleTheme = () => {
     setLight((current) => !current);
@@ -279,22 +329,25 @@ export default function AdminClient() {
   }, [socialMenu]);
 
   useEffect(() => {
-    let active = true;
+    const seq = loadSeq.current + 1;
+    loadSeq.current = seq;
     setLoading(true);
     setLoadError(null);
     listRecords(section)
       .then((data) => {
-        if (active) setRows(data);
+        if (loadSeq.current !== seq) return;
+        const visible =
+          section === "notes"
+            ? data.filter((row) => !("category" in row) || row.category !== MAIL_TEMPLATE_CATEGORY)
+            : data;
+        setRows(visible);
       })
       .catch((error) => {
-        if (active) setLoadError(errorText(error));
+        if (loadSeq.current === seq) setLoadError(errorText(error));
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (loadSeq.current === seq) setLoading(false);
       });
-    return () => {
-      active = false;
-    };
   }, [section]);
 
   useEffect(() => {
@@ -340,8 +393,34 @@ export default function AdminClient() {
     setFormOpen(true);
   };
 
+  const refreshTemplates = useCallback(async () => {
+    try {
+      const notes = await listRecords<Note>("notes");
+      const next = notes.filter((note) => note.category === MAIL_TEMPLATE_CATEGORY);
+      templatesRef.current = next;
+      setTemplates(next);
+    } catch {
+      // The composer still works when templates cannot be loaded.
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshTemplates();
+  }, [refreshTemplates]);
+
+  const fillFromTemplate = (template: Note, name: string) => {
+    const parsed = parseMailTemplate(template);
+    return {
+      templateId: template.id,
+      subject: personalize(parsed.subject, name),
+      body: personalize(parsed.body, name),
+    };
+  };
+
   const openMail = (to = "", name = "") => {
     const next = blankMail(to, name);
+    const available = templatesRef.current;
+    if (available.length === 1) Object.assign(next, fillFromTemplate(available[0], name));
     setFormOpen(false);
     setFocusMailId(to ? null : next.id);
     setMails((current) => [...current, next]);
@@ -371,21 +450,82 @@ export default function AdminClient() {
   };
 
   const pickPromoter = (mail: MailDraft, promoter: Promoter) => {
+    const previous = mail.name.trim();
     const generated = mail.subject.startsWith("Flowgeist — ");
+    let subject = !mail.subject.trim() || generated ? `Flowgeist — ${promoter.name}` : mail.subject;
+    let body = mail.body;
+    if (previous && previous.toUpperCase() !== "NAME" && previous !== promoter.name) {
+      subject = subject.split(previous).join(promoter.name);
+      body = body.split(previous).join(promoter.name);
+    }
+    subject = personalize(subject, promoter.name);
+    body = personalize(body, promoter.name);
     updateMail(mail.id, {
       to: promoter.email,
-      subject: !mail.subject.trim() || generated ? `Flowgeist — ${promoter.name}` : mail.subject,
+      name: promoter.name,
+      subject,
+      body,
     });
     setSuggestMailId(null);
+  };
+
+  const applyMailTemplate = (mail: MailDraft, templateId: string) => {
+    const template = templates.find((item) => item.id === templateId);
+    if (!template) {
+      updateMail(mail.id, { templateId: null });
+      return;
+    }
+    updateMail(mail.id, fillFromTemplate(template, mail.name));
+  };
+
+  const saveMailTemplate = async (mail: MailDraft) => {
+    const title = window.prompt("Template name", "UK tour");
+    if (!title?.trim()) return;
+    try {
+      const created = await createRecord<Note>("notes", {
+        title: title.trim(),
+        category: MAIL_TEMPLATE_CATEGORY,
+        body: JSON.stringify({
+          subject: asTemplate(mail.subject, mail.name),
+          body: asTemplate(mail.body, mail.name),
+        }),
+      });
+      templatesRef.current = [created, ...templatesRef.current.filter((item) => item.id !== created.id)];
+      setTemplates(templatesRef.current);
+      updateMail(mail.id, { templateId: created.id });
+      flash("Template saved");
+    } catch (error) {
+      flash(errorText(error), true);
+    }
+  };
+
+  const deleteMailTemplate = async (mail: MailDraft) => {
+    if (!mail.templateId) return;
+    const template = templates.find((item) => item.id === mail.templateId);
+    if (!template || !window.confirm(`Delete template “${template.title}”?`)) return;
+    try {
+      await removeRecord("notes", template.id);
+      templatesRef.current = templatesRef.current.filter((item) => item.id !== template.id);
+      setTemplates(templatesRef.current);
+      setMails((current) =>
+        current.map((item) => (item.templateId === template.id ? { ...item, templateId: null } : item))
+      );
+      flash("Template deleted");
+    } catch (error) {
+      flash(errorText(error), true);
+    }
   };
 
   const closeMail = (id: string) => {
     setMails((current) => current.filter((mail) => mail.id !== id));
   };
 
-  const flash = (text: string) => {
+  const flash = (text: string, sticky = false) => {
+    if (messageTimer.current) window.clearTimeout(messageTimer.current);
     setMessage(text);
-    window.setTimeout(() => setMessage(null), 2800);
+    messageTimer.current = sticky
+      ? null
+      : window.setTimeout(() => setMessage(null), 4000);
   };
 
   const loadInbox = useCallback(async () => {
@@ -466,8 +606,8 @@ export default function AdminClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           to: mail.to,
-          subject: mail.subject,
-          body: mail.body,
+          subject: personalize(mail.subject, mail.name),
+          body: personalize(mail.body, mail.name),
         }),
       });
       const data = await response.json();
@@ -489,6 +629,9 @@ export default function AdminClient() {
     event.preventDefault();
     setSaving(true);
     try {
+      loadSeq.current += 1;
+      setLoading(false);
+      setLoadError(null);
       if (editingId) {
         const updated = await updateRecord(section, editingId, draft);
         setRows((current) => current.map((row) => (row.id === editingId ? updated : row)));
@@ -496,11 +639,15 @@ export default function AdminClient() {
       } else {
         const created = await createRecord(section, draft);
         setRows((current) => [created, ...current.filter((row) => row.id !== created.id)]);
-        flash("Added");
+        const localOnly = created.id.startsWith("local-");
+        flash(
+          localOnly ? "Added in this browser only. Supabase is not set on the server." : "Added",
+          localOnly
+        );
       }
       setFormOpen(false);
     } catch (error) {
-      flash(errorText(error));
+      flash(errorText(error), true);
     } finally {
       setSaving(false);
     }
@@ -525,14 +672,17 @@ export default function AdminClient() {
 
     let parsed: Record<string, string>[];
     try {
-      parsed = parsePromoterCsv(await file.text());
+      parsed = parsePromoterCsv(await readCsvText(file));
     } catch {
-      flash("Could not read the CSV");
+      flash("Could not read the CSV", true);
       return;
     }
 
     if (parsed.length === 0) {
-      flash("No promoters found. Columns: name, city, country, email, phone, instagram, website, notes");
+      flash(
+        "No promoters found. The file needs a name column, or name, city, country, email, phone, instagram, website, notes.",
+        true
+      );
       return;
     }
 
@@ -553,7 +703,7 @@ export default function AdminClient() {
     }
 
     if (fresh.length === 0) {
-      flash(skipped === 1 ? "Already saved" : `Already saved (${skipped})`);
+      flash(skipped === 1 ? "Already saved" : `Already saved (${skipped})`, true);
       return;
     }
 
@@ -564,13 +714,23 @@ export default function AdminClient() {
     setImporting(true);
     try {
       const created = await createRecords<Promoter>("promoters", fresh);
+      loadSeq.current += 1;
+      setLoading(false);
+      setLoadError(null);
       setRows((current) => {
         const ids = new Set(created.map((row) => row.id));
         return [...created, ...current.filter((row) => !ids.has(row.id))];
       });
-      flash(skipped ? `Added ${created.length}, skipped ${skipped}` : `Added ${created.length}`);
+      const localOnly = created.every((row) => row.id.startsWith("local-"));
+      const count = skipped ? `Added ${created.length}, skipped ${skipped}` : `Added ${created.length}`;
+      flash(
+        localOnly
+          ? `${count}. Saved in this browser only: Supabase is not set on the server.`
+          : count,
+        localOnly
+      );
     } catch (error) {
-      flash(errorText(error));
+      flash(errorText(error), true);
     } finally {
       setImporting(false);
     }
@@ -701,7 +861,7 @@ export default function AdminClient() {
         </div>
 
         {message && (
-          <p className="mb-6 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-soft)] uppercase">
+          <p className="mb-6 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)]">
             {message}
           </p>
         )}
@@ -854,7 +1014,7 @@ export default function AdminClient() {
 
         {mails.length > 0 && (
           <div
-            className={`mb-8 grid gap-4 ${mails.length > 1 ? "md:grid-cols-2" : "md:max-w-[380px]"}`}
+            className={`mb-8 grid gap-4 ${mails.length > 1 ? "md:grid-cols-2" : "md:max-w-[680px]"}`}
           >
             {mails.map((mail) => (
               <aside key={mail.id} className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5">
@@ -888,6 +1048,44 @@ export default function AdminClient() {
                   </p>
                 )}
                 <form onSubmit={(event) => sendMail(event, mail)} className="space-y-4">
+                  <div className="block">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
+                      Template
+                    </span>
+                    <div className="flex gap-2">
+                      <select
+                        value={mail.templateId ?? ""}
+                        onChange={(event) => applyMailTemplate(mail, event.target.value)}
+                        className="min-w-0 flex-1 border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
+                      >
+                        <option value="">None</option>
+                        {templates.map((template) => (
+                          <option key={template.id} value={template.id}>
+                            {template.title}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => void saveMailTemplate(mail)}
+                        className="border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
+                      >
+                        Save
+                      </button>
+                      {mail.templateId && (
+                        <button
+                          type="button"
+                          onClick={() => void deleteMailTemplate(mail)}
+                          className="border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-faint)] uppercase hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-2 font-[family-name:var(--font-grotesque)] text-xs text-[var(--admin-muted)]">
+                      Write NAME where the venue or promoter name should go.
+                    </p>
+                  </div>
                   <div className="block">
                     <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                       To
@@ -987,10 +1185,20 @@ export default function AdminClient() {
                     <textarea
                       value={mail.body}
                       onChange={(event) => updateMail(mail.id, { body: event.target.value })}
-                      rows={8}
+                      rows={16}
                       className="w-full resize-y border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                     />
                   </label>
+                  <div className="pt-1">
+                    <Image
+                      src="/flowgeist.png"
+                      alt="Flowgeist"
+                      width={150}
+                      height={39}
+                      quality={100}
+                      className="h-[32px] w-auto"
+                    />
+                  </div>
                   <button
                     type="submit"
                     disabled={mail.sending}
@@ -1006,7 +1214,7 @@ export default function AdminClient() {
 
         <div className={`grid gap-8 ${formOpen ? "lg:grid-cols-[1fr_360px]" : ""}`}>
           <section>
-            {loading ? (
+            {loading && rows.length === 0 ? (
               <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                 Loading
               </p>

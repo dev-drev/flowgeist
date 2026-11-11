@@ -1,5 +1,3 @@
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
-
 export type AdminSection =
   | "promoters"
   | "clubs"
@@ -230,6 +228,34 @@ function toDbFields(section: AdminSection, data: Record<string, string>) {
   return fields;
 }
 
+export function adminTable(section: AdminSection) {
+  return TABLES[section];
+}
+
+export function insertPayload(section: AdminSection, data: Record<string, string>, at: string) {
+  return {
+    ...toDbFields(section, data),
+    created_at: at,
+    updated_at: at,
+  };
+}
+
+export function updatePayload(section: AdminSection, data: Record<string, string>, at: string) {
+  return {
+    ...toDbFields(section, data),
+    updated_at: at,
+  };
+}
+
+export function recordFromDb<T extends AdminRecord>(row: Record<string, unknown>): T {
+  const { created_at, updated_at, ...rest } = row;
+  return {
+    ...rest,
+    createdAt: stamp(created_at),
+    updatedAt: stamp(updated_at),
+  } as T;
+}
+
 export function emptyDraft(section: AdminSection): Record<string, string> {
   if (section === "promoters") return { ...emptyPromoter() };
   if (section === "clubs") return { ...emptyClub() };
@@ -254,6 +280,16 @@ const PROMOTER_HEADER_ALIASES: Record<string, (typeof PROMOTER_CSV_COLUMNS)[numb
   name: "name",
   nome: "name",
   promoter: "name",
+  promotore: "name",
+  promotername: "name",
+  contact: "name",
+  contatto: "name",
+  referente: "name",
+  azienda: "name",
+  organizzatore: "name",
+  organization: "name",
+  company: "name",
+  artist: "name",
   city: "city",
   citta: "city",
   country: "country",
@@ -261,9 +297,13 @@ const PROMOTER_HEADER_ALIASES: Record<string, (typeof PROMOTER_CSV_COLUMNS)[numb
   nazione: "country",
   email: "email",
   mail: "email",
+  emailaddress: "email",
   phone: "phone",
   telefono: "phone",
   tel: "phone",
+  mobile: "phone",
+  cellulare: "phone",
+  cell: "phone",
   instagram: "instagram",
   ig: "instagram",
   insta: "instagram",
@@ -349,7 +389,10 @@ function parseCsvTable(text: string) {
 }
 
 export function parsePromoterCsv(text: string): Record<string, string>[] {
-  const table = parseCsvTable(text);
+  let table = parseCsvTable(text);
+  if (table.length && /^sep\s*=/i.test(table[0][0] || "") && table[0].filter(Boolean).length <= 1) {
+    table = table.slice(1);
+  }
   if (table.length === 0) return [];
 
   const headerKeys = table[0].map((cell) => promoterHeaderKey(cell));
@@ -403,97 +446,31 @@ function stamp(value: unknown) {
   return Number.isNaN(parsed) ? Date.now() : parsed;
 }
 
-function fromRow<T extends AdminRecord>(row: Record<string, unknown>): T {
-  const { created_at, updated_at, ...rest } = row;
-  return {
-    ...rest,
-    createdAt: stamp(created_at),
-    updatedAt: stamp(updated_at),
-  } as T;
+type RecordsBody<T> = {
+  configured?: boolean;
+  rows?: T[];
+  row?: T;
+  error?: string;
+};
+
+async function readRecordsBody<T>(response: Response): Promise<RecordsBody<T>> {
+  return (await response.json().catch(() => ({}))) as RecordsBody<T>;
 }
 
-export async function listRecords<T extends AdminRecord>(
-  section: AdminSection
-): Promise<T[]> {
-  const local = readLocal<T>(section);
-  if (!isSupabaseConfigured()) return sortByUpdated(local);
-
-  try {
-    const { data, error } = await getSupabase()
-      .from(TABLES[section])
-      .select("*")
-      .order("updated_at", { ascending: false });
-
-    if (error) throw error;
-    const rows = sortByUpdated((data ?? []).map((item) => fromRow<T>(item)));
-    writeLocal(section, rows);
-    return rows;
-  } catch (error) {
-    console.warn(`Admin list fallback (${section})`, error);
-    return sortByUpdated(local);
-  }
+function remember<T extends AdminRecord>(section: AdminSection, created: T[]) {
+  const ids = new Set(created.map((row) => row.id));
+  writeLocal(section, [
+    ...created,
+    ...readLocal<T>(section).filter((item) => !ids.has(item.id)),
+  ]);
 }
 
-export async function createRecord<T extends AdminRecord>(
-  section: AdminSection,
-  data: Record<string, string>
-): Promise<T> {
-  const now = Date.now();
-  const fields = toDbFields(section, data);
-  const payload = {
-    ...fields,
-    created_at: new Date(now).toISOString(),
-    updated_at: new Date(now).toISOString(),
-  };
-
-  if (isSupabaseConfigured()) {
-    const { data: row, error } = await getSupabase()
-      .from(TABLES[section])
-      .insert(payload)
-      .select("*")
-      .single();
-    if (error) throw error;
-    const created = fromRow<T>(row);
-    writeLocal(section, [
-      created,
-      ...readLocal<T>(section).filter((item) => item.id !== created.id),
-    ]);
-    return created;
-  }
-
-  const row = { id: `local-${now}`, ...fields, createdAt: now, updatedAt: now } as T;
-  writeLocal(section, [row, ...readLocal<T>(section)]);
-  return row;
-}
-
-export async function createRecords<T extends AdminRecord>(
+function localRows<T extends AdminRecord>(
   section: AdminSection,
   items: Record<string, string>[]
-): Promise<T[]> {
-  if (items.length === 0) return [];
+): T[] {
   const now = Date.now();
-
-  if (isSupabaseConfigured()) {
-    const payloads = items.map((data, index) => {
-      const at = new Date(now + (items.length - index)).toISOString();
-      return {
-        ...toDbFields(section, data),
-        created_at: at,
-        updated_at: at,
-      };
-    });
-    const { data, error } = await getSupabase().from(TABLES[section]).insert(payloads).select("*");
-    if (error) throw error;
-    const created = sortByUpdated((data ?? []).map((item) => fromRow<T>(item)));
-    const ids = new Set(created.map((row) => row.id));
-    writeLocal(section, [
-      ...created,
-      ...readLocal<T>(section).filter((item) => !ids.has(item.id)),
-    ]);
-    return created;
-  }
-
-  const created = items.map((data, index) => {
+  return items.map((data, index) => {
     const at = now + (items.length - index);
     return {
       id: `local-${at}-${index}`,
@@ -502,8 +479,52 @@ export async function createRecords<T extends AdminRecord>(
       updatedAt: at,
     } as T;
   });
-  writeLocal(section, [...created, ...readLocal<T>(section)]);
+}
+
+export async function listRecords<T extends AdminRecord>(section: AdminSection): Promise<T[]> {
+  const local = readLocal<T>(section);
+  const response = await fetch(`/api/admin/records?section=${encodeURIComponent(section)}`, {
+    cache: "no-store",
+  });
+  const body = await readRecordsBody<T>(response);
+  if (body.configured === false) return sortByUpdated(local);
+  if (!response.ok) throw new Error(body.error || "Could not load");
+  const rows = sortByUpdated(body.rows ?? []);
+  writeLocal(section, rows);
+  return rows;
+}
+
+export async function createRecords<T extends AdminRecord>(
+  section: AdminSection,
+  items: Record<string, string>[]
+): Promise<T[]> {
+  if (items.length === 0) return [];
+  const response = await fetch("/api/admin/records", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ section, items }),
+  });
+  const body = await readRecordsBody<T>(response);
+  if (body.configured === false) {
+    const created = localRows<T>(section, items);
+    remember(section, created);
+    return created;
+  }
+  if (!response.ok) throw new Error(body.error || "Could not save");
+  const created = sortByUpdated(body.rows ?? []);
+  if (created.length === 0) throw new Error("Supabase saved nothing");
+  remember(section, created);
   return created;
+}
+
+export async function createRecord<T extends AdminRecord>(
+  section: AdminSection,
+  data: Record<string, string>
+): Promise<T> {
+  const created = await createRecords<T>(section, [data]);
+  const row = created[0];
+  if (!row) throw new Error("Could not save");
+  return row;
 }
 
 export async function updateRecord<T extends AdminRecord>(
@@ -514,21 +535,36 @@ export async function updateRecord<T extends AdminRecord>(
   const now = Date.now();
   const fields = toDbFields(section, data);
   const current = readLocal<T>(section).find((item) => item.id === id);
-  const row = {
+  const localRow = {
     ...(current ?? { id, createdAt: now }),
     ...fields,
     id,
     updatedAt: now,
   } as T;
 
-  if (isSupabaseConfigured() && !id.startsWith("local-")) {
-    const { error } = await getSupabase()
-      .from(TABLES[section])
-      .update({ ...fields, updated_at: new Date(now).toISOString() })
-      .eq("id", id);
-    if (error) throw error;
+  if (id.startsWith("local-")) {
+    writeLocal(
+      section,
+      readLocal<T>(section).map((item) => (item.id === id ? localRow : item))
+    );
+    return localRow;
   }
 
+  const response = await fetch("/api/admin/records", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ section, id, data }),
+  });
+  const body = await readRecordsBody<T>(response);
+  if (body.configured === false) {
+    writeLocal(
+      section,
+      readLocal<T>(section).map((item) => (item.id === id ? localRow : item))
+    );
+    return localRow;
+  }
+  if (!response.ok) throw new Error(body.error || "Could not save");
+  const row = body.row ?? localRow;
   writeLocal(
     section,
     readLocal<T>(section).map((item) => (item.id === id ? row : item))
@@ -537,9 +573,15 @@ export async function updateRecord<T extends AdminRecord>(
 }
 
 export async function removeRecord(section: AdminSection, id: string) {
-  if (isSupabaseConfigured() && !id.startsWith("local-")) {
-    const { error } = await getSupabase().from(TABLES[section]).delete().eq("id", id);
-    if (error) throw error;
+  if (!id.startsWith("local-")) {
+    const response = await fetch(
+      `/api/admin/records?section=${encodeURIComponent(section)}&id=${encodeURIComponent(id)}`,
+      { method: "DELETE" }
+    );
+    const body = await readRecordsBody<AdminRecord>(response);
+    if (body.configured !== false && !response.ok) {
+      throw new Error(body.error || "Could not delete");
+    }
   }
   writeLocal(
     section,
@@ -577,5 +619,3 @@ export function recordLink(row: AdminRecord) {
   if ("website" in row && row.website) return row.website;
   return "";
 }
-
-export { isSupabaseConfigured };

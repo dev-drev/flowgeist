@@ -104,3 +104,5 @@ grant select, insert, update, delete on public.admin_events to anon, authenticat
 grant select, insert, update, delete on public.admin_notes to anon, authenticated, service_role;
 grant select, insert, update, delete on public.admin_links to anon, authenticated, service_role;
 grant select, insert, update, delete on public.admin_assets to anon, authenticated, service_role;
+
+notify pgrst, 'reload schema';
