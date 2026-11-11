@@ -178,12 +178,6 @@ function personalize(value: string, name: string) {
   return value.split("NAME").join(person);
 }
 
-function asTemplate(value: string, name: string) {
-  const person = name.trim();
-  if (person.length < 2 || person.toUpperCase() === "NAME") return value;
-  return value.split(person).join("NAME");
-}
-
 function promoterMatches(promoters: Promoter[], query: string) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
@@ -283,6 +277,15 @@ export default function AdminClient() {
   const [promoters, setPromoters] = useState<Promoter[]>([]);
   const [templates, setTemplates] = useState<Note[]>([]);
   const templatesRef = useRef<Note[]>([]);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [templateDraft, setTemplateDraft] = useState<{
+    id: string | null;
+    title: string;
+    subject: string;
+    body: string;
+  } | null>(null);
+  const [templateSaving, setTemplateSaving] = useState(false);
+  const [templateDeleteId, setTemplateDeleteId] = useState<string | null>(null);
   const [suggestMailId, setSuggestMailId] = useState<string | null>(null);
   const [suggestIndex, setSuggestIndex] = useState(0);
   const [focusMailId, setFocusMailId] = useState<string | null>(null);
@@ -375,6 +378,17 @@ export default function AdminClient() {
       Object.values(row).some((value) => String(value).toLowerCase().includes(q))
     );
   }, [query, rows]);
+
+  const filteredTemplates = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return templates;
+    return templates.filter((template) => {
+      const parsed = parseMailTemplate(template);
+      return [template.title, parsed.subject, parsed.body].some((value) =>
+        value.toLowerCase().includes(q)
+      );
+    });
+  }, [query, templates]);
 
   const assetDraftLinks = useMemo(() => {
     const links = parseAssetLinks(draft.links);
@@ -478,38 +492,73 @@ export default function AdminClient() {
     updateMail(mail.id, fillFromTemplate(template, mail.name));
   };
 
-  const saveMailTemplate = async (mail: MailDraft) => {
-    const title = window.prompt("Template name", "UK tour");
-    if (!title?.trim()) return;
+  const openTemplates = () => {
+    setTemplatesOpen(true);
+    setQuery("");
+    setFormOpen(false);
+    setTemplateDraft(null);
+    setTemplateDeleteId(null);
+  };
+
+  const editTemplate = (template: Note) => {
+    const parsed = parseMailTemplate(template);
+    setTemplateDraft({
+      id: template.id,
+      title: template.title,
+      subject: parsed.subject,
+      body: parsed.body,
+    });
+    setTemplateDeleteId(null);
+  };
+
+  const saveTemplateDraft = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!templateDraft) return;
+    const title = templateDraft.title.trim();
+    if (!title || !templateDraft.body.trim()) {
+      flash("Name and message are required", true);
+      return;
+    }
+    const payload = {
+      title,
+      category: MAIL_TEMPLATE_CATEGORY,
+      body: JSON.stringify({
+        subject: templateDraft.subject.trim(),
+        body: templateDraft.body,
+      }),
+    };
+    setTemplateSaving(true);
     try {
-      const created = await createRecord<Note>("notes", {
-        title: title.trim(),
-        category: MAIL_TEMPLATE_CATEGORY,
-        body: JSON.stringify({
-          subject: asTemplate(mail.subject, mail.name),
-          body: asTemplate(mail.body, mail.name),
-        }),
-      });
-      templatesRef.current = [created, ...templatesRef.current.filter((item) => item.id !== created.id)];
-      setTemplates(templatesRef.current);
-      updateMail(mail.id, { templateId: created.id });
-      flash("Template saved");
+      if (templateDraft.id) {
+        const updated = await updateRecord<Note>("notes", templateDraft.id, payload);
+        templatesRef.current = templatesRef.current.map((item) =>
+          item.id === updated.id ? updated : item
+        );
+        flash("Template updated");
+      } else {
+        const created = await createRecord<Note>("notes", payload);
+        templatesRef.current = [created, ...templatesRef.current];
+        flash("Template saved");
+      }
+      setTemplates([...templatesRef.current]);
+      setTemplateDraft(null);
     } catch (error) {
       flash(errorText(error), true);
+    } finally {
+      setTemplateSaving(false);
     }
   };
 
-  const deleteMailTemplate = async (mail: MailDraft) => {
-    if (!mail.templateId) return;
-    const template = templates.find((item) => item.id === mail.templateId);
-    if (!template || !window.confirm(`Delete template “${template.title}”?`)) return;
+  const deleteTemplate = async (template: Note) => {
     try {
       await removeRecord("notes", template.id);
       templatesRef.current = templatesRef.current.filter((item) => item.id !== template.id);
-      setTemplates(templatesRef.current);
+      setTemplates([...templatesRef.current]);
       setMails((current) =>
         current.map((item) => (item.templateId === template.id ? { ...item, templateId: null } : item))
       );
+      if (templateDraft?.id === template.id) setTemplateDraft(null);
+      setTemplateDeleteId(null);
       flash("Template deleted");
     } catch (error) {
       flash(errorText(error), true);
@@ -808,13 +857,15 @@ export default function AdminClient() {
         <div className="mb-8 flex flex-col gap-4 border-b border-[var(--admin-border)] pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-2">
             {ADMIN_SECTIONS.map((item) => {
-              const active = section === item.id;
+              const active = !templatesOpen && section === item.id;
               return (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => {
                     setSection(item.id);
+                    setTemplatesOpen(false);
+                    setTemplateDraft(null);
                     setQuery("");
                     setFormOpen(false);
                   }}
@@ -828,6 +879,17 @@ export default function AdminClient() {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={openTemplates}
+              className={`border px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase transition ${
+                templatesOpen
+                  ? "border-[var(--admin-invert)] bg-[var(--admin-invert)] text-[var(--admin-invert-text)]"
+                  : "border-[var(--admin-border)] text-[var(--admin-soft)] hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
+              }`}
+            >
+              Templates
+            </button>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
@@ -852,10 +914,17 @@ export default function AdminClient() {
             </button>
             <button
               type="button"
-              onClick={openCreate}
+              onClick={() => {
+                if (templatesOpen) {
+                  setTemplateDraft({ id: null, title: "", subject: "", body: "" });
+                  setTemplateDeleteId(null);
+                  return;
+                }
+                openCreate();
+              }}
               className="border border-[var(--admin-invert)] bg-[var(--admin-invert)] px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-invert-text)] uppercase transition hover:bg-[var(--admin-invert-hover)]"
             >
-              Add {sectionLabel}
+              {templatesOpen ? "Add template" : `Add ${sectionLabel}`}
             </button>
           </div>
         </div>
@@ -1067,20 +1136,11 @@ export default function AdminClient() {
                       </select>
                       <button
                         type="button"
-                        onClick={() => void saveMailTemplate(mail)}
+                        onClick={openTemplates}
                         className="border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
                       >
-                        Save
+                        Edit
                       </button>
-                      {mail.templateId && (
-                        <button
-                          type="button"
-                          onClick={() => void deleteMailTemplate(mail)}
-                          className="border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-faint)] uppercase hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
-                        >
-                          Delete
-                        </button>
-                      )}
                     </div>
                     <p className="mt-2 font-[family-name:var(--font-grotesque)] text-xs text-[var(--admin-muted)]">
                       Write NAME where the venue or promoter name should go.
@@ -1212,6 +1272,162 @@ export default function AdminClient() {
           </div>
         )}
 
+        {templatesOpen && (
+          <section className="space-y-6">
+            {templateDraft && (
+              <form
+                onSubmit={(event) => void saveTemplateDraft(event)}
+                className="border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5"
+              >
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <h2 className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.18em] text-[var(--admin-strong)] uppercase">
+                    {templateDraft.id ? "Edit template" : "New template"}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateDraft(null)}
+                    className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <label className="block">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
+                      Name
+                    </span>
+                    <input
+                      value={templateDraft.title}
+                      onChange={(event) =>
+                        setTemplateDraft((current) =>
+                          current ? { ...current, title: event.target.value } : current
+                        )
+                      }
+                      className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
+                      Subject
+                    </span>
+                    <input
+                      value={templateDraft.subject}
+                      onChange={(event) =>
+                        setTemplateDraft((current) =>
+                          current ? { ...current, subject: event.target.value } : current
+                        )
+                      }
+                      className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
+                      Message
+                    </span>
+                    <textarea
+                      value={templateDraft.body}
+                      onChange={(event) =>
+                        setTemplateDraft((current) =>
+                          current ? { ...current, body: event.target.value } : current
+                        )
+                      }
+                      rows={12}
+                      className="w-full resize-y border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
+                    />
+                  </label>
+                  <p className="font-[family-name:var(--font-grotesque)] text-xs text-[var(--admin-muted)]">
+                    Write NAME where the venue or promoter name should go.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={templateSaving}
+                    className="border border-[var(--admin-invert)] bg-[var(--admin-invert)] px-4 py-3 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-invert-text)] uppercase disabled:opacity-50"
+                  >
+                    {templateSaving ? "Saving" : "Save"}
+                  </button>
+                </div>
+              </form>
+            )}
+            {filteredTemplates.length === 0 ? (
+              <div className="border border-[var(--admin-border)] px-6 py-16 text-center">
+                <p className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-[var(--admin-strong)]">
+                  No templates yet
+                </p>
+                <p className="mt-3 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
+                  Add a template, then pick it when you compose a mail.
+                </p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-[var(--admin-border)] border border-[var(--admin-border)]">
+                {filteredTemplates.map((template) => {
+                  const parsed = parseMailTemplate(template);
+                  const confirming = templateDeleteId === template.id;
+                  return (
+                    <li
+                      key={template.id}
+                      className="flex flex-col gap-4 px-5 py-5 md:flex-row md:items-start md:justify-between"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <h2 className="font-[family-name:var(--font-alte-haas-bold)] text-lg text-[var(--admin-strong)]">
+                          {template.title || "Untitled"}
+                        </h2>
+                        {parsed.subject && (
+                          <p className="mt-1 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.14em] text-[var(--admin-muted)] uppercase">
+                            {parsed.subject}
+                          </p>
+                        )}
+                        {parsed.body && (
+                          <p className="mt-3 line-clamp-3 whitespace-pre-wrap font-[family-name:var(--font-grotesque)] text-sm leading-6 text-[var(--admin-text)]">
+                            {parsed.body}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex shrink-0 items-center gap-4">
+                        {confirming ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => void deleteTemplate(template)}
+                              className="border border-[var(--admin-invert)] bg-[var(--admin-invert)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-invert-text)] uppercase"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTemplateDeleteId(null)}
+                              className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => editTemplate(template)}
+                              className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase hover:text-[var(--admin-strong)]"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTemplateDeleteId(template.id)}
+                              className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase hover:text-[var(--admin-strong)]"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {!templatesOpen && (
         <div className={`grid gap-8 ${formOpen ? "lg:grid-cols-[1fr_360px]" : ""}`}>
           <section>
             {loading && rows.length === 0 ? (
@@ -1501,6 +1717,7 @@ export default function AdminClient() {
             </aside>
           )}
         </div>
+        )}
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 overflow-visible border-t border-[var(--admin-border)] bg-[var(--admin-bg)]">
