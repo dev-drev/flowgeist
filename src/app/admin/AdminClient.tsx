@@ -137,6 +137,7 @@ type MailDraft = {
   id: string;
   to: string;
   name: string;
+  greeting: string;
   templateId: string | null;
   subject: string;
   body: string;
@@ -145,11 +146,13 @@ type MailDraft = {
   minimized: boolean;
 };
 
-function blankMail(to = "", name = ""): MailDraft {
+function blankMail(to = "", name = "", greeting = ""): MailDraft {
+  const person = greeting.trim() || name.trim();
   return {
     id: crypto.randomUUID(),
     to,
     name,
+    greeting: person,
     templateId: null,
     subject: name ? `Flowgeist — ${name}` : "",
     body: "",
@@ -157,6 +160,20 @@ function blankMail(to = "", name = ""): MailDraft {
     error: null,
     minimized: false,
   };
+}
+
+function contactFirstName(notes: string) {
+  const match = notes.match(/(?:^|\n)\s*(?:contact|contatto|referente)\s*:\s*([^\n]+)/i);
+  if (!match) return "";
+  return match[1].trim().split(/\s+/)[0]?.replace(/[,.]$/, "") ?? "";
+}
+
+function mailGreeting(section: AdminSection, row: AdminRecord) {
+  const title = recordTitle(section, row);
+  if (section !== "clubs") return title;
+  const person = "notes" in row ? contactFirstName(row.notes) : "";
+  if (person) return person;
+  return title ? `${title} Team` : "Team";
 }
 
 function mailTabLabel(mail: MailDraft) {
@@ -444,19 +461,19 @@ export default function AdminClient() {
     void refreshTemplates();
   }, [refreshTemplates]);
 
-  const fillFromTemplate = (template: Note, name: string) => {
+  const fillFromTemplate = (template: Note, name: string, greeting = "") => {
     const parsed = parseMailTemplate(template);
     return {
       templateId: template.id,
       subject: personalize(parsed.subject, name),
-      body: personalize(parsed.body, name),
+      body: personalize(parsed.body, greeting.trim() || name),
     };
   };
 
-  const openMail = (to = "", name = "") => {
-    const next = blankMail(to, name);
+  const openMail = (to = "", name = "", greeting = "") => {
+    const next = blankMail(to, name, greeting);
     const available = templatesRef.current;
-    if (available.length === 1) Object.assign(next, fillFromTemplate(available[0], name));
+    if (available.length === 1) Object.assign(next, fillFromTemplate(available[0], name, next.greeting));
     setFormOpen(false);
     setFocusMailId(to ? null : next.id);
     setMails((current) => focusMailDraft([...current, next], next.id));
@@ -496,18 +513,22 @@ export default function AdminClient() {
 
   const pickPromoter = (mail: MailDraft, promoter: Promoter) => {
     const previous = mail.name.trim();
+    const previousGreeting = mail.greeting.trim();
     const generated = mail.subject.startsWith("Flowgeist — ");
     let subject = !mail.subject.trim() || generated ? `Flowgeist — ${promoter.name}` : mail.subject;
     let body = mail.body;
     if (previous && previous.toUpperCase() !== "NAME" && previous !== promoter.name) {
       subject = subject.split(previous).join(promoter.name);
-      body = body.split(previous).join(promoter.name);
+    }
+    if (previousGreeting && previousGreeting.toUpperCase() !== "NAME" && previousGreeting !== promoter.name) {
+      body = body.split(previousGreeting).join(promoter.name);
     }
     subject = personalize(subject, promoter.name);
     body = personalize(body, promoter.name);
     updateMail(mail.id, {
       to: promoter.email,
       name: promoter.name,
+      greeting: promoter.name,
       subject,
       body,
     });
@@ -520,7 +541,7 @@ export default function AdminClient() {
       updateMail(mail.id, { templateId: null });
       return;
     }
-    updateMail(mail.id, fillFromTemplate(template, mail.name));
+    updateMail(mail.id, fillFromTemplate(template, mail.name, mail.greeting));
   };
 
   const openTemplates = () => {
@@ -687,7 +708,7 @@ export default function AdminClient() {
         body: JSON.stringify({
           to: mail.to,
           subject: personalize(mail.subject, mail.name),
-          body: personalize(mail.body, mail.name),
+          body: personalize(mail.body, mail.greeting || mail.name),
         }),
       });
       const data = await response.json();
@@ -1197,7 +1218,7 @@ export default function AdminClient() {
                       </button>
                     </div>
                     <p className="mt-2 font-[family-name:var(--font-grotesque)] text-xs text-[var(--admin-muted)]">
-                      Write NAME where the venue or promoter name should go.
+                      NAME becomes the contact’s first name, or the club name plus Team.
                     </p>
                   </div>
                   <div className="block">
@@ -1392,7 +1413,7 @@ export default function AdminClient() {
                     />
                   </label>
                   <p className="font-[family-name:var(--font-grotesque)] text-xs text-[var(--admin-muted)]">
-                    Write NAME where the venue or promoter name should go.
+                    NAME becomes the contact’s first name, or the club name plus Team.
                   </p>
                   <button
                     type="submit"
@@ -1513,7 +1534,7 @@ export default function AdminClient() {
                           {"email" in row && row.email ? (
                             <button
                               type="button"
-                              onClick={() => openMail(row.email, title)}
+                              onClick={() => openMail(row.email, title, mailGreeting(section, row))}
                               title="Send mail"
                               className="text-left underline-offset-4 hover:underline"
                             >
@@ -1537,7 +1558,7 @@ export default function AdminClient() {
                         {"email" in row && row.email && (
                           <button
                             type="button"
-                            onClick={() => openMail(row.email, title)}
+                            onClick={() => openMail(row.email, title, mailGreeting(section, row))}
                             title="Send mail"
                             className="mt-2 block text-left font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-soft)] underline-offset-4 hover:text-[var(--admin-strong)] hover:underline"
                           >
@@ -1593,7 +1614,7 @@ export default function AdminClient() {
                           <>
                             <button
                               type="button"
-                              onClick={() => openMail(row.email, recordTitle(section, row))}
+                              onClick={() => openMail(row.email, recordTitle(section, row), mailGreeting(section, row))}
                               className="text-[var(--admin-soft)] hover:text-[var(--admin-strong)]"
                             >
                               Send
