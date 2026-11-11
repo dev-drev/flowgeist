@@ -20,8 +20,19 @@ function escapeHtml(value: string) {
     .replace(/"/g, "&quot;");
 }
 
+const URL_RE = /(?:https?:\/\/|www\.)[^\s<]+/gi;
+
+function linkify(escaped: string) {
+  return escaped.replace(URL_RE, (raw) => {
+    const url = raw.replace(/[.,;:!?)]+$/g, "");
+    const tail = raw.slice(url.length);
+    const href = url.startsWith("www.") ? `https://${url}` : url;
+    return `<a href="${href}" target="_blank" style="color:#111;text-decoration:underline">${url}</a>${tail}`;
+  });
+}
+
 function withSignature(text: string) {
-  const body = escapeHtml(text).replace(/\n/g, "<br />");
+  const body = linkify(escapeHtml(text)).replace(/\n/g, "<br />");
   const html = `<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#111">${body}<div style="margin:28px 0 0"><a href="https://flowgeist.net" target="_blank" style="text-decoration:none"><img src="${SIGNATURE_LOGO}" alt="Flowgeist" width="150" height="39" border="0" style="display:block;width:150px;height:auto;border:0;outline:none" /></a></div></div>`;
   const plain = `${text}\n\nFlowgeist\nhttps://flowgeist.net`;
   return { html, plain };
