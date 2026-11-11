@@ -205,6 +205,13 @@ function personalize(value: string, name: string) {
   return value.split("NAME").join(person);
 }
 
+function withDear(body: string, greeting: string) {
+  const person = greeting.trim();
+  if (!person) return body;
+  const named = personalize(body, person);
+  return named.replace(/Dear\s+[^,\n]*/i, `Dear ${person}`);
+}
+
 function promoterMatches(promoters: Promoter[], query: string) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
@@ -466,7 +473,7 @@ export default function AdminClient() {
     return {
       templateId: template.id,
       subject: personalize(parsed.subject, name),
-      body: personalize(parsed.body, greeting.trim() || name),
+      body: withDear(parsed.body, greeting.trim() || name),
     };
   };
 
