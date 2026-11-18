@@ -12,19 +12,20 @@ import {
   type AdminRecord,
   type AdminSection,
   type AssetLink,
+  type Club,
   type Note,
-  type Promoter,
-  PROMOTER_CSV_COLUMNS,
   createRecord,
-  createRecords,
   emptyDraft,
   listRecords,
+  MAIL_SENT_CATEGORY,
+  normalizeMail,
   parseAssetLinks,
-  parsePromoterCsv,
+  parseMailed,
   recordSubtitle,
   recordTitle,
   removeRecord,
   updateRecord,
+  wasMailed,
 } from "@/lib/adminCrm";
 
 type Field = {
@@ -119,19 +120,32 @@ function errorText(error: unknown) {
   return "Could not save";
 }
 
-async function readCsvText(file: File) {
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
-    return new TextDecoder("utf-16le").decode(buffer);
-  }
-  if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
-    return new TextDecoder("utf-16be").decode(buffer);
-  }
-  return new TextDecoder("utf-8").decode(buffer);
+const MAIL_TEMPLATE_CATEGORY = "mail-template";
+const PAGE_SIZE = 10;
+const HIDDEN_NOTE_CATEGORIES = new Set([MAIL_TEMPLATE_CATEGORY, MAIL_SENT_CATEGORY]);
+
+function pageNumbers(current: number, total: number) {
+  const start = Math.max(1, Math.min(current - 2, total - 4));
+  const end = Math.min(total, start + 4);
+  const pages: number[] = [];
+  for (let page = Math.max(1, end - 4); page <= end; page += 1) pages.push(page);
+  return pages;
 }
 
-const MAIL_TEMPLATE_CATEGORY = "mail-template";
+function WroteMark() {
+  return (
+    <span
+      title="Already written"
+      aria-label="Already written"
+      className="inline-flex shrink-0 text-[var(--admin-muted)]"
+    >
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.25" />
+        <path d="M5 8.2 7.1 10.2 11 6.2" stroke="currentColor" strokeWidth="1.25" strokeLinecap="square" />
+      </svg>
+    </span>
+  );
+}
 
 type MailDraft = {
   id: string;
@@ -212,10 +226,10 @@ function withDear(body: string, greeting: string) {
   return named.replace(/Dear\s+[^,\n]*/i, `Dear ${person}`);
 }
 
-function promoterMatches(promoters: Promoter[], query: string) {
+function contactMatches(contacts: Club[], query: string) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-  return promoters
+  return contacts
     .filter((item) => item.email.trim())
     .filter((item) => item.name.toLowerCase().includes(q) || item.email.toLowerCase().includes(q))
     .slice(0, 12);
@@ -301,14 +315,18 @@ function namedLinks(row: AdminRecord): AssetLink[] {
 
 export default function AdminClient() {
   const router = useRouter();
-  const [section, setSection] = useState<AdminSection>("promoters");
+  const [section, setSection] = useState<AdminSection>("clubs");
   const [rows, setRows] = useState<AdminRecord[]>([]);
+  const [mailedEmails, setMailedEmails] = useState<Set<string>>(() => new Set());
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState<Record<string, string>>(emptyDraft("promoters"));
+  const [country, setCountry] = useState("");
+  const [page, setPage] = useState(1);
+  const listRef = useRef<HTMLElement>(null);
+  const [draft, setDraft] = useState<Record<string, string>>(emptyDraft("clubs"));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [mails, setMails] = useState<MailDraft[]>([]);
-  const [promoters, setPromoters] = useState<Promoter[]>([]);
+  const [contacts, setContacts] = useState<Club[]>([]);
   const [templates, setTemplates] = useState<Note[]>([]);
   const templatesRef = useRef<Note[]>([]);
   const [templatesOpen, setTemplatesOpen] = useState(false);
@@ -325,7 +343,6 @@ export default function AdminClient() {
   const [focusMailId, setFocusMailId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -340,7 +357,6 @@ export default function AdminClient() {
   const [light, setLight] = useState(false);
   const [socialMenu, setSocialMenu] = useState<string | null>(null);
   const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
-  const csvInputRef = useRef<HTMLInputElement>(null);
   const socialBarRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [footerHeight, setFooterHeight] = useState(57);
@@ -387,7 +403,7 @@ export default function AdminClient() {
         if (loadSeq.current !== seq) return;
         const visible =
           section === "notes"
-            ? data.filter((row) => !("category" in row) || row.category !== MAIL_TEMPLATE_CATEGORY)
+            ? data.filter((row) => !("category" in row) || !HIDDEN_NOTE_CATEGORIES.has(row.category))
             : data;
         setRows(visible);
       })
@@ -400,16 +416,30 @@ export default function AdminClient() {
   }, [section]);
 
   useEffect(() => {
-    if (section !== "promoters") return;
-    setPromoters(rows as Promoter[]);
+    if (section !== "clubs") return;
+    setContacts(rows as Club[]);
   }, [section, rows]);
 
   useEffect(() => {
-    if (section === "promoters") return;
     let active = true;
-    listRecords<Promoter>("promoters")
+    listRecords<Note>("notes")
+      .then((notes) => {
+        if (!active) return;
+        const log = notes.find((note) => note.category === MAIL_SENT_CATEGORY);
+        setMailedEmails(new Set(Object.keys(parseMailed(log?.body))));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (section === "clubs") return;
+    let active = true;
+    listRecords<Club>("clubs")
       .then((data) => {
-        if (active) setPromoters(data);
+        if (active) setContacts(data);
       })
       .catch(() => {});
     return () => {
@@ -417,13 +447,44 @@ export default function AdminClient() {
     };
   }, [section]);
 
+  const hasCountry = section === "clubs" || section === "events";
+
+  const countryOptions = useMemo(() => {
+    if (!hasCountry) return [];
+    const counts = new Map<string, number>();
+    for (const row of rows) {
+      if (!("country" in row)) continue;
+      const name = row.country.trim();
+      if (!name) continue;
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0], "it"));
+  }, [hasCountry, rows]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((row) =>
-      Object.values(row).some((value) => String(value).toLowerCase().includes(q))
-    );
-  }, [query, rows]);
+    return rows.filter((row) => {
+      if (country && hasCountry) {
+        const value = "country" in row ? row.country.trim() : "";
+        if (value !== country) return false;
+      }
+      if (!q) return true;
+      return Object.values(row).some((value) => String(value).toLowerCase().includes(q));
+    });
+  }, [country, hasCountry, query, rows]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [section, query, country]);
+
+  const showPage = (next: number) => {
+    setPage(next);
+    listRef.current?.scrollIntoView({ block: "start" });
+  };
 
   const filteredTemplates = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -518,24 +579,24 @@ export default function AdminClient() {
     );
   };
 
-  const pickPromoter = (mail: MailDraft, promoter: Promoter) => {
+  const pickContact = (mail: MailDraft, contact: Club) => {
     const previous = mail.name.trim();
     const previousGreeting = mail.greeting.trim();
     const generated = mail.subject.startsWith("Flowgeist — ");
-    let subject = !mail.subject.trim() || generated ? `Flowgeist — ${promoter.name}` : mail.subject;
+    let subject = !mail.subject.trim() || generated ? `Flowgeist — ${contact.name}` : mail.subject;
     let body = mail.body;
-    if (previous && previous.toUpperCase() !== "NAME" && previous !== promoter.name) {
-      subject = subject.split(previous).join(promoter.name);
+    if (previous && previous.toUpperCase() !== "NAME" && previous !== contact.name) {
+      subject = subject.split(previous).join(contact.name);
     }
-    if (previousGreeting && previousGreeting.toUpperCase() !== "NAME" && previousGreeting !== promoter.name) {
-      body = body.split(previousGreeting).join(promoter.name);
+    if (previousGreeting && previousGreeting.toUpperCase() !== "NAME" && previousGreeting !== contact.name) {
+      body = body.split(previousGreeting).join(contact.name);
     }
-    subject = personalize(subject, promoter.name);
-    body = personalize(body, promoter.name);
+    subject = personalize(subject, contact.name);
+    body = personalize(body, contact.name);
     updateMail(mail.id, {
-      to: promoter.email,
-      name: promoter.name,
-      greeting: promoter.name,
+      to: contact.email,
+      name: contact.name,
+      greeting: mailGreeting("clubs", contact),
       subject,
       body,
     });
@@ -727,6 +788,14 @@ export default function AdminClient() {
         return;
       }
       flash("Mail sent from info@flowgeist.net");
+      setMailedEmails((current) => {
+        const next = new Set(current);
+        for (const email of mail.to.split(/[;,\s]+/)) {
+          const key = normalizeMail(email);
+          if (key.includes("@")) next.add(key);
+        }
+        return next;
+      });
       closeMail(mail.id);
     } catch {
       updateMail(mail.id, { sending: false, error: "Send failed" });
@@ -761,89 +830,6 @@ export default function AdminClient() {
     }
   };
 
-  const downloadPromoterTemplate = () => {
-    const csv = `${PROMOTER_CSV_COLUMNS.join(",")}\n`;
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "promoters.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const importPromoters = async (file: File) => {
-    if (!file.name.toLowerCase().endsWith(".csv")) {
-      flash("Use a .csv file");
-      return;
-    }
-
-    let parsed: Record<string, string>[];
-    try {
-      parsed = parsePromoterCsv(await readCsvText(file));
-    } catch {
-      flash("Could not read the CSV", true);
-      return;
-    }
-
-    if (parsed.length === 0) {
-      flash(
-        "No promoters found. The file needs a name column, or name, city, country, email, phone, instagram, website, notes.",
-        true
-      );
-      return;
-    }
-
-    const existingEmails = new Set(
-      rows.map((row) => ("email" in row ? row.email.trim().toLowerCase() : "")).filter(Boolean)
-    );
-    const seen = new Set<string>();
-    const fresh: Record<string, string>[] = [];
-    let skipped = 0;
-    for (const item of parsed) {
-      const email = item.email.trim().toLowerCase();
-      if (email && (existingEmails.has(email) || seen.has(email))) {
-        skipped += 1;
-        continue;
-      }
-      if (email) seen.add(email);
-      fresh.push(item);
-    }
-
-    if (fresh.length === 0) {
-      flash(skipped === 1 ? "Already saved" : `Already saved (${skipped})`, true);
-      return;
-    }
-
-    const countLabel = fresh.length === 1 ? "1 promoter" : `${fresh.length} promoters`;
-    const skipNote = skipped ? ` ${skipped} already saved will be skipped.` : "";
-    if (!window.confirm(`Import ${countLabel}?${skipNote}`)) return;
-
-    setImporting(true);
-    try {
-      const created = await createRecords<Promoter>("promoters", fresh);
-      loadSeq.current += 1;
-      setLoading(false);
-      setLoadError(null);
-      setRows((current) => {
-        const ids = new Set(created.map((row) => row.id));
-        return [...created, ...current.filter((row) => !ids.has(row.id))];
-      });
-      const localOnly = created.every((row) => row.id.startsWith("local-"));
-      const count = skipped ? `Added ${created.length}, skipped ${skipped}` : `Added ${created.length}`;
-      flash(
-        localOnly
-          ? `${count}. Saved in this browser only: Supabase is not set on the server.`
-          : count,
-        localOnly
-      );
-    } catch (error) {
-      flash(errorText(error), true);
-    } finally {
-      setImporting(false);
-    }
-  };
-
   const onDelete = async (id: string) => {
     if (!window.confirm("Delete this entry?")) return;
     try {
@@ -874,6 +860,47 @@ export default function AdminClient() {
   const setAssetLinks = (links: AssetLink[]) => {
     setDraft((current) => ({ ...current, links: JSON.stringify(links) }));
   };
+
+  const listPager =
+    filtered.length > PAGE_SIZE ? (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
+          {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(filtered.length, currentPage * PAGE_SIZE)} of {filtered.length}
+        </p>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            disabled={currentPage <= 1}
+            onClick={() => showPage(currentPage - 1)}
+            className="border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase disabled:opacity-40"
+          >
+            Prev
+          </button>
+          {pageNumbers(currentPage, pageCount).map((number) => (
+            <button
+              key={number}
+              type="button"
+              onClick={() => showPage(number)}
+              className={`border px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] uppercase ${
+                number === currentPage
+                  ? "border-[var(--admin-invert)] bg-[var(--admin-invert)] text-[var(--admin-invert-text)]"
+                  : "border-[var(--admin-border)] text-[var(--admin-soft)]"
+              }`}
+            >
+              {number}
+            </button>
+          ))}
+          <button
+            type="button"
+            disabled={currentPage >= pageCount}
+            onClick={() => showPage(currentPage + 1)}
+            className="border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    ) : null;
 
   const sectionLabel = ADMIN_SECTIONS.find((item) => item.id === section)?.label ?? "Entry";
 
@@ -926,6 +953,7 @@ export default function AdminClient() {
                     setTemplatesOpen(false);
                     setTemplateDraft(null);
                     setQuery("");
+                    setCountry("");
                     setFormOpen(false);
                   }}
                   className={`border px-4 py-2 font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] uppercase transition ${
@@ -951,6 +979,21 @@ export default function AdminClient() {
             </button>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
+            {!templatesOpen && hasCountry && (
+              <select
+                value={country}
+                onChange={(event) => setCountry(event.target.value)}
+                aria-label="Country"
+                className="border border-[var(--admin-border)] bg-[var(--admin-field)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
+              >
+                <option value="">All countries</option>
+                {countryOptions.map(([name, count]) => (
+                  <option key={name} value={name}>
+                    {name} ({count})
+                  </option>
+                ))}
+              </select>
+            )}
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -1256,7 +1299,7 @@ export default function AdminClient() {
                           setSuggestIndex(0);
                         }}
                         onKeyDown={(event) => {
-                          const matches = promoterMatches(promoters, mail.to);
+                          const matches = contactMatches(contacts, mail.to);
                           if (suggestMailId !== mail.id || matches.length === 0) return;
                           if (event.key === "ArrowDown") {
                             event.preventDefault();
@@ -1267,7 +1310,7 @@ export default function AdminClient() {
                           } else if (event.key === "Enter") {
                             event.preventDefault();
                             const pick = matches[Math.min(suggestIndex, matches.length - 1)];
-                            if (pick) pickPromoter(mail, pick);
+                            if (pick) pickContact(mail, pick);
                           } else if (event.key === "Escape") {
                             setSuggestMailId(null);
                           }
@@ -1275,17 +1318,17 @@ export default function AdminClient() {
                         className="w-full border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-strong)] outline-none focus:border-[var(--admin-line)]"
                       />
                       {suggestMailId === mail.id &&
-                        promoterMatches(promoters, mail.to).length > 0 && (
+                        contactMatches(contacts, mail.to).length > 0 && (
                           <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto border border-[var(--admin-border)] bg-[var(--admin-field)]">
-                            {promoterMatches(promoters, mail.to).map((promoter, index) => {
-                              const active = index === Math.min(suggestIndex, promoterMatches(promoters, mail.to).length - 1);
+                            {contactMatches(contacts, mail.to).map((contact, index) => {
+                              const active = index === Math.min(suggestIndex, contactMatches(contacts, mail.to).length - 1);
                               return (
-                                <li key={promoter.id}>
+                                <li key={contact.id}>
                                   <button
                                     type="button"
                                     onMouseDown={(event) => {
                                       event.preventDefault();
-                                      pickPromoter(mail, promoter);
+                                      pickContact(mail, contact);
                                     }}
                                     onMouseEnter={() => setSuggestIndex(index)}
                                     className={`flex w-full min-w-0 items-baseline justify-between gap-3 px-3 py-2 text-left ${
@@ -1293,14 +1336,14 @@ export default function AdminClient() {
                                     }`}
                                   >
                                     <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesque)] text-sm">
-                                      {promoter.name}
+                                      {contact.name}
                                     </span>
                                     <span
                                       className={`min-w-0 max-w-[58%] truncate text-right font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.04em] ${
                                         active ? "text-[var(--admin-invert-muted)]" : "text-[var(--admin-muted)]"
                                       }`}
                                     >
-                                      {promoter.email}
+                                      {contact.email}
                                     </span>
                                   </button>
                                 </li>
@@ -1513,21 +1556,27 @@ export default function AdminClient() {
 
         {!templatesOpen && (
         <div className={`grid gap-8 ${formOpen ? "lg:grid-cols-[1fr_360px]" : ""}`}>
-          <section>
+          <section ref={listRef}>
             {loading && rows.length === 0 ? (
               <p className="font-[family-name:var(--font-pt-mono)] text-[11px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">
                 Loading
               </p>
             ) : filtered.length === 0 ? (
               <div className="border border-[var(--admin-border)] px-6 py-16 text-center">
-                <p className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-[var(--admin-strong)]">Nothing saved yet</p>
+                <p className="font-[family-name:var(--font-alte-haas-bold)] text-xl text-[var(--admin-strong)]">
+                  {rows.length === 0 ? "Nothing saved yet" : "No matches"}
+                </p>
                 <p className="mt-3 font-[family-name:var(--font-grotesque)] text-sm text-[var(--admin-muted)]">
-                  Add promoters, clubs, events, notes, links, or assets. Each asset link can have a name and a URL.
+                  {rows.length === 0
+                    ? "Add clubs, events, notes, links, or assets. Each asset link can have a name and a URL."
+                    : "Nothing in this country or search."}
                 </p>
               </div>
             ) : (
+              <div className="grid gap-4">
+              {listPager}
               <ul className="divide-y divide-[var(--admin-border)] border border-[var(--admin-border)]">
-                {filtered.map((row) => {
+                {pageRows.map((row) => {
                   const title = recordTitle(section, row);
                   const subtitle = recordSubtitle(section, row);
                   const links = section === "assets" || section === "links" ? namedLinks(row) : [];
@@ -1537,7 +1586,7 @@ export default function AdminClient() {
                       className="flex flex-col gap-4 px-5 py-5 md:flex-row md:items-start md:justify-between"
                     >
                       <div className="min-w-0 flex-1">
-                        <h2 className="font-[family-name:var(--font-alte-haas-bold)] text-lg text-[var(--admin-strong)]">
+                        <h2 className="flex items-center gap-2 font-[family-name:var(--font-alte-haas-bold)] text-lg text-[var(--admin-strong)]">
                           {"email" in row && row.email ? (
                             <button
                               type="button"
@@ -1552,6 +1601,7 @@ export default function AdminClient() {
                               {title}
                             </button>
                           )}
+                          {"email" in row && wasMailed(row.email, mailedEmails) && <WroteMark />}
                         </h2>
                         {subtitle && (
                           <button
@@ -1646,6 +1696,8 @@ export default function AdminClient() {
                   );
                 })}
               </ul>
+              {listPager}
+              </div>
             )}
           </section>
 
@@ -1664,36 +1716,6 @@ export default function AdminClient() {
                 </button>
               </div>
               <form onSubmit={onSubmit} className="space-y-4">
-                {!editingId && section === "promoters" && (
-                  <div className="flex gap-2">
-                    <input
-                      ref={csvInputRef}
-                      type="file"
-                      accept=".csv,text/csv"
-                      className="hidden"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        event.target.value = "";
-                        if (file) void importPromoters(file);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={downloadPromoterTemplate}
-                      className="flex-1 border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)]"
-                    >
-                      CSV template
-                    </button>
-                    <button
-                      type="button"
-                      disabled={importing}
-                      onClick={() => csvInputRef.current?.click()}
-                      className="flex-1 border border-[var(--admin-border)] px-3 py-2 font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-soft)] uppercase transition hover:border-[var(--admin-line)] hover:text-[var(--admin-strong)] disabled:opacity-50"
-                    >
-                      {importing ? "Importing" : "Import CSV"}
-                    </button>
-                  </div>
-                )}
                 {FIELDS[section].map((field) => (
                   <label key={field.key} className="block">
                     <span className="mb-2 block font-[family-name:var(--font-pt-mono)] text-[10px] tracking-[0.16em] text-[var(--admin-muted)] uppercase">

@@ -7,7 +7,6 @@ export type AdminSection =
   | "assets";
 
 export const ADMIN_SECTIONS: { id: AdminSection; label: string }[] = [
-  { id: "promoters", label: "Promoters" },
   { id: "clubs", label: "Clubs" },
   { id: "events", label: "Events" },
   { id: "notes", label: "Info" },
@@ -607,6 +606,36 @@ export function recordSubtitle(section: AdminSection, row: AdminRecord) {
   if (section === "notes") return (row as Note).category;
   if (section === "links") return (row as AdminLink).category;
   return (row as Asset).kind;
+}
+
+export const MAIL_SENT_CATEGORY = "mail-sent";
+
+export function normalizeMail(value: string) {
+  return value.trim().toLowerCase().replace(/^[<]+|[>;,\s.]+$/g, "");
+}
+
+export function parseMailed(body: string | undefined | null) {
+  const sent: Record<string, string> = {};
+  if (!body) return sent;
+  try {
+    const parsed = JSON.parse(body) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return sent;
+    for (const [key, value] of Object.entries(parsed)) {
+      const email = normalizeMail(key);
+      if (!email.includes("@")) continue;
+      sent[email] = typeof value === "string" ? value : "";
+    }
+  } catch {
+    return sent;
+  }
+  return sent;
+}
+
+export function wasMailed(email: string, sent: Set<string>) {
+  return email
+    .split(/[;,]/)
+    .map((part) => normalizeMail(part))
+    .some((part) => part.includes("@") && sent.has(part));
 }
 
 export function recordLink(row: AdminRecord) {

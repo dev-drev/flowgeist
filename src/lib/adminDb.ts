@@ -5,8 +5,11 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   adminTable,
   insertPayload,
+  MAIL_SENT_CATEGORY,
+  parseMailed,
   recordFromDb,
   updatePayload,
+  normalizeMail,
   type AdminRecord,
   type AdminSection,
 } from "@/lib/adminCrm";
@@ -220,6 +223,48 @@ export async function adminUpdate<T extends AdminRecord>(
     if (error) throw error;
     return recordFromDb<T>(row as Record<string, unknown>);
   });
+}
+
+export async function rememberMailed(addresses: string[], at = new Date().toISOString()) {
+  if (!isAdminDbConfigured()) return;
+  const incoming = addresses.map((address) => normalizeMail(address)).filter((email) => email.includes("@"));
+  if (incoming.length === 0) return;
+
+  const { data, error } = await db()
+    .from(adminTable("notes"))
+    .select("id,body")
+    .eq("category", MAIL_SENT_CATEGORY)
+    .limit(1);
+  if (error) throw error;
+
+  const existing = (data ?? [])[0] as { id?: string; body?: string } | undefined;
+  const sent = parseMailed(existing?.body);
+  let changed = false;
+  for (const email of incoming) {
+    if (sent[email]) continue;
+    sent[email] = at;
+    changed = true;
+  }
+  if (existing?.id && !changed) return;
+
+  const body = JSON.stringify(sent);
+  if (existing?.id) {
+    const { error: updateError } = await db()
+      .from(adminTable("notes"))
+      .update({ body, updated_at: at })
+      .eq("id", existing.id);
+    if (updateError) throw updateError;
+    return;
+  }
+
+  const { error: insertError } = await db().from(adminTable("notes")).insert({
+    title: "Sent mail",
+    category: MAIL_SENT_CATEGORY,
+    body,
+    created_at: at,
+    updated_at: at,
+  });
+  if (insertError) throw insertError;
 }
 
 export async function adminDelete(section: AdminSection, id: string) {

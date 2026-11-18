@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
+import { rememberMailed } from "@/lib/adminDb";
 import {
   hasMicrosoftRefreshToken,
   microsoftOAuthConfigured,
@@ -142,6 +143,8 @@ export async function POST(request: NextRequest) {
         : provider === "smtp"
           ? await sendWithSmtp(recipients, subject, plain, html)
           : await sendWithResend(recipients, subject, plain, html);
+
+    await rememberMailed(recipients).catch(() => {});
 
     return NextResponse.json({ success: true, id, provider });
   } catch (error) {
